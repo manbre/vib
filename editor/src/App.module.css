@@ -1,0 +1,39 @@
+
+  .btnsBar {
+    position: sticky;
+    z-index: 3;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    height: 3em;
+    padding-right: 0.5em;
+    background-color: rgb(var(--back-color));
+  }
+  
+  .deleteBtn,
+  .submitBtn {
+    width: 5rem;
+    height: 3rem;
+    border-style: none;
+    border-radius: var(--videoCard-radius);
+    margin-right: 1rem;
+    cursor: pointer;
+    background-position: center;
+    background-size: 1.5rem;
+    background-repeat: no-repeat;
+    background-color: rgb(var(--back-color));
+  }
+  
+  .deleteBtn {
+    background-image: url("./assets/icons/icon_delete.png");
+  }
+  
+  .submitBtn {
+    background-image: url("./assets/icons/icon_create.png");
+  }
+  
+  .deleteBtn:hover,
+  .submitBtn:hover {
+    background-size: 2rem;
+  }
