@@ -1,0 +1,91 @@
+.container {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  padding-left: 0.5em;
+  text-align: center;
+  background-color: rgb(var(--back-color));
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  max-width: 100%; /*for horizontal centering*/
+  list-style: none;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+}
+
+.list::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+.list > .chip,
+.list > .recent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: calc((var(--videoCard-width)) * 10 / 16);
+  height: calc((var(--videoCard-width)) * 2 / 7);
+  max-height: 2.2em;
+  padding: 0.5em;
+  border-style: none;
+  border-radius: var(--videoCard-radius);
+  margin-right: 0.6em;
+  background-color: rgb(var(--menu-color));
+  font-size: calc((var(--videoCard-width)) * 1 / 10);
+  cursor: pointer;
+}
+
+.list > .recent {
+  border: 1px solid rgb(var(--sec-text));
+  opacity: 0.6;
+}
+
+.prev,
+.next {
+  position: absolute;
+  z-index: 2;
+  width: calc((var(--videoCard-width)) * 2 / 5);
+  height: calc((var(--videoCard-width)) * 2 / 7);
+  max-height: 2.2em;
+  border-style: none;
+  color: white;
+  text-decoration: none;
+  font-size: calc((var(--videoCard-width)) * 1 / 6);
+  cursor: pointer;
+}
+
+.prev {
+  left: 0;
+  padding-left: 0.5em;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--back-color), 1) 65%,
+    rgba(255, 255, 255, 0) 110%
+  );
+  text-align: left;
+}
+
+.next {
+  right: 0;
+  padding-right: 0.5em;
+  background: linear-gradient(
+    270deg,
+    rgba(var(--back-color), 1) 65%,
+    rgba(255, 255, 255, 0) 110%
+  );
+  text-align: right;
+}
+
+.prev:active,
+.next:active {
+  transform: translateY(1px);
+}

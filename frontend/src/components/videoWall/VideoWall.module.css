@@ -1,0 +1,11 @@
+.container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  padding-top: 0.2em;
+  padding-bottom: 5em;
+  background-color: rgb(var(--back-color));
+}

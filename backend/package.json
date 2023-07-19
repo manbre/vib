@@ -4,7 +4,7 @@
   "description": "",
   "main": "./src/server.js",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"cd ../editor && npm start\" \"cd ../web && npm start\"",
+    "start": "concurrently \"npm run server\" \"cd ../editor && npm start\" \"cd ../frontend && npm start\"",
     "server": "nodemon server.js"
   },
   "author": "",
