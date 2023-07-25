@@ -8,8 +8,8 @@ export const viewSlice = createSlice({
     card: null,
   },
   reducers: {
-    toggleEditor: (state) => {
-      state.isEditor = !state.isEditor;
+    toggleEditor: (state, action) => {
+      state.isEditor = action.payload;
     },
     toggleType: (state, action) => {
       state.viewType = action.payload;

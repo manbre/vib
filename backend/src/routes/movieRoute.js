@@ -11,6 +11,8 @@ router.post("/", movieController.createNewMovie);
 router.post("/files", movieController.copyMovieFiles);
 //
 router.put("/", movieController.updateMovie);
-router.delete("/:id", movieController.deleteMovie);
+//
+router.delete("/", movieController.deleteMovie);
+router.delete("/files", movieController.deleteMovieFiles);
 
 module.exports = router;

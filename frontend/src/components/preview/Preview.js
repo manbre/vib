@@ -236,12 +236,13 @@ const Preview = () => {
             src={`http://localhost:9000/stream/video/trailer/${trailer}`}
           ></video>
         ) : (
-          viewType === 1 && (
+          viewType === 1 && poster && (
             <img
               alt="poster"
               className={styles.poster}
               src={`http://localhost:9000/stream/image/${poster}`}
             ></img>
+            
           )
         )}
       </div>

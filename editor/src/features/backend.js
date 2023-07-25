@@ -1,9 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const api = createApi({
-  reducerPath: "api",
+export const backend = createApi({
+  reducerPath: "backend",
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:9000/" }),
-  tagTypes: ["Movie", "Episode"],
   endpoints: (builder) => ({
     //QUERIES
     getOMDBData: builder.query({
@@ -18,7 +17,6 @@ export const api = createApi({
         method: "POST",
         body: movie,
       }),
-      invalidatesTags: ["Movie"],
     }),
     createNewEpisode: builder.mutation({
       query: (episode) => ({
@@ -26,7 +24,6 @@ export const api = createApi({
         method: "POST",
         body: episode,
       }),
-      invalidatesTags: ["Episode"],
     }),
     //
     updateMovie: builder.mutation({
@@ -35,7 +32,6 @@ export const api = createApi({
         method: "PUT",
         body: movie,
       }),
-      invalidatesTags: ["Movie"],
     }),
     updateEpisode: builder.mutation({
       query: (episode) => ({
@@ -43,24 +39,21 @@ export const api = createApi({
         method: "PUT",
         body: episode,
       }),
-      invalidatesTags: ["Episode"],
     }),
     //
     deleteMovie: builder.mutation({
-      query: (id) => ({
-        url: `/movies/${id}`,
+      query: (movie) => ({
+        url: "/movies",
         method: "DELETE",
-        body: id,
+        body: movie,
       }),
-      invalidatesTags: ["Movie"],
     }),
     deleteEpisode: builder.mutation({
-      query: (id) => ({
-        url: `/episodes/${id}`,
+      query: (episode) => ({
+        url: "/episodes",
         method: "DELETE",
-        body: id,
+        body: episode,
       }),
-      invalidatesTags: ["Episode"],
     }),
     //
     copyMovieFiles: builder.mutation({
@@ -68,6 +61,13 @@ export const api = createApi({
         url: "/movies/files",
         method: "POST",
         body: movie,
+      }),
+    }),
+    deleteMovieFiles: builder.mutation({
+      query: (files) => ({
+        url: "/movies/files",
+        method: "DELETE",
+        body: files,
       }),
     }),
     copyEpisodeFiles: builder.mutation({
@@ -93,5 +93,6 @@ export const {
   useDeleteEpisodeMutation,
   //
   useCopyMovieFilesMutation,
+  useDeleteMovieFilesMutation,
   useCopyEpisodeFilesMutation,
-} = api;
+} = backend;

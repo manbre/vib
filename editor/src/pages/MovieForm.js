@@ -1,7 +1,9 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useReducer, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
+import { bringEvent } from "../features/event";
+import { showMessage } from "../features/event";
 
 import {
   useGetOMDBDataQuery,
@@ -9,188 +11,140 @@ import {
   useUpdateMovieMutation,
   useDeleteMovieMutation,
   useCopyMovieFilesMutation,
-} from "../features/api";
+  useDeleteMovieFilesMutation,
+} from "../features/backend";
 
 const MovieForm = (props) => {
   //
-  const [title, setTitle] = useState("");
-  const [series, setSeries] = useState("");
-  const [director, setDirector] = useState("");
-  const [genre, setGenre] = useState("");
-  //
-  const [year, setYear] = useState("");
-  const [part, setPart] = useState("");
-  const [awards, setAwards] = useState("");
-  const [rating, setRating] = useState("");
-  const [runtime, setRuntime] = useState("");
-  //
-  const [actors, setActors] = useState("");
-  const [plot, setPlot] = useState("");
-  //
-  const [poster, setPoster] = useState("");
-  const [trailer, setTrailer] = useState("");
-  const [german, setGerman] = useState("");
-  const [english, setEnglish] = useState("");
+  const initialState = {
+    id: "",
+    title: "",
+    series: "",
+    director: "",
+    genre: "",
+    year: "",
+    part: "",
+    awards: "",
+    rating: "",
+    runtime: "",
+    actors: "",
+    plot: "",
+    poster: "",
+    trailer: "",
+    german: "",
+    english: "",
+  };
 
+  const [state, updateState] = useReducer(
+    (state, updates) => ({ ...state, ...updates }),
+    initialState
+  );
 
   const [createMovie] = useCreateNewMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie] = useDeleteMovieMutation();
   const [copyMovie] = useCopyMovieFilesMutation();
+  const [deleteMovieFiles] = useDeleteMovieFilesMutation();
 
-  const selectedVideo = useSelector((state) => state.video.video);
+  const selected = useSelector((state) => state.video.video);
 
-  const { data: OMDBData, isSuccess: isOMDB } = useGetOMDBDataQuery({
-    title: title,
-    year: year,
+  const dispatch = useDispatch();
+
+  const { data: OMDBData } = useGetOMDBDataQuery({
+    title: state.title,
+    year: state.year,
   });
 
   useEffect(() => {
-    isOMDB && setPoster(OMDBData.Poster);
+    OMDBData && updateState({ poster: OMDBData.Poster });
   }, [OMDBData]);
 
   useEffect(() => {
     resetInput();
-    if (selectedVideo) {
-      setTitle(selectedVideo.title),
-        setSeries(selectedVideo.series),
-        setDirector(selectedVideo.director),
-        setGenre(selectedVideo.genre),
-        setActors(selectedVideo.actors),
-        setPlot(selectedVideo.plot),
-        //
-        setYear(selectedVideo.year),
-        setAwards(selectedVideo.awards),
-        setRating(selectedVideo.rating),
-        setRuntime(selectedVideo.runtime),
-        //
-        setPoster(selectedVideo.poster),
-        setTrailer(selectedVideo.trailer),
-        setGerman(selectedVideo.german),
-        setEnglish(selectedVideo.english);
-    }
-  }, [selectedVideo]);
+    selected && updateState(selected);
+  }, [selected]);
 
   const loadOMDBData = () => {
     let data = OMDBData;
-    setTitle(data.Title.replace(":", " - "));
-    setDirector(data.Director);
-    setGenre(data.Genre);
-    setActors(data.Actors);
-    setPlot(data.Plot);
-    setYear(data.Year);
-    setAwards(
-      data.Awards.includes("Oscar") && !data.Awards.includes("Nominated")
-        ? data.Awards.substring(3, 6)
-        : "0"
-    );
-    setRating(data.Ratings[1].Value.substring(0, 2));
-    setRuntime(data.Runtime.slice(0, 3));
-    setPoster(data.Poster);
-  };
-
-  const createVideo = () => {
-    title !== "" &&
-      createMovie({
-        title: title,
-        series: series ? series : title,
-        director: director,
-        genre: genre,
-        actors: actors,
-        plot: plot,
-        //
-        year: year,
-        part: part,
-        awards: awards,
-        rating: rating,
-        runtime: runtime,
-        //
-        poster: poster,
-        trailer: trailer,
-        german: german,
-        english: english,
-      })
-        .unwrap()
-        .then((payload) => props.changeMessage(payload.message))
-        .catch((error) => props.changeMessage(error.message))
-        .then(copyFiles());
-    resetInput();
-  };
-
-  const updateVideo = () => {
-    copyFiles();
-    updateMovie({
-      id: selectedVideo.id,
-      //
-      ...(title != selectedVideo.title
-        ? { title: title }
-        : { title: selectedVideo.title }),
-      ...(series != selectedVideo.series ? { series: series } : {}),
-      ...(director != selectedVideo.director ? { director: director } : {}),
-      ...(genre != selectedVideo.genre ? { genre: genre } : {}),
-      //
-      ...(year != selectedVideo.year ? { year: year } : {}),
-      ...(part != selectedVideo.part ? { part: part } : {}),
-      ...(awards != selectedVideo.awards ? { awards: awards } : {}),
-      ...(rating != selectedVideo.rating ? { rating: rating } : {}),
-      ...(runtime != selectedVideo.runtime ? { runtime: runtime } : {}),
-      //
-      ...(actors != selectedVideo.actors ? { actors: actors } : {}),
-      ...(plot != selectedVideo.plot ? { plot: plot } : {}),
-      //
-      ...(poster != selectedVideo.poster ? { poster: poster } : {}),
-      ...(trailer != selectedVideo.trailer ? { trailer: trailer } : {}),
-      ...(german != selectedVideo.german ? { german: german } : {}),
-      ...(english != selectedVideo.english ? { english: english } : {}),
-    })
-      .unwrap()
-      .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message));
-    resetInput();
-  };
-
-  const deleteVideo = () => {
-    deleteMovie(selectedVideo.id)
-      .unwrap()
-      .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message));
-  };
-
-  const copyFiles = () => {
-    if (
-      poster != null ||
-      trailer != null ||
-      german != null ||
-      english != null
-    ) {
-    }
-    copyMovie({
-      title: title,
-      poster: poster,
-      trailer: trailer,
-      german: german,
-      english: english,
+    updateState({
+      title: data.Title.replace(":", " - "),
+      director: data.Director && data.Director,
+      genre: data.Genre && data.Genre,
+      actors: data.Actors && data.Actors,
+      plot: data.Plot && data.Plot,
+      year: data.Year && data.Year,
+      awards:
+        data.Awards &&
+        data.Awards.includes("Oscar") &&
+        !data.Awards.includes("Nominated")
+          ? data.Awards.substring(3, 6)
+          : "0",
+      rating: data.Rating && data.Ratings[1].Value.substring(0, 2),
+      runtime: data.Runtime && data.Runtime.slice(0, 3),
     });
   };
 
+  const createVideo = () => {
+    /*     state.title !== "" &&
+      createMovie(state)
+        .unwrap()
+        .then((payload) => props.changeMessage(payload.message))
+        .catch((error) => props.changeMessage(error.message))
+        .then(copyFiles())
+        .then(resetInput())
+        .then(dispatch(doEvent({ name: "create", type: 1, state: state }))); */
+    state.title !== "" &&
+      dispatch(bringEvent({ name: "create", type: "movie", state: state }));
+  };
+
+  const updateVideo = () => {
+    /*   updateMovie(state)
+      .unwrap()
+      .then((payload) => props.changeMessage(payload.message))
+      .catch((error) => props.changeMessage(error.message))
+      .then(copyFiles())
+      .then(resetInput())
+      .then(dispatch(doEvent({ name: "update", type: 1, state: state }))); */
+  };
+
+  const deleteVideo = () => {
+    deleteMovie(state)
+      .unwrap()
+      .then((payload) => props.changeMessage(payload.message))
+      .catch((error) => props.changeMessage(error.message))
+      .then(resetInput())
+      .then(dispatch(doEvent({ name: "delete", type: 1, state: state })));
+  };
+
+  const deleteFiles = () => {};
+
+  const copyFiles = () => {
+    (state.poster != null ||
+      state.trailer != null ||
+      state.german != null ||
+      state.english != null) &&
+      copyMovie(state);
+  };
+
   const resetInput = () => {
-    setTitle("");
-    setSeries("");
-    setDirector("");
-    setGenre("");
-    setActors("");
-    setPlot("");
-    //
-    setYear("");
-    setPart("");
-    setAwards("");
-    setRating("");
-    setRuntime("");
-    //
-    setPoster("");
-    setTrailer("");
-    setGerman("");
-    setEnglish("");
+    updateState({
+      id: "",
+      title: "",
+      series: "",
+      director: "",
+      genre: "",
+      year: "",
+      part: "",
+      awards: "",
+      rating: "",
+      runtime: "",
+      actors: "",
+      plot: "",
+      poster: "",
+      trailer: "",
+      german: "",
+      english: "",
+    });
     //
     let fields = document
       .getElementById("movie_form")
@@ -199,23 +153,6 @@ const MovieForm = (props) => {
       fields[i].value = "";
     }
     document.getElementsByTagName("textarea").value = "";
-  };
-
-  const handleFileChange = (e) => {
-    switch (e.target.id) {
-      case "poster":
-        setPoster(e.target.files[0].path);
-        break;
-      case "trailer":
-        setTrailer(e.target.files[0].path);
-        break;
-      case "german":
-        setGerman(e.target.files[0].path);
-        break;
-      case "english":
-        setEnglish(e.target.files[0].path);
-        break;
-    }
   };
 
   props.childRef.current = {
@@ -229,7 +166,7 @@ const MovieForm = (props) => {
       <div id="movie_form" className={styles.form}>
         <label className={styles.poster}>
           <img
-            src={poster}
+            src={state.poster}
             onError={(event) =>
               (event.target.src = require("../assets/images/placeholder.jpg").default)
             }
@@ -243,19 +180,19 @@ const MovieForm = (props) => {
               id="poster"
               type="file"
               hidden
-              onChange={(e) => handleFileChange(e)}
+              onChange={(e) => updateState({ poster: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={poster}
+              value={state.poster || ""}
               readOnly
             ></input>
           </div>
-          {poster !== "" && poster !== null ? (
+          {state.poster !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => setPoster("")}
+              onClick={() => updateState({ poster: "" })}
             ></label>
           ) : (
             <>
@@ -263,7 +200,11 @@ const MovieForm = (props) => {
 
               <label
                 className={styles.undoneBtn}
-                onClick={() => setPoster(selectedVideo.poster)}
+                onClick={() =>
+                  updateState({
+                    poster: selected && selected.poster,
+                  })
+                }
               ></label>
             </>
           )}
@@ -274,8 +215,8 @@ const MovieForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={state.title || ""}
+              onChange={(e) => updateState({ title: e.target.value })}
             ></input>
           </div>
           <div className={styles.shortBox}>
@@ -283,8 +224,8 @@ const MovieForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
+              value={state.year || ""}
+              onChange={(e) => updateState({ year: e.target.value })}
             ></input>
           </div>
           <button className={styles.omdbBtn} onClick={loadOMDBData}></button>
@@ -296,8 +237,8 @@ const MovieForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={series}
-              onChange={(e) => setSeries(e.target.value)}
+              value={state.series || ""}
+              onChange={(e) => updateState({ series: e.target.value })}
             ></input>
           </div>
           <div className={styles.longBox}>
@@ -305,8 +246,9 @@ const MovieForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={director}
-              onChange={(e) => setDirector(e.target.value)}
+              value={state.director || ""}
+              onChange={(e) => updateState({ director: e.target.value })}
+              name="director"
             ></input>
           </div>
         </div>
@@ -317,8 +259,8 @@ const MovieForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
+              value={state.genre || ""}
+              onChange={(e) => updateState({ genre: e.target.value })}
             ></input>
           </div>
           <div className={styles.longBox}>
@@ -326,8 +268,8 @@ const MovieForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={actors}
-              onChange={(e) => setActors(e.target.value)}
+              value={state.actors || ""}
+              onChange={(e) => updateState({ actors: e.target.value })}
             ></input>
           </div>
         </div>
@@ -338,8 +280,8 @@ const MovieForm = (props) => {
               <input
                 className={styles.lineInput}
                 type="text"
-                value={part}
-                onChange={(e) => setPart(e.target.value)}
+                value={state.part || ""}
+                onChange={(e) => updateState({ part: e.target.value })}
               ></input>
             </div>
             <div className={styles.shortBox}>
@@ -347,8 +289,8 @@ const MovieForm = (props) => {
               <input
                 className={styles.lineInput}
                 type="text"
-                value={awards}
-                onChange={(e) => setAwards(e.target.value)}
+                value={state.awards || ""}
+                onChange={(e) => updateState({ awards: e.target.value })}
               ></input>
             </div>
           </div>
@@ -358,8 +300,8 @@ const MovieForm = (props) => {
               <input
                 className={styles.lineInput}
                 type="text"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
+                value={state.rating || ""}
+                onChange={(e) => updateState({ rating: e.target.value })}
               ></input>
             </div>
             <div className={styles.shortBox}>
@@ -367,8 +309,8 @@ const MovieForm = (props) => {
               <input
                 className={styles.lineInput}
                 type="text"
-                value={runtime}
-                onChange={(e) => setRuntime(e.target.value)}
+                value={state.runtime || ""}
+                onChange={(e) => updateState({ runtime: e.target.value })}
               ></input>
             </div>
           </div>
@@ -381,26 +323,30 @@ const MovieForm = (props) => {
               id="trailer"
               type="file"
               hidden
-              onChange={(e) => handleFileChange(e)}
+              onChange={(e) => updateState({ trailer: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={trailer}
+              value={state.trailer || ""}
               readOnly
             ></input>
           </div>
-          {trailer !== "" && trailer !== null ? (
+          {state.trailer !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => setTrailer("")}
+              onClick={() => updateState({ trailer: "" })}
             ></label>
           ) : (
             <>
               <label className={styles.sourceBtn} htmlFor="trailer"></label>
               <label
                 className={styles.undoneBtn}
-                onClick={() => setTrailer(selectedVideo.trailer)}
+                onClick={() =>
+                  updateState({
+                    trailer: selected && selected.trailer,
+                  })
+                }
               ></label>
             </>
           )}
@@ -413,26 +359,28 @@ const MovieForm = (props) => {
               id="german"
               type="file"
               hidden
-              onChange={(e) => handleFileChange(e)}
+              onChange={(e) => updateState({ german: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={german}
+              value={state.german || ""}
               readOnly
             ></input>
           </div>
-          {german !== "" && german !== null ? (
+          {state.german !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => setGerman("")}
+              onClick={() => updateState({ german: "" })}
             ></label>
           ) : (
             <>
               <label className={styles.sourceBtn} htmlFor="german"></label>
               <label
                 className={styles.undoneBtn}
-                onClick={() => setGerman(selectedVideo.german)}
+                onClick={() =>
+                  updateState({ german: selected && selected.german })
+                }
               ></label>
             </>
           )}
@@ -445,26 +393,30 @@ const MovieForm = (props) => {
               id="english"
               type="file"
               hidden
-              onChange={(e) => handleFileChange(e)}
+              onChange={(e) => updateState({ english: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={english}
+              value={state.english || ""}
               readOnly
             ></input>
           </div>
-          {english !== "" && english !== null ? (
+          {state.english !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => setEnglish("")}
+              onClick={updateState({ english: "" })}
             ></label>
           ) : (
             <>
               <label className={styles.sourceBtn} htmlFor="english"></label>
               <label
                 className={styles.undoneBtn}
-                onClick={() => setEnglish(selectedVideo.English)}
+                onClick={() =>
+                  updateState({
+                    english: selected && selected.english,
+                  })
+                }
               ></label>
             </>
           )}

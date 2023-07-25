@@ -6,7 +6,7 @@ import { selectVideo } from "../../features/video";
 import {
   useGetEpisodesBySeasonQuery,
   useGetRecentEpisodeQuery,
-} from "../../features/api";
+} from "../../features/backend";
 
 const CardSlider = () => {
   const [episodes, setEpisodes] = useState([]);

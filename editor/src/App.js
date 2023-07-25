@@ -9,66 +9,90 @@ import MovieForm from "./pages/MovieForm";
 import EpisodeForm from "./pages/EpisodeForm";
 import SourceForm from "./pages/SourceForm";
 import { selectVideo } from "./features/video";
+import { bringEvent } from "./features/event";
+import { toggleFrontend } from "./features/view";
 
 const App = () => {
   const movieEditor = useRef();
   const episodeEditor = useRef();
 
-  const [message, setMessage] = useState("");
+  const [box, setBox] = useState("");
 
-  const type = useSelector((state) => state.type.type);
+  const type = useSelector((state) => state.view.type);
+  const isFrontend = useSelector((state) => state.view.isFrontend);
+
+  const event = useSelector((state) => state.event.event);
 
   const dispatch = useDispatch();
 
   //------------------------------------------------------------------------------------
   //WebSocket
-  const ws = new WebSocket("ws://127.0.0.1:8000");
-  ws.addEventListener("open", () => {
-    console.log("editor is connected!");
+  var socket;
+
+  useEffect(() => {
+    socket = new WebSocket("ws://127.0.0.1:8000");
   });
 
-  ws.addEventListener("message", (e) => {
-    const arr = JSON.parse(e.data).data;
-    let newData = "";
-    arr.forEach((element) => {
-      newData += String.fromCharCode(element);
-    });
-    const json = JSON.parse(newData);
-    console.log(json.event);
-    console.log(json.type);
-    console.log(json.video);
-    dispatch(selectVideo(json.video));
-  });
+  useEffect(() => {
+    socket.onmessage = (e) => {
+      //parse object to JSON
+      let arr = JSON.parse(e.data).data;
+      let newData = "";
+      arr.forEach((element) => {
+        newData += String.fromCharCode(element);
+      });
+      let json = JSON.parse(newData);
+      //
+
+      console.log(json);
+
+      //set info if frontend is there
+      json.includes("frontend is on") && dispatch(toggleFrontend(true));
+      json.includes("frontend is off") && dispatch(toggleFrontend(false));
+    };
+  }, [socket]);
+
+  window.onload = () => {
+    socket.onopen = () => {
+      socket.send(JSON.stringify("editor is on"));
+    };
+    return () => socket.close();
+  };
+
   //------------------------------------------------------------------------------------
 
   return (
     <div className={styles.container}>
-      <MessageBox message={message} />
+      <MessageBox message={box} />
       <TopBar />
       <TabBar />
-      {type === 1 ? (
+      {type === "movie" ? (
         <MovieForm
-          changeMessage={(message) => setMessage(message)}
+          changeMessage={(message) => setBox(message)}
           childRef={movieEditor}
         />
-      ) : type === 2 ? (
+      ) : type === "episode" ? (
         <EpisodeForm
-          changeMessage={(message) => setMessage(message)}
+          changeMessage={(message) => setBox(message)}
           childRef={episodeEditor}
         />
       ) : (
         <SourceForm />
       )}
-      {type !== 3 && (
+      {type !== "source" && (
         <div className={styles.btnsBar}>
           <button
             className={styles.deleteBtn}
-            onClick={() => handleDelete()}
+            onClick={() =>
+              type === "movie"
+                ? movieEditor.current.deleteVideo()
+                : episodeEditor.current.deleteVideo()
+            }
           ></button>
           <button
             className={styles.submitBtn}
             onClick={() =>
-              type === 1
+              type === "movie"
                 ? movieEditor.current.createVideo()
                 : episodeEditor.current.createVideo()
             }

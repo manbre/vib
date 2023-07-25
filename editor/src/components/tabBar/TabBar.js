@@ -2,10 +2,10 @@ import React from "react";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./TabBar.module.css";
-import { toggleType } from "../../features/type";
+import { setType } from "../../features/view";
 
 const TabBar = () => {
-  const type = useSelector((state) => state.type.type);
+  const type = useSelector((state) => state.view.type);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -41,16 +41,16 @@ const TabBar = () => {
 
   return (
     <div className={styles.container}>
-      <button id="movieTab" onClick={() => dispatch(toggleType(1))}>
+      <button id="movieTab" onClick={() => dispatch(setType("movie"))}>
         Movie
       </button>
-      <button id="tvShowTab" onClick={() => dispatch(toggleType(2))}>
+      <button id="tvShowTab" onClick={() => dispatch(setType("episode"))}>
         TV Show
       </button>
       <button
         id="sourceTab"
         className={styles.sourceTab}
-        onClick={() => dispatch(toggleType(3))}
+        onClick={() => dispatch(setType("source"))}
       >
         Source
       </button>

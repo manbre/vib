@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoCard.module.css";
 import { selectVideo } from "../../features/video";
 
-import { useSelectVideoMutation } from "../../features/api";
+import { useSelectVideoMutation } from "../../features/backend";
 
 const VideoCard = ({ video, source }) => {
   const markedCard = useSelector((state) => state.view.card);
@@ -72,7 +72,11 @@ const VideoCard = ({ video, source }) => {
       <div className={styles.poster}>
         <img
           alt="poster"
-          src={`http://localhost:9000/stream/image/${video.poster}`}
+          src={
+            video.poster
+              ? `http://localhost:9000/stream/image/${video.poster}`
+              : require("../../assets/images/placeholder.jpg")
+          }
           onError={(event) =>
             (event.target.src = require("../../assets/images/placeholder.jpg").default)
           }

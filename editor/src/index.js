@@ -4,20 +4,22 @@ import App from "./App";
 import "./index.css"; /* !important! must be after import of App */
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import { api } from "./features/api";
+import { backend } from "./features/backend";
+import eventReducer from "./features/event";
 import sourceReducer from "./features/source";
-import typeReducer from "./features/type";
 import videoReducer from "./features/video";
+import viewReducer from "./features/view";
 
 const store = configureStore({
   reducer: {
     source: sourceReducer,
-    type: typeReducer,
+    view: viewReducer,
     video: videoReducer,
-    [api.reducerPath]: api.reducer,
+    event: eventReducer,
+    [backend.reducerPath]: backend.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(api.middleware),
+    getDefaultMiddleware().concat(backend.middleware),
 });
 
 ReactDOM.render(

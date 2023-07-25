@@ -5,26 +5,30 @@ import styles from "./Home.module.css";
 import VideoPlayer from "../../components/videoPlayer/VideoPlayer";
 import SearchBar from "../../components/searchBar/SearchBar";
 import ToggleBar from "../../components/toggleBar/ToggleBar";
-import PreviewHero from "../../components/previewHero/PreviewHero"
+import PreviewHero from "../../components/previewHero/PreviewHero";
 import Preview from "../../components/preview/Preview";
 import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import { selectVideo } from "../../features/video";
+import { bringEvent } from "../../features/event";
 
 import {
   useGetSourceQuery,
   useGetMoviesByGenreQuery,
   useGetMoviesBySearchQuery,
-} from "../../features/api";
+  useCreateNewMovieMutation,
+  useUpdateMovieMutation,
+  useDeleteMovieMutation,
+} from "../../features/backend";
 
-const Home = () => {
+const Home = ({socket}) => {
   const viewType = useSelector((state) => state.view.viewType);
-
   const selectedVideo = useSelector((state) => state.video.video);
   const search = useSelector((state) => state.video.search);
 
   const genre = useSelector((state) => state.video.genre);
   const title = useSelector((state) => state.video.title);
+  const event = useSelector((state) => state.event.event);
 
   const { data: sourceData } = useGetSourceQuery;
   const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
@@ -32,6 +36,10 @@ const Home = () => {
     search: search,
     input: title,
   });
+
+  const [createMovie] = useCreateNewMovieMutation();
+  const [updateMovie] = useUpdateMovieMutation();
+  const [deleteMovie] = useDeleteMovieMutation();
 
   const [source, setSource] = useState([]);
   const [movies, setMovies] = useState([]);
@@ -49,6 +57,20 @@ const Home = () => {
   useEffect(() => {
     moviesByTitle && setMovies(moviesByTitle ?? []);
   }, [moviesByTitle]);
+/*   useEffect(() => {
+      switch (event.name) {
+        case "create":
+          console.log(event.video)
+          createMovie(event.video);
+          break;
+        case "update":
+          break;
+        case "delete":
+          break;
+        default:
+      }
+    
+  }, [event]); */
 
   return (
     <div className={styles.container}>

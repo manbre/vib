@@ -5,7 +5,7 @@ const https = require("https");
 const fs = require("fs");
 //
 const path = "E:\\vib\\movies\\";
-const dir =  path;
+const dir = path;
 /**
  * @res all genres
  */
@@ -146,7 +146,7 @@ const createNewMovie = async (req, res) => {
   //
   await Movies.create({
     title: req.body.title,
-    series: req.body.series,
+    series: req.body.series ? req.body.series : req.body.title,
     part: req.body.part,
     director: req.body.director,
     genre: req.body.genre,
@@ -188,11 +188,11 @@ const updateMovie = async (req, res) => {
   //
   await Movies.update(
     {
-      ...(req.body.title ? { title: req.body.title } : {}),
-      ...(req.body.series ? { series: req.body.series } : {}),
-      ...(req.body.part ? { part: req.body.part } : {}),
-      ...(req.body.director ? { director: req.body.director } : {}),
-      ...(req.body.genre ? { genre: req.body.genre } : {}),
+      ...(req.body.title && { title: req.body.title }),
+      ...(req.body.series && { series: req.body.series }),
+      ...(req.body.part && { part: req.body.part }),
+      ...(req.body.director && { director: req.body.director }),
+      ...(req.body.genre && { genre: req.body.genre }),
       //
       ...(req.body.year ? { year: req.body.year } : {}),
       ...(req.body.awards ? { awards: req.body.awards } : {}),
@@ -228,17 +228,26 @@ const updateMovie = async (req, res) => {
 };
 
 /**
- * @req id
+ * @req movie
  */
 const deleteMovie = async (req, res) => {
+  await Movies.destroy({ where: { id: req.body.id } }).catch((err) => {
+    res.send(err);
+  });
+
+  res.status(200).send({
+    message: "movie '" + req.body.title + "' was removed.",
+  });
+};
+
+/**
+ * @req movie
+ */
+const deleteMovieFiles = async (req, res) => {
   let posterDir = dir + "//poster//" + req.body.title + ".jpg";
   let trailerDir = dir + "//trailer//" + req.body.title + ".mp4";
   let germanDir = dir + "//de//" + req.body.title + "_de.mp4";
   let englishDir = dir + "//en//" + req.body.title + "_en.mp4";
-  //
-  await Movies.destroy({ where: { id: req.params.id } }).catch((err) => {
-    res.send(err);
-  });
   //delete files if exist
   fs.existsSync(posterDir) && fs.unlinkSync(posterDir);
   fs.existsSync(trailerDir) && fs.unlinkSync(trailerDir);
@@ -246,7 +255,7 @@ const deleteMovie = async (req, res) => {
   fs.existsSync(englishDir) && fs.unlinkSync(englishDir);
 
   res.status(200).send({
-    message: "movie '" + req.body.title + "' was removed.",
+    message: "files were removed.",
   });
 };
 
@@ -395,5 +404,6 @@ module.exports = {
   updateMovie,
   deleteMovie,
   //
+  deleteMovieFiles,
   copyMovieFiles,
 };

@@ -7,7 +7,7 @@ import { selectVideo } from "../../features/video";
 import {
   useGetMoviesByGenreQuery,
   useGetSeasonsByGenreQuery,
-} from "../../features/api";
+} from "../../features/backend";
 
 const PreviewHero = () => {
   const [videos, setVideos] = useState([]);

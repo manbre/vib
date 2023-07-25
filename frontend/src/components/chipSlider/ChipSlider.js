@@ -7,7 +7,7 @@ import { selectVideo } from "../../features/video";
 import {
   useGetMovieGenresQuery,
   useGetEpisodeGenresQuery,
-} from "../../features/api";
+} from "../../features/backend";
 
 const ChipSlider = () => {
   let scroll = useRef(null);
@@ -36,7 +36,6 @@ const ChipSlider = () => {
         break;
       default:
     }
-    console.log(movieGenres ?? [])
   }, [viewType, movieGenres, episodeGenres]);
 
   const slide = (width) => {

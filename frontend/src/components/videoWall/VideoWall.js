@@ -11,11 +11,12 @@ import { markCard } from "../../features/view";
 import {
   useGetMoviesByGenreQuery,
   useGetSeasonsByGenreQuery,
-} from "../../features/api";
+} from "../../features/backend";
 
 const VideoWall = ({ filteredVideos, source }) => {
   const viewType = useSelector((state) => state.view.viewType);
   const selectedVideo = useSelector((state) => state.video.video);
+  const event = useSelector((state) => state.event.event);
 
   const dispatch = useDispatch();
 
@@ -25,7 +26,6 @@ const VideoWall = ({ filteredVideos, source }) => {
   const [allVideos, setAllVideos] = useState([]);
 
   useEffect(() => {
-    console.log(allMovies ?? [])
     switch (viewType) {
       case 1:
         allMovies && setAllVideos(allMovies ?? []);
@@ -35,8 +35,7 @@ const VideoWall = ({ filteredVideos, source }) => {
         break;
       default:
     }
-  }, [viewType, allMovies, allEpisodes]);
-
+  }, [viewType, allMovies, allEpisodes, event]);
 
   useEffect(() => {
     let globalIndex =
