@@ -4,7 +4,6 @@ import styles from "./Form.module.css";
 import MessageBox from "../components/messageBox/MessageBox";
 
 import {
-  useGetOMDBDataQuery,
   useCreateNewEpisodeMutation,
   useUpdateEpisodeMutation,
   useDeleteEpisodeMutation,

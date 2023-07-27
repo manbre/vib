@@ -4,10 +4,6 @@ export const backend = createApi({
   reducerPath: "backend",
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:9000/" }),
   endpoints: (builder) => ({
-    //QUERIES
-    getOMDBData: builder.query({
-      query: ({ title, year }) => `/omdb/${title}/${year}`,
-    }),
     //------------------------------------------------------------------------------------
     //MUTATIONS (Editor)
     //
@@ -81,8 +77,6 @@ export const backend = createApi({
 });
 
 export const {
-  useGetOMDBDataQuery,
-  //
   useCreateNewMovieMutation,
   useCreateNewEpisodeMutation,
   //

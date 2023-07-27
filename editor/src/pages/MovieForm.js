@@ -1,11 +1,11 @@
 import React from "react";
-import { useReducer, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { bringEvent } from "../features/event";
+import useOmdb from "../hooks/useOmdb";
 
 import {
-  useGetOMDBDataQuery,
   useCreateNewMovieMutation,
   useUpdateMovieMutation,
   useDeleteMovieMutation,
@@ -39,6 +39,12 @@ const MovieForm = (props) => {
     initialState
   );
 
+  const [data] = useOmdb({ title: state.title, year: state.year });
+
+  useEffect(() => {
+    console.log(state.title);
+  }, [state.title]);
+
   const [createMovie] = useCreateNewMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie] = useDeleteMovieMutation();
@@ -50,14 +56,9 @@ const MovieForm = (props) => {
 
   const dispatch = useDispatch();
 
-  const { data: OMDBData } = useGetOMDBDataQuery({
-    title: state.title,
-    year: state.year,
-  });
-
   useEffect(() => {
-    !selected && OMDBData && updateState({ poster: OMDBData.Poster });
-  }, [OMDBData, selected]);
+    !selected && data && updateState({ poster: data.Poster });
+  }, [data, selected]);
 
   useEffect(() => {
     resetInput();
@@ -65,7 +66,6 @@ const MovieForm = (props) => {
   }, [selected]);
 
   const loadOMDBData = () => {
-    let data = OMDBData;
     updateState({
       title: data.Title.replace(":", " - "),
       director: data.Director && data.Director,
