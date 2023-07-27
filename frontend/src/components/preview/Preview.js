@@ -4,6 +4,7 @@ import styles from "./Preview.module.css";
 import { useSelector, useDispatch } from "react-redux";
 /* import { useNavigate } from "react-router-dom"; */
 import CardSlider from "../cardSlider/CardSlider";
+import { selectVideo } from "../../features/video";
 import { selectAudio } from "../../features/video";
 import { muteTrailer } from "../../features/view";
 

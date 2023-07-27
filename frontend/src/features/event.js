@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 export const eventSlice = createSlice({
   name: "event",
   initialState: {
-    event: { name: "", type: "movie", video: null },
+    event: { name: "", type: "", video: null },
     done: false,
     message: "",
   },

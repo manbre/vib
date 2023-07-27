@@ -12,8 +12,6 @@ const VideoCard = ({ video, source }) => {
   const viewType = useSelector((state) => state.view.viewType);
   const dispatch = useDispatch();
 
-  const [select] = useSelectVideoMutation();
-
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -59,16 +57,20 @@ const VideoCard = ({ video, source }) => {
     }
   };
 
-  const handleSelect = (id) => {
-    dispatch(selectVideo(video));
-    select({
-      type: viewType,
-      id: id,
-    });
+  const tryAgain = (e) => {
+    setTimeout(reloadImg, 1000, e);
+  };
+
+  const reloadImg = (e) => {
+    var source = e.src;
+    e.src = source;
   };
 
   return (
-    <div className={styles.container} onClick={() => handleSelect(video.id)}>
+    <div
+      className={styles.container}
+      onClick={() => dispatch(selectVideo(video))}
+    >
       <div className={styles.poster}>
         <img
           alt="poster"
@@ -78,9 +80,8 @@ const VideoCard = ({ video, source }) => {
               : require("../../assets/images/placeholder.jpg")
           }
           onError={(event) =>
-            (event.target.src = require("../../assets/images/placeholder.jpg").default)
+            (event.target.src = `http://localhost:9000/stream/image/${video.poster}`)
           }
-          onLoad={() => setIsLoaded(true)}
         />
       </div>
 

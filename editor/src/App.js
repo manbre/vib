@@ -11,6 +11,7 @@ import SourceForm from "./pages/SourceForm";
 import { selectVideo } from "./features/video";
 import { bringEvent } from "./features/event";
 import { toggleFrontend } from "./features/view";
+import useWebSocket from "./hooks/useWebSocket";
 
 const App = () => {
   const movieEditor = useRef();
@@ -19,45 +20,25 @@ const App = () => {
   const [box, setBox] = useState("");
 
   const type = useSelector((state) => state.view.type);
-  const isFrontend = useSelector((state) => state.view.isFrontend);
-
   const event = useSelector((state) => state.event.event);
+  const selected = useSelector((state) => state.video.video);
 
   const dispatch = useDispatch();
 
   //------------------------------------------------------------------------------------
   //WebSocket
-  var socket;
+  const [ready, val, send] = useWebSocket();
 
   useEffect(() => {
-    socket = new WebSocket("ws://127.0.0.1:8000");
-  });
+    val && console.log(val);
+    val && val.name === "select" && dispatch(selectVideo(val.video));
+    val === "frontend is on" && dispatch(toggleFrontend(true));
+    val === "frontend is off" && dispatch(toggleFrontend(false));
+  }, [val]);
 
   useEffect(() => {
-    socket.onmessage = (e) => {
-      //parse object to JSON
-      let arr = JSON.parse(e.data).data;
-      let newData = "";
-      arr.forEach((element) => {
-        newData += String.fromCharCode(element);
-      });
-      let json = JSON.parse(newData);
-      //
-
-      console.log(json);
-
-      //set info if frontend is there
-      json.includes("frontend is on") && dispatch(toggleFrontend(true));
-      json.includes("frontend is off") && dispatch(toggleFrontend(false));
-    };
-  }, [socket]);
-
-  window.onload = () => {
-    socket.onopen = () => {
-      socket.send(JSON.stringify("editor is on"));
-    };
-    return () => socket.close();
-  };
+    event && event.name !== "" && ready && send(JSON.stringify(event));
+  }, [ready, event]);
 
   //------------------------------------------------------------------------------------
 
@@ -93,8 +74,12 @@ const App = () => {
             className={styles.submitBtn}
             onClick={() =>
               type === "movie"
-                ? movieEditor.current.createVideo()
-                : episodeEditor.current.createVideo()
+                ? !selected
+                  ? movieEditor.current.createVideo()
+                  : movieEditor.current.updateVideo()
+                : !selected
+                ? episodeEditor.current.createVideo()
+                : episodeEditor.current.updateVideo()
             }
           ></button>
         </div>

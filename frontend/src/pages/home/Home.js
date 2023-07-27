@@ -21,7 +21,7 @@ import {
   useDeleteMovieMutation,
 } from "../../features/backend";
 
-const Home = ({socket}) => {
+const Home = () => {
   const viewType = useSelector((state) => state.view.viewType);
   const selectedVideo = useSelector((state) => state.video.video);
   const search = useSelector((state) => state.video.search);
@@ -32,10 +32,10 @@ const Home = ({socket}) => {
 
   const { data: sourceData } = useGetSourceQuery;
   const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
-  const { data: moviesByTitle } = useGetMoviesBySearchQuery({
+  /*   const { data: moviesByTitle } = useGetMoviesBySearchQuery({
     search: search,
     input: title,
-  });
+  }); */
 
   const [createMovie] = useCreateNewMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
@@ -54,30 +54,34 @@ const Home = ({socket}) => {
     moviesByGenre && setMovies(moviesByGenre ?? []);
   }, [viewType, moviesByGenre]);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     moviesByTitle && setMovies(moviesByTitle ?? []);
-  }, [moviesByTitle]);
-/*   useEffect(() => {
-      switch (event.name) {
-        case "create":
-          console.log(event.video)
-          createMovie(event.video);
-          break;
-        case "update":
-          break;
-        case "delete":
-          break;
-        default:
-      }
-    
-  }, [event]); */
+  }, [moviesByTitle]); */
+
+  useEffect(() => {
+    switch (event.name) {
+      case "create":
+        createMovie(event.state);
+        selectVideo(null);
+        break;
+      case "update":
+        updateMovie(event.state);
+        selectVideo(null);
+        break;
+      case "delete":
+        deleteMovie(event.state);
+        selectVideo(null);
+        break;
+      default:
+    }
+  }, [event]);
 
   return (
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.header}>
           <div className={styles.light}>
-            {viewType === 1 && selectedVideo && (
+            {viewType === "movie" && selectedVideo && selectedVideo.trailer && (
               <video
                 className={styles.light_trailer}
                 autoPlay

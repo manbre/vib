@@ -3,7 +3,6 @@ import { useReducer, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { bringEvent } from "../features/event";
-import { showMessage } from "../features/event";
 
 import {
   useGetOMDBDataQuery,
@@ -47,6 +46,7 @@ const MovieForm = (props) => {
   const [deleteMovieFiles] = useDeleteMovieFilesMutation();
 
   const selected = useSelector((state) => state.video.video);
+  const isFrontend = useSelector((state) => state.view.isFrontend);
 
   const dispatch = useDispatch();
 
@@ -56,8 +56,8 @@ const MovieForm = (props) => {
   });
 
   useEffect(() => {
-    OMDBData && updateState({ poster: OMDBData.Poster });
-  }, [OMDBData]);
+    !selected && OMDBData && updateState({ poster: OMDBData.Poster });
+  }, [OMDBData, selected]);
 
   useEffect(() => {
     resetInput();
@@ -85,35 +85,37 @@ const MovieForm = (props) => {
   };
 
   const createVideo = () => {
-    /*     state.title !== "" &&
-      createMovie(state)
-        .unwrap()
-        .then((payload) => props.changeMessage(payload.message))
-        .catch((error) => props.changeMessage(error.message))
-        .then(copyFiles())
-        .then(resetInput())
-        .then(dispatch(doEvent({ name: "create", type: 1, state: state }))); */
-    state.title !== "" &&
-      dispatch(bringEvent({ name: "create", type: "movie", state: state }));
+    if (state.title !== "") {
+      isFrontend
+        ? dispatch(bringEvent({ name: "create", type: "movie", state: state }))
+        : createMovie(state)
+            .unwrap()
+            .then((payload) => props.changeMessage(payload.message))
+            .catch((error) => props.changeMessage(error.message));
+      copyFiles();
+      resetInput();
+    }
   };
 
   const updateVideo = () => {
-    /*   updateMovie(state)
-      .unwrap()
-      .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message))
-      .then(copyFiles())
-      .then(resetInput())
-      .then(dispatch(doEvent({ name: "update", type: 1, state: state }))); */
+    isFrontend
+      ? dispatch(bringEvent({ name: "update", type: "movie", state: state }))
+      : updateMovie(state)
+          .unwrap()
+          .then((payload) => props.changeMessage(payload.message))
+          .catch((error) => props.changeMessage(error.message));
+    copyFiles();
+    resetInput();
   };
 
   const deleteVideo = () => {
-    deleteMovie(state)
-      .unwrap()
-      .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message))
-      .then(resetInput())
-      .then(dispatch(doEvent({ name: "delete", type: 1, state: state })));
+    isFrontend
+      ? dispatch(bringEvent({ name: "delete", type: "movie", state: state }))
+      : deleteMovie(state)
+          .unwrap()
+          .then((payload) => props.changeMessage(payload.message))
+          .catch((error) => props.changeMessage(error.message));
+    resetInput();
   };
 
   const deleteFiles = () => {};
@@ -166,7 +168,11 @@ const MovieForm = (props) => {
       <div id="movie_form" className={styles.form}>
         <label className={styles.poster}>
           <img
-            src={state.poster}
+            src={
+              selected
+                ? `http://localhost:9000/stream/image/${state.poster}`
+                : state.poster
+            }
             onError={(event) =>
               (event.target.src = require("../assets/images/placeholder.jpg").default)
             }

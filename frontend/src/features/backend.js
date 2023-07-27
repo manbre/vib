@@ -55,17 +55,6 @@ export const backend = createApi({
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------
-    // Mutations
-    //------------------------------------------------------------------------------------
-    selectVideo: builder.mutation({
-      query: ({ type, id }) => ({
-        url: `/events/${type}/${id}`,
-        method: "PUT",
-        body: type,
-        id,
-      }),
-    }),
-    //------------------------------------------------------------------------------------
     //MUTATIONS (Editor)
     //
     createNewMovie: builder.mutation({
@@ -103,18 +92,18 @@ export const backend = createApi({
     }),
     //
     deleteMovie: builder.mutation({
-      query: (id) => ({
-        url: `/movies/${id}`,
+      query: (movie) => ({
+        url: "/movies",
         method: "DELETE",
-        body: id,
+        body: movie,
       }),
       invalidatesTags: ["Movie"],
     }),
     deleteEpisode: builder.mutation({
-      query: (id) => ({
-        url: `/episodes/${id}`,
+      query: (episode) => ({
+        url: "/episodes",
         method: "DELETE",
-        body: id,
+        body: episode,
       }),
       invalidatesTags: ["Episode"],
     }),
@@ -137,7 +126,6 @@ export const {
   useGetMoviesByGenreQuery,
   useGetSeasonsByGenreQuery,
   //
-  useSelectVideoMutation,
   useCreateNewMovieMutation,
   useCreateNewEpisodeMutation,
   //
