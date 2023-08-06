@@ -1,30 +1,24 @@
-import "./App.css";
-import Home from "./pages/home/Home";
-
-import React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { HashRouter as Router } from "react-router-dom";
+import { Routes, Route } from "react-router-loading";
 import { useSelector, useDispatch } from "react-redux";
-import "./App.css";
-import { bringEvent } from "./features/event";
-import { toggleEditor } from "./features/view";
 import useUnload from "./hooks/useUnload";
 import useWebSocket from "./hooks/useWebSocket";
 
+import Home from "./pages/home/Home";
+import Watch from "./pages/watch/Watch";
+
 const App = () => {
-  const dispatch = useDispatch();
   const selectedVideo = useSelector((state) => state.video.video);
-  const viewType = useSelector((state) => state.view.viewType);
-  const event = useSelector((state) => state.event.event);
   const [isFrontend, setIsFrontend] = useState(false);
 
   //------------------------------------------------------------------------------------
   //WebSocket
   const [ready, val, send] = useWebSocket();
 
-
   useEffect(() => {
     if (ready) {
-/*       !isFrontend && send(JSON.stringify("frontend is off"));
+      /*       !isFrontend && send(JSON.stringify("frontend is off"));
       isFrontend && send(JSON.stringify("frontend is on")); */
     }
   }, [ready, isFrontend]);
@@ -40,9 +34,9 @@ const App = () => {
       );
   }, [ready, selectedVideo]);
 
-  window.onload = () => {
+/*   window.onload = () => {
     setIsFrontend(true);
-  };
+  }; */
 
   useUnload((e) => {
     e.preventDefault();
@@ -52,9 +46,13 @@ const App = () => {
   //------------------------------------------------------------------------------------
 
   return (
-    <>
-      <Home />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        {/*  <Route path="/episodes" element={<EpisodesScreen />} /> */}
+        <Route path="/watch/:isContinue" element={<Watch />} />
+      </Routes>
+    </Router>
   );
 };
 

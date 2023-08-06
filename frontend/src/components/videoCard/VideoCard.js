@@ -15,24 +15,20 @@ const VideoCard = ({ video }) => {
     var infos = document.getElementsByClassName(`${styles.info}`);
     //!== null ________ !important!
     if (markedCard !== null && elements[markedCard]) {
-      elements[markedCard].style =
-        "outline: 4px solid white; transform: scaleY(1.1);";
-      posters[markedCard].style = "transform: scaleY(0.9) translateY(-12px);";
-      infos[markedCard].style = "  transform: scaleY(0.9) translateY(0.5em);";
+      infos[markedCard].style = "transform: translateY(2rem);";
+      elements[markedCard].style = "outline: 4px solid rgb(var(--sec-text))";
       //
       for (let i = 0; i < elements.length; i++) {
         if (i !== markedCard) {
-          elements[i].style = "border: none;";
-          posters[i].style = "z-index: 2;";
-          infos[i].style = " translateY(0.5em);";
+          infos[i].style = " translateY(0);";
+          elements[i].style = "outline: none";
         }
       }
     }
     if (markedCard === null) {
       for (let i = 0; i < elements.length; i++) {
-        elements[i].style = "border: none;";
-        posters[i].style = "z-index: 2;";
-        infos[i].style = " translateY(0.5em);";
+        infos[i].style = " translateY(0);";
+        elements[i].style = "outline: none";
       }
     }
   }, [markedCard]);
@@ -73,7 +69,7 @@ const VideoCard = ({ video }) => {
       </div>
 
       <div className={styles.info}>
-        <div className={styles.title}>{getTitle()}</div>
+        {/* <div className={styles.title}>{getTitle()}</div> */}
         <div className={styles.bottom}>
           <div className={styles.year}>
             <p>{video.year}</p>

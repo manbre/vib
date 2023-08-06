@@ -55,6 +55,23 @@ export const backend = createApi({
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------
+    //MUTATIONS
+    //
+    updateMovie: builder.mutation({
+      query: (movie) => ({
+        url: "/movies",
+        method: "PUT",
+        body: movie,
+      }),
+    }),
+    updateEpisode: builder.mutation({
+      query: (episode) => ({
+        url: "/episodes",
+        method: "PUT",
+        body: episode,
+      }),
+    }),
+    //
   }),
 });
 
@@ -72,5 +89,8 @@ export const {
   //
   useGetMoviesByGenreQuery,
   useGetSeasonsByGenreQuery,
+  //
+  useUpdateMovieMutation,
+  useUpdateEpisodeMutation,
   //
 } = backend;

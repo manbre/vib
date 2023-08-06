@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import styles from "./Preview.module.css";
 import { useSelector, useDispatch } from "react-redux";
-/* import { useNavigate } from "react-router-dom"; */
+import { useNavigate } from "react-router-dom";
 import CardSlider from "../cardSlider/CardSlider";
 import { selectVideo } from "../../features/video";
 import { selectAudio } from "../../features/video";
@@ -12,7 +12,7 @@ const Preview = () => {
   const selectedVideo = useSelector((state) => state.video.video);
   const viewType = useSelector((state) => state.view.viewType);
   const isMuted = useSelector((state) => state.view.muted);
-  /*   const navigate = useNavigate(); */
+    const navigate = useNavigate();
   const dispatch = useDispatch();
   //
   const [title, setTitle] = useState("");
@@ -95,9 +95,6 @@ const Preview = () => {
     }
   }, [takeAudio, selectedVideo, toggleMute, viewType]);
 
-  /*   useEffect(() => {
-    toggleMute();
-  }, [isMuted, toggleMute]); */
 
   const getProgress = () => {
     if (selectedVideo) {
@@ -114,7 +111,7 @@ const Preview = () => {
   };
 
   const playVideo = (isContinue) => {
-    /*     navigate(`/watch/${isContinue}`); */
+        navigate(`/watch/${isContinue}`);
   };
 
   const getPlayButtons = () => {

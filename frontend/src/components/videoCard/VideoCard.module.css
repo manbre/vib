@@ -2,26 +2,28 @@
   position: relative;
   display: flex;
   overflow: hidden;
-  min-width: var(--videoCard-width);
-  aspect-ratio: 3/4;
-  border-radius: var(--videoCard-radius);
-  margin: 0.7em;
+  width: 10rem;
+  aspect-ratio: 1/1.5;
+  border-radius: 0.5rem;
+  margin: 0.5rem;
   cursor: pointer;
 }
 
-.container:hover {
+/* .container:hover {
   transform: scaleY(1.1);
   transition: transform 0.4s;
-}
+} */
 
-.container:hover .poster {
+/* .container:hover .poster {
   transform: scaleY(0.9) translateY(-12px);
   transition: transform 0.4s;
-}
+} */
 
 .container:hover .info {
-  transform: scaleY(0.9) translateY(0.5em);
-  transition: transform 0.4s;
+  /*   transform: scaleY(0.9) translateY(0.5em);
+  transition: transform 0.4s; */
+  transform: translateY(2rem);
+  transition: transform 0.5s;
 }
 
 .poster {
@@ -32,10 +34,9 @@
 }
 
 .poster > img {
-  width: 99%;
-  aspect-ratio: 3/4;
-  border-radius: var(--videoCard-radius);
-  image-rendering: crisp-edges;
+  width: 100%;
+  aspect-ratio: 1/1.5;
+  /*   image-rendering: crisp-edges; */
 }
 
 .info {
@@ -44,14 +45,13 @@
   bottom: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
-  height: calc((var(--videoCard-width)) * 1 / 2);
+  height: 2rem;
   padding: 0.1em;
-  border-bottom-right-radius: var(--videoCard-radius);
-  border-bottom-left-radius: var(--videoCard-radius);
   background: linear-gradient(
     0deg,
-    rgba(var(--menu-color), 1) 92%,
+    rgba(var(--menu-color), 1) 90%,
     rgba(255, 255, 255, 0) 100%
   );
 }
