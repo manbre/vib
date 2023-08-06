@@ -39,7 +39,6 @@ const SearchBar = () => {
 
   return (
     <div className={styles.container}>
-      <label className={styles.selectLabel}>search by: </label>
       {viewType === 1 ? (
         <div className={styles.select}>
           <select id="mySelect" onChange={(e) => handleSearchChange(e)}>

@@ -11,6 +11,7 @@ export const eventSlice = createSlice({
     bringEvent: (state, action) => {
       state.event = action.payload;
     },
+    
     isDone: (state, action) => {
       state.done = action.payload;
     },

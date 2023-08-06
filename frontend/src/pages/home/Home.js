@@ -10,15 +10,11 @@ import Preview from "../../components/preview/Preview";
 import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import { selectVideo } from "../../features/video";
-import { bringEvent } from "../../features/event";
+import useWebSocket from "../../hooks/useWebSocket";
 
 import {
-  useGetSourceQuery,
   useGetMoviesByGenreQuery,
   useGetMoviesBySearchQuery,
-  useCreateNewMovieMutation,
-  useUpdateMovieMutation,
-  useDeleteMovieMutation,
 } from "../../features/backend";
 
 const Home = () => {
@@ -28,27 +24,34 @@ const Home = () => {
 
   const genre = useSelector((state) => state.video.genre);
   const title = useSelector((state) => state.video.title);
-  const event = useSelector((state) => state.event.event);
 
-  const { data: sourceData } = useGetSourceQuery;
-  const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
+  const {
+    data: moviesByGenre,
+    refetch: refetchByGenre,
+  } = useGetMoviesByGenreQuery(genre);
   /*   const { data: moviesByTitle } = useGetMoviesBySearchQuery({
     search: search,
     input: title,
   }); */
 
-  const [createMovie] = useCreateNewMovieMutation();
-  const [updateMovie] = useUpdateMovieMutation();
-  const [deleteMovie] = useDeleteMovieMutation();
+  const [isReady, val, send] = useWebSocket();
+  useEffect(() => {
+    val &&
+      val.name !== "" &&
+      val.name !== "select" &&
+      refetchByGenre() &&
+      dispatch(selectVideo(null));
+  }, [val]);
 
-  const [source, setSource] = useState([]);
   const [movies, setMovies] = useState([]);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    sourceData && setSource(sourceData ?? []);
-  }, [sourceData]);
+  /*   useEffect(() => {
+    console.log(action);
+    action.name != "select" && action.name != "" && setEvent(action);
+    refetch();
+  }, [action]); */
 
   useEffect(() => {
     moviesByGenre && setMovies(moviesByGenre ?? []);
@@ -58,54 +61,24 @@ const Home = () => {
     moviesByTitle && setMovies(moviesByTitle ?? []);
   }, [moviesByTitle]); */
 
-  useEffect(() => {
-    switch (event.name) {
-      case "create":
-        createMovie(event.state);
-        selectVideo(null);
-        break;
-      case "update":
-        updateMovie(event.state);
-        selectVideo(null);
-        break;
-      case "delete":
-        deleteMovie(event.state);
-        selectVideo(null);
-        break;
-      default:
-    }
-  }, [event]);
-
   return (
     <div className={styles.container}>
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <div className={styles.light}>
-            {viewType === "movie" && selectedVideo && selectedVideo.trailer && (
-              <video
-                className={styles.light_trailer}
-                autoPlay
-                loop
-                muted
-                src={`http://localhost:9000/stream/${selectedVideo.trailer}/trailer`}
-              >
-                Your browser does not support the video tag
-              </video>
-            )}
-          </div>
-          <div className={styles.preview}>
-            {selectedVideo && (
-              <button
-                className={styles.closeBtn}
-                onClick={() => dispatch(selectVideo(null))}
-              ></button>
-            )}
-            {selectedVideo ? <Preview /> : ""}
-          </div>
+      <section className={styles.left}>
+        <header>
           <ChipSlider />
-        </div>
-        <VideoWall filteredVideos={movies} source={source} />
-      </div>
+        </header>
+        <VideoWall filteredVideos={movies} />
+      </section>
+
+      {selectedVideo && (
+        <section className={styles.right}>
+          <button
+            className={styles.closeBtn}
+            onClick={() => dispatch(selectVideo(null))}
+          ></button>
+          <Preview />
+        </section>
+      )}
     </div>
   );
 };

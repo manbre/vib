@@ -32,8 +32,8 @@ const App = () => {
   useEffect(() => {
     val && console.log(val);
     val && val.name === "select" && dispatch(selectVideo(val.video));
-    val === "frontend is on" && dispatch(toggleFrontend(true));
-    val === "frontend is off" && dispatch(toggleFrontend(false));
+/*     val === "frontend is on" && dispatch(toggleFrontend(true));
+    val === "frontend is off" && dispatch(toggleFrontend(false)); */
   }, [val]);
 
   useEffect(() => {

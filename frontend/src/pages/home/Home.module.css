@@ -1,71 +1,65 @@
 .container {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: rgba(var(--back-color));
-}
-
-.content{
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden; /*for trailer "overflow"*/
-  overflow-y: auto;
-  width: 100%;
-  height: 100vh; /*for vertical scrolling*/
-}
-
-.header {
-  position: sticky;
-  z-index: 2;
-  top: 0;
-  width: 100%;
-}
-
-.light {
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+  min-height: 100vh;
+  max-height: fit-content;
   background-color: rgb(var(--back-color));
 }
 
-.light_trailer {
+.left {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  width: 100%;
+  padding-top: 1rem;
+  background-color: rgb(var(--back-color));
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+}
+
+.right {
   position: relative;
   z-index: 2;
-  width: 30%;
-  height: 100%;
-  object-fit: fill;
-  margin-top: -2em;
-  filter: blur(60px);
+  display: flex;
+  width: 70%;
+  background-color: rgb(var(--menu-color));
 }
 
-.preview {
+.trailer {
   position: relative;
-  z-index: 4;
+  z-index: 2;
+  display: flex;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  overflow: hidden;
+  border: 2px solid rgb(var(--hover-color));
 }
 
+.trailer > video {
+  width: 100%;
+  object-fit: fill;
+}
 
 .closeBtn {
   position: absolute;
   z-index: 3;
   width: 2em;
   height: 2em;
-  margin-top: 3em;
-  margin-left: 0.5em;
+  margin-top: 1em;
+  right: 1em;
   border: none;
+  border-radius: 2em;
   background-position: center;
   background-size: 2em;
   background-repeat: no-repeat;
-  background-color: transparent;
+  background-color: rgba(var(--back-color), 0.7);
   background-image: url("../../assets/icons/icon_close.png");
   cursor: pointer;
   transition: 0.2s;
 }
-
-
-
-

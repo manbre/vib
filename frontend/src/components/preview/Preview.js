@@ -95,9 +95,9 @@ const Preview = () => {
     }
   }, [takeAudio, selectedVideo, toggleMute, viewType]);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     toggleMute();
-  }, [isMuted, toggleMute]);
+  }, [isMuted, toggleMute]); */
 
   const getProgress = () => {
     if (selectedVideo) {
@@ -152,70 +152,45 @@ const Preview = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.overlay}>
-        <div className={styles.description}>
-          <div className={styles.title}>
-            <p>{title}</p>
-          </div>
-          <div className={styles.numbers}>
-            {viewType === 1 ? (
-              <div className={styles.rating}>
-                {rating > 59 ? (
-                  <span className={styles.tomatoes}></span>
-                ) : (
-                  <span className={styles.rotten}></span>
-                )}
-
-                <p>{rating} %</p>
-              </div>
-            ) : null}
-            <div className={styles.runtime}>
-              <span className={styles.hourglass}></span>
-              <p>{runtime} min</p>
-            </div>
-            <div className={styles.year}>
-              <span className={styles.calendar}></span>
-              <p>{year}</p>
-            </div>
-            {viewType === 1 && (
-              <div className={styles.awards}>
-                {awards > 0 && <span className={styles.oscar}></span>}
-                {awards > 0 && <p>{awards}</p>}
-              </div>
+      <div className={styles.trailer}>
+        {trailer ? (
+          <video
+            autoPlay
+            loop
+            muted={isMuted}
+            src={`http://localhost:9000/stream/video/trailer/${trailer}`}
+          ></video>
+        ) : (
+          <img
+            alt="poster"
+            src={
+              poster
+                ? `http://localhost:9000/stream/image/${poster}`
+                : require("../../assets/images/placeholder.jpg")
+            }
+            onError={(event) =>
+              (event.target.src = `http://localhost:9000/stream/image/${poster}`)
+            }
+          />
+        )}
+        <div className={styles.btns}>
+          {getPlayButtons()}
+          <div className={styles.audios}>
+            {selectedVideo.german && (
+              <label
+                className={styles.german}
+                onClick={() => takeAudio(1)}
+              ></label>
+            )}
+            {selectedVideo.english && (
+              <label
+                className={styles.english}
+                onClick={() => takeAudio(2)}
+              ></label>
             )}
           </div>
-          <div className={styles.plot}>{plot}</div>
-          <div className={styles.row}>
-            <div className={styles.col1}>
-              <p>Director</p>
-              <p>Actors</p>
-              <p>Genre</p>
-            </div>
-            <div className={styles.col2}>
-              <p>{director}</p>
-              <p>{actors}</p>
-              <p>{genre}</p>
-            </div>
-          </div>
-          <div className={styles.line}>
-            {getPlayButtons()}
-            <div className={styles.audios}>
-              {selectedVideo && selectedVideo.german && (
-                <label
-                  className={styles.german}
-                  onClick={() => takeAudio(1)}
-                ></label>
-              )}
-              {selectedVideo && selectedVideo.english && (
-                <label
-                  className={styles.english}
-                  onClick={() => takeAudio(2)}
-                ></label>
-              )}
-            </div>
-          </div>
         </div>
-        {viewType === 1 && trailer && (
+        {viewType == 1 && trailer && (
           <button
             className={isMuted ? styles.volBtn : styles.muteBtn}
             onClick={() =>
@@ -226,28 +201,50 @@ const Preview = () => {
           ></button>
         )}
       </div>
-      <div className={styles.curtain}></div>
-      <div className={styles.videoWall}>
-        {viewType === 1 && trailer ? (
-          <video
-            className={styles.trailer}
-            autoPlay
-            loop
-            muted={isMuted}
-            src={`http://localhost:9000/stream/video/trailer/${trailer}`}
-          ></video>
-        ) : (
-          viewType === 1 && poster && (
-            <img
-              alt="poster"
-              className={styles.poster}
-              src={`http://localhost:9000/stream/image/${poster}`}
-            ></img>
-            
-          )
-        )}
+      <div className={styles.description}>
+        <p className={styles.title}>{title}</p>
+        <div className={styles.numbers}>
+          {viewType === 1 && (
+            <div className={styles.rating}>
+              {rating > 59 ? (
+                <span className={styles.tomatoes}></span>
+              ) : (
+                <span className={styles.rotten}></span>
+              )}
+
+              <p>{rating} %</p>
+            </div>
+          )}
+          <div className={styles.year}>
+            <span className={styles.calendar}></span>
+            <p>{year}</p>
+          </div>
+          <div className={styles.runtime}>
+            <span className={styles.hourglass}></span>
+            <p>{runtime} min</p>
+          </div>
+          {awards > 0 && (
+            <div className={styles.awards}>
+              {viewType === 1 && <span className={styles.oscar}></span>}
+              {viewType === 2 && <span className={styles.emmy}></span>}
+              <p>{awards}</p>
+            </div>
+          )}
+        </div>
+        <p className={styles.plot}>{plot}</p>
+        <div className={styles.row}>
+          <div className={styles.colLeft}>
+            <p>Director</p>
+            <p>Actors</p>
+            <p>Genre</p>
+          </div>
+          <div className={styles.colRight}>
+            <p>{director}</p>
+            <p>{actors}</p>
+            <p>{genre}</p>
+          </div>
+        </div>
       </div>
-      {viewType === 2 && <CardSlider />}
     </div>
   );
 };

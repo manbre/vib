@@ -1,5 +1,5 @@
 .container {
-  position: absolute;
+  position: relative;
   z-index: 1;
   right: 1em;
   display: flex;

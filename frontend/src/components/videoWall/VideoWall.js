@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoWall.module.css";
 
@@ -13,10 +13,9 @@ import {
   useGetSeasonsByGenreQuery,
 } from "../../features/backend";
 
-const VideoWall = ({ filteredVideos, source }) => {
+const VideoWall = ({ filteredVideos }) => {
   const viewType = useSelector((state) => state.view.viewType);
   const selectedVideo = useSelector((state) => state.video.video);
-  const event = useSelector((state) => state.event.event);
 
   const dispatch = useDispatch();
 
@@ -35,7 +34,7 @@ const VideoWall = ({ filteredVideos, source }) => {
         break;
       default:
     }
-  }, [viewType, allMovies, allEpisodes, event]);
+  }, [viewType, allMovies, allEpisodes]);
 
   useEffect(() => {
     let globalIndex =
@@ -51,7 +50,7 @@ const VideoWall = ({ filteredVideos, source }) => {
   return (
     <div className={styles.container}>
       {filteredVideos.map((video, index) => (
-        <VideoCard video={video} source={source} key={video.id} index={index} />
+        <VideoCard video={video} key={video.id} index={index} />
       ))}
     </div>
   );

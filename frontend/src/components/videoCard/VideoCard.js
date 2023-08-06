@@ -1,23 +1,19 @@
 import React from "react";
-import Axios from "axios";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoCard.module.css";
 import { selectVideo } from "../../features/video";
 
-import { useSelectVideoMutation } from "../../features/backend";
-
-const VideoCard = ({ video, source }) => {
+const VideoCard = ({ video }) => {
   const markedCard = useSelector((state) => state.view.card);
   const viewType = useSelector((state) => state.view.viewType);
   const dispatch = useDispatch();
-
-  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     var elements = document.getElementsByClassName(`${styles.container}`);
     var posters = document.getElementsByClassName(`${styles.poster}`);
     var infos = document.getElementsByClassName(`${styles.info}`);
+    //!== null ________ !important!
     if (markedCard !== null && elements[markedCard]) {
       elements[markedCard].style =
         "outline: 4px solid white; transform: scaleY(1.1);";
@@ -32,14 +28,14 @@ const VideoCard = ({ video, source }) => {
         }
       }
     }
-    if (markedCard === null && isLoaded) {
+    if (markedCard === null) {
       for (let i = 0; i < elements.length; i++) {
         elements[i].style = "border: none;";
         posters[i].style = "z-index: 2;";
         infos[i].style = " translateY(0.5em);";
       }
     }
-  }, [markedCard, isLoaded]);
+  }, [markedCard]);
 
   const getTitle = () => {
     switch (viewType) {
@@ -55,15 +51,6 @@ const VideoCard = ({ video, source }) => {
         );
       default:
     }
-  };
-
-  const tryAgain = (e) => {
-    setTimeout(reloadImg, 1000, e);
-  };
-
-  const reloadImg = (e) => {
-    var source = e.src;
-    e.src = source;
   };
 
   return (

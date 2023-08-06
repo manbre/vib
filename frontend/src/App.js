@@ -21,15 +21,11 @@ const App = () => {
   //WebSocket
   const [ready, val, send] = useWebSocket();
 
-  useEffect(() => {
-    val && console.log(val);
-    val && val.name !== "" && dispatch(bringEvent(val));
-  }, [val]);
 
   useEffect(() => {
     if (ready) {
-      !isFrontend && send(JSON.stringify("frontend is off"));
-      isFrontend && send(JSON.stringify("frontend is on"));
+/*       !isFrontend && send(JSON.stringify("frontend is off"));
+      isFrontend && send(JSON.stringify("frontend is on")); */
     }
   }, [ready, isFrontend]);
 

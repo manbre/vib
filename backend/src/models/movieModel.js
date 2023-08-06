@@ -15,8 +15,8 @@ movieModel.init(
     awards: { type: DataTypes.INTEGER }, //oscars
     rating: { type: DataTypes.INTEGER }, //rotten tomatoes
     runtime: { type: DataTypes.INTEGER },
-    //
-    actors: { type: DataTypes.TEXT },
+
+    actors: { type: DataTypes.TEXT},
     plot: { type: DataTypes.TEXT },
     //
     poster: { type: DataTypes.TEXT }, //path of poster .jpg file

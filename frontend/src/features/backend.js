@@ -55,59 +55,6 @@ export const backend = createApi({
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------
-    //MUTATIONS (Editor)
-    //
-    createNewMovie: builder.mutation({
-      query: (movie) => ({
-        url: "/movies",
-        method: "POST",
-        body: movie,
-      }),
-      invalidatesTags: ["Movie"],
-    }),
-    createNewEpisode: builder.mutation({
-      query: (episode) => ({
-        url: "/episodes",
-        method: "POST",
-        body: episode,
-      }),
-      invalidatesTags: ["Episode"],
-    }),
-    //
-    updateMovie: builder.mutation({
-      query: (movie) => ({
-        url: "/movies",
-        method: "PUT",
-        body: movie,
-      }),
-      invalidatesTags: ["Movie"],
-    }),
-    updateEpisode: builder.mutation({
-      query: (episode) => ({
-        url: "/episodes",
-        method: "PUT",
-        body: episode,
-      }),
-      invalidatesTags: ["Episode"],
-    }),
-    //
-    deleteMovie: builder.mutation({
-      query: (movie) => ({
-        url: "/movies",
-        method: "DELETE",
-        body: movie,
-      }),
-      invalidatesTags: ["Movie"],
-    }),
-    deleteEpisode: builder.mutation({
-      query: (episode) => ({
-        url: "/episodes",
-        method: "DELETE",
-        body: episode,
-      }),
-      invalidatesTags: ["Episode"],
-    }),
-    //
   }),
 });
 
@@ -125,14 +72,5 @@ export const {
   //
   useGetMoviesByGenreQuery,
   useGetSeasonsByGenreQuery,
-  //
-  useCreateNewMovieMutation,
-  useCreateNewEpisodeMutation,
-  //
-  useUpdateMovieMutation,
-  useUpdateEpisodeMutation,
-  //
-  useDeleteMovieMutation,
-  useDeleteEpisodeMutation,
   //
 } = backend;
