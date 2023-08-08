@@ -58,11 +58,15 @@ const getImageStream = (req, res) => {
   if (!filePath) {
     return res.status(404).send("File not found");
   }
-  const head = {
-    "Content-Type": "image/jpeg",
-  };
-  res.writeHead(200, head);
-  fs.createReadStream(filePath).pipe(res);
+  try {
+    const head = {
+      "Content-Type": "image/jpeg",
+    };
+    res.writeHead(200, head);
+    fs.createReadStream(filePath).pipe(res);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = {

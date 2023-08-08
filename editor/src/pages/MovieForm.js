@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { bringEvent } from "../features/event";
@@ -39,8 +39,6 @@ const MovieForm = (props) => {
     initialState
   );
 
-  const [isFetch, setIsFetch] = useState(false);
-
   const [createMovie] = useCreateNewMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie] = useDeleteMovieMutation();
@@ -56,17 +54,13 @@ const MovieForm = (props) => {
     selectedVideo && updateState(selectedVideo);
   }, [selectedVideo]);
 
-  const [omdbData] = useOmdb({
-    title: state.title,
-    year: state.year,
-    isFetch: isFetch,
-  });
+  const { omdbData, fetchOmdb } = useOmdb();
 
   useEffect(() => {
     omdbData &&
       updateState({
-        poster: omdbData.Poster,
-        title: omdbData.Title.replace(":", " - "),
+        poster: omdbData.Poster && omdbData.Poster,
+        title: omdbData.Title && omdbData.Title.replace(":", " - "),
         director: omdbData.Director && omdbData.Director,
         genre: omdbData.Genre && omdbData.Genre,
         actors: omdbData.Actors && omdbData.Actors,
@@ -78,10 +72,12 @@ const MovieForm = (props) => {
           !omdbData.Awards.includes("Nominated")
             ? omdbData.Awards.substring(3, 6)
             : "0",
-        rating: omdbData.Ratings && omdbData.Ratings[1].Value.substring(0, 2),
+        rating:
+          omdbData.Ratings &&
+          omdbData.Ratings[1] &&
+          omdbData.Ratings[1].Value.substring(0, 2),
         runtime: omdbData.Runtime && omdbData.Runtime.slice(0, 3),
       });
-    setIsFetch(false);
   }, [omdbData]);
 
   const createVideo = () => {
@@ -190,7 +186,12 @@ const MovieForm = (props) => {
           </div>
           <button
             className={styles.omdbBtn}
-            onClick={() => setIsFetch(true)}
+            onClick={() =>
+              fetchOmdb({
+                title: state.title,
+                year: state.year,
+              })
+            }
           ></button>
         </div>
 
