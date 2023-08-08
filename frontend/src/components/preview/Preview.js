@@ -12,7 +12,7 @@ const Preview = () => {
   const selectedVideo = useSelector((state) => state.video.video);
   const viewType = useSelector((state) => state.view.viewType);
   const isMuted = useSelector((state) => state.view.muted);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   //
   const [title, setTitle] = useState("");
@@ -95,7 +95,6 @@ const Preview = () => {
     }
   }, [takeAudio, selectedVideo, toggleMute, viewType]);
 
-
   const getProgress = () => {
     if (selectedVideo) {
       return (selectedVideo.elapsed_time / (selectedVideo.runtime * 60)) * 100;
@@ -111,7 +110,7 @@ const Preview = () => {
   };
 
   const playVideo = (isContinue) => {
-        navigate(`/watch/${isContinue}`);
+    navigate(`/watch/${isContinue}`);
   };
 
   const getPlayButtons = () => {
@@ -149,6 +148,10 @@ const Preview = () => {
 
   return (
     <div className={styles.container}>
+      <button
+        className={styles.closeBtn}
+        onClick={() => dispatch(selectVideo(null))}
+      ></button>
       <div className={styles.trailer}>
         {trailer ? (
           <video

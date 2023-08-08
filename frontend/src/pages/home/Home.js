@@ -72,10 +72,6 @@ const Home = () => {
 
       {selectedVideo && (
         <section className={styles.right}>
-          <button
-            className={styles.closeBtn}
-            onClick={() => dispatch(selectVideo(null))}
-          ></button>
           <Preview />
         </section>
       )}

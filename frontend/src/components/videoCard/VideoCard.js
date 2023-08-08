@@ -10,25 +10,20 @@ const VideoCard = ({ video }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    var elements = document.getElementsByClassName(`${styles.container}`);
-    var posters = document.getElementsByClassName(`${styles.poster}`);
-    var infos = document.getElementsByClassName(`${styles.info}`);
+    let elements = document.getElementsByClassName(`${styles.container}`);
     //!== null ________ !important!
     if (markedCard !== null && elements[markedCard]) {
-      infos[markedCard].style = "transform: translateY(2rem);";
-      elements[markedCard].style = "outline: 4px solid rgb(var(--sec-text))";
+      elements[markedCard].style = "outline: 5px solid white;";
       //
       for (let i = 0; i < elements.length; i++) {
         if (i !== markedCard) {
-          infos[i].style = " translateY(0);";
-          elements[i].style = "outline: none";
+          elements[i].style = "border: none;";
         }
       }
     }
     if (markedCard === null) {
       for (let i = 0; i < elements.length; i++) {
-        infos[i].style = " translateY(0);";
-        elements[i].style = "outline: none";
+        elements[i].style = "border: none;";
       }
     }
   }, [markedCard]);
@@ -69,18 +64,15 @@ const VideoCard = ({ video }) => {
       </div>
 
       <div className={styles.info}>
-        {/* <div className={styles.title}>{getTitle()}</div> */}
-        <div className={styles.bottom}>
-          <div className={styles.year}>
-            <p>{video.year}</p>
-          </div>
-          <div className={styles.languages}>
-            {video.german && <span className={styles.german}></span>}
-            {video.english && <span className={styles.english}></span>}
-          </div>
-          <div className={styles.runtime}>
-            <p>{video.runtime} min</p>
-          </div>
+        <div className={styles.year}>
+          <p>{video.year}</p>
+        </div>
+        <div className={styles.languages}>
+          {video.german && <span className={styles.german}></span>}
+          {video.english && <span className={styles.english}></span>}
+        </div>
+        <div className={styles.runtime}>
+          <p>{video.runtime} min</p>
         </div>
       </div>
     </div>

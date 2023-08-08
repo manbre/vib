@@ -6,6 +6,24 @@
   background-color: rgb(var(--menu-color));
 }
 
+.closeBtn {
+  position: absolute;
+  z-index: 2;
+  width: calc((var(--card-width)) * 1 / 7);
+  height: calc((var(--card-width)) * 1 / 7);
+  top: 1rem;
+  right: 1rem;
+  border: none;
+  border-radius: calc((var(--card-width)) * 1 / 7);
+  background-position: center;
+  background-size: calc((var(--card-width)) * 1 / 7);
+  background-repeat: no-repeat;
+  background-color: rgba(var(--back-color), 0.7);
+  background-image: url("../../assets/icons/icon_close.png");
+  cursor: pointer;
+  transition: 0.2s;
+}
+
 .trailer {
   position: sticky;
   top: 0;
@@ -39,17 +57,17 @@
 
 .play1Btn,
 .play2Btn {
-  width: var(--videoCard-width);
-  height: calc((var(--videoCard-width)) * 2 / 7);
+  width: calc((var(--card-width)) * 3 / 4);
+  height: calc((var(--card-width)) * 2 / 8);
   border-style: none;
-  border-radius: 0.2rem;
+  border-radius: var(--border-radius);
   background-color: rgb(var(--menu-color));
-  font-size: calc((var(--videoCard-width)) * 1 / 10);
+  font-size: calc((var(--card-width)) * 1 / 10);
   cursor: pointer;
 }
 
 .play2Btn {
-  height: calc(((var(--videoCard-width)) * 2 / 7) - 2px);
+  height: calc(((var(--card-width)) * 2 / 7 - 2px));
 }
 
 .play1Btn:hover,
@@ -61,16 +79,16 @@
   position: absolute;
   display: flex;
   width: 7em;
-  bottom: 4rem;
+  bottom: calc((var(--card-width)) * 2 / 8 + 1.5rem);
   left: 0.2rem;
 }
 
 .german,
 .english {
-  width: 1.5rem;
+  width: calc((var(--card-width)) * 1 / 6);
   aspect-ratio: 1/1;
   margin-left: 1em;
-  background-size: 1.5rem;
+  background-size: calc((var(--card-width)) * 1 / 6);
   background-repeat: no-repeat;
   cursor: pointer;
 }
@@ -88,12 +106,12 @@
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  width: 2.5em;
-  height: 2.5em;
+  width: calc((var(--card-width)) * 1 / 9);
+  height: calc((var(--card-width)) * 1 / 9);
   border-style: none;
-  border-radius: 2.5em;
+  border-radius: calc((var(--card-width)) * 1 / 9);
   background-position: center;
-  background-size: 15px;
+  background-size: calc((var(--card-width)) * 1 / 9);
   background-repeat: no-repeat;
   background-image: url("../../assets/icons/icon_volume_0.png");
   background-color: rgba(var(--back-color), 0.7);
@@ -116,15 +134,17 @@
 }
 
 .title {
+  position: sticky;
   top: 0;
-  height: 5rem;
-  font-size: 1.8rem;
+  height: calc((var(--card-width)) * 2 / 6);
+  font-size: calc((var(--card-width)) * 1 / 6);
 }
 
 .numbers {
   display: flex;
-  font-size: 0.9rem;
-  height: 3rem;
+  font-size: calc((var(--card-width)) * 1 / 12);
+  height: calc((var(--card-width)) * 1 / 12 + 1rem);
+  margin-top: 1rem;
 }
 
 .numbers * {
@@ -137,7 +157,7 @@
 .awards {
   display: flex;
   align-items: center;
-  margin-right: 3rem;
+  margin-right: 2rem;
 }
 
 .calendar,
@@ -177,16 +197,15 @@
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   overflow: hidden;
-  line-height: 1.4rem;
-  height: 4.3rem;
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+  line-height: calc((var(--card-width)) * 1 / 10 + 4px);
+  height: calc((var(--card-width)) * 4 / 10);
+  font-size: calc((var(--card-width)) * 1 / 10);
 }
 
 .row {
   display: flex;
   gap: 1rem;
-  font-size: 1rem;
+  font-size: calc((var(--card-width)) * 1 / 11);
 }
 
 .row > .colLeft > p {

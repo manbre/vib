@@ -32,15 +32,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: calc((var(--videoCard-width)) * 10 / 16);
-  height: calc((var(--videoCard-width)) * 2 / 7);
-  max-height: 2.2em;
-  padding: 0.5em;
+  min-width: calc((var(--card-width)) * 10 / 18);
+  height: calc((var(--card-width)) * 2 / 10);
+  max-height: 2.2rem;
+  padding: 0.5rem;
   border-style: none;
-  border-radius: var(--videoCard-radius);
-  margin-right: 0.6em;
+  border-radius: var(--border-radius);
+  margin-right: 0.4rem;
   background-color: rgb(var(--menu-color));
-  font-size: calc((var(--videoCard-width)) * 1 / 10);
+  font-size: calc((var(--card-width)) * 1 / 10);
   cursor: pointer;
 }
 
@@ -53,13 +53,13 @@
 .next {
   position: absolute;
   z-index: 2;
-  width: calc((var(--videoCard-width)) * 2 / 5);
-  height: calc((var(--videoCard-width)) * 2 / 7);
+  width: calc((var(--card-width)) * 2 / 5);
+  height: calc((var(--card-width)) * 2 / 7);
   max-height: 2.2em;
   border-style: none;
   color: white;
   text-decoration: none;
-  font-size: calc((var(--videoCard-width)) * 1 / 6);
+  font-size: calc((var(--card-width)) * 1 / 6);
   cursor: pointer;
 }
 

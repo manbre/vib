@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { bringEvent } from "../features/event";
@@ -39,7 +39,7 @@ const MovieForm = (props) => {
     initialState
   );
 
-  const [omdbData] = useOmdb({ title: state.title, year: state.year });
+  const [isFetch, setIsFetch] = useState(false);
 
   const [createMovie] = useCreateNewMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
@@ -56,7 +56,13 @@ const MovieForm = (props) => {
     selectedVideo && updateState(selectedVideo);
   }, [selectedVideo]);
 
-  const loadOMDBData = () => {
+  const [omdbData] = useOmdb({
+    title: state.title,
+    year: state.year,
+    isFetch: isFetch,
+  });
+
+  useEffect(() => {
     omdbData &&
       updateState({
         poster: omdbData.Poster,
@@ -75,7 +81,8 @@ const MovieForm = (props) => {
         rating: omdbData.Ratings && omdbData.Ratings[1].Value.substring(0, 2),
         runtime: omdbData.Runtime && omdbData.Runtime.slice(0, 3),
       });
-  };
+    setIsFetch(false);
+  }, [omdbData]);
 
   const createVideo = () => {
     if (state.title !== "") {
@@ -181,7 +188,10 @@ const MovieForm = (props) => {
               onChange={(e) => updateState({ year: e.target.value })}
             ></input>
           </div>
-          <button className={styles.omdbBtn} onClick={loadOMDBData}></button>
+          <button
+            className={styles.omdbBtn}
+            onClick={() => setIsFetch(true)}
+          ></button>
         </div>
 
         <label className={styles.poster}>

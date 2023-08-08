@@ -1,7 +1,7 @@
 .container {
   display: flex;
-  min-height: 100vh;
-  max-height: fit-content;
+  height: 100vh;
+  overflow: hidden;
   background-color: rgb(var(--back-color));
 }
 
@@ -9,8 +9,8 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  width: 100%;
-  padding-top: 1rem;
+  width: 60%;
+  height: 100vh; /*for vertical scrolling*/ 
   background-color: rgb(var(--back-color));
 }
 
@@ -19,13 +19,13 @@ header {
   top: 0;
   z-index: 2;
   width: 100%;
+  padding-top: 1rem;
+  background-color: rgb(var(--back-color));
 }
 
 .right {
-  position: relative;
-  z-index: 2;
   display: flex;
-  width: 70%;
+  width: 40%;
   background-color: rgb(var(--menu-color));
 }
 
@@ -44,22 +44,4 @@ header {
 .trailer > video {
   width: 100%;
   object-fit: fill;
-}
-
-.closeBtn {
-  position: absolute;
-  z-index: 3;
-  width: 2em;
-  height: 2em;
-  margin-top: 1em;
-  right: 1em;
-  border: none;
-  border-radius: 2em;
-  background-position: center;
-  background-size: 2em;
-  background-repeat: no-repeat;
-  background-color: rgba(var(--back-color), 0.7);
-  background-image: url("../../assets/icons/icon_close.png");
-  cursor: pointer;
-  transition: 0.2s;
 }
