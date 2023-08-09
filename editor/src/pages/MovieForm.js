@@ -198,13 +198,15 @@ const MovieForm = (props) => {
           <label className={styles.poster}>
             <img
               src={
-                state.poster &&
-                `http://localhost:9000/stream/image/${state.poster}`
+                state.poster && !state.poster.includes("http")
+                  ? `http://localhost:9000/stream/image/${state.poster}`
+                  : state.poster
               }
               onError={(event) =>
                 (event.target.src =
-                  state.poster &&
-                  `http://localhost:9000/stream/image/${state.poster}`)
+                  state.poster && !state.poster.includes("http")
+                    ? `http://localhost:9000/stream/image/${state.poster}`
+                    : "")
               }
             />
           </label>
