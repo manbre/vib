@@ -4,8 +4,11 @@ import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { bringEvent } from "../features/event";
 import useOmdb from "../hooks/useOmdb";
+import useWebSocket from "../hooks/useWebSocket";
 
 import {
+  useGetMovieByIdQuery,
+  //
   useCreateNewMovieMutation,
   useUpdateMovieMutation,
   useDeleteMovieMutation,
@@ -42,17 +45,19 @@ const MovieForm = (props) => {
   const [createMovie] = useCreateNewMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie] = useDeleteMovieMutation();
-  const [copyMovie] = useCopyMovieFilesMutation();
+  const [copyMovieFiles] = useCopyMovieFilesMutation();
   const [deleteMovieFiles] = useDeleteMovieFilesMutation();
 
   const selectedVideo = useSelector((state) => state.video.video);
 
   const dispatch = useDispatch();
+  const [isReady, val, send] = useWebSocket();
+  const { data: selected } = useGetMovieByIdQuery(val && val.id && val.id);
 
   useEffect(() => {
     resetInput();
-    selectedVideo && updateState(selectedVideo);
-  }, [selectedVideo]);
+    selected && updateState(selected);
+  }, [selected]);
 
   const { omdbData, fetchOmdb } = useOmdb();
 
@@ -86,11 +91,9 @@ const MovieForm = (props) => {
         .unwrap()
         .then((payload) => props.changeMessage(payload.message))
         .catch((error) => props.changeMessage(error.message))
-        .then(
-          dispatch(bringEvent({ name: "create", type: "movie", state: state }))
-        );
-      copyFiles();
-      resetInput();
+        .then(copyFiles())
+        .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
+        .then(resetInput());
     }
   };
 
@@ -99,11 +102,9 @@ const MovieForm = (props) => {
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
-      .then(
-        dispatch(bringEvent({ name: "update", type: "movie", state: state }))
-      );
-    copyFiles();
-    resetInput();
+      .then(copyFiles())
+      .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
+      .then(resetInput());
   };
 
   const deleteVideo = () => {
@@ -111,10 +112,8 @@ const MovieForm = (props) => {
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
-      .then(
-        dispatch(bringEvent({ name: "delete", type: "movie", state: state }))
-      );
-    resetInput();
+      .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
+      .then(resetInput());
   };
 
   const deleteFiles = () => {};
@@ -124,7 +123,7 @@ const MovieForm = (props) => {
       state.trailer != null ||
       state.german != null ||
       state.english != null) &&
-      copyMovie(state);
+      copyMovieFiles(state);
   };
 
   const resetInput = () => {
@@ -195,18 +194,21 @@ const MovieForm = (props) => {
           ></button>
         </div>
 
-        <label className={styles.poster}>
-          <img
-            src={
-              selectedVideo
-                ? `http://localhost:9000/stream/image/${state.poster}`
-                : state.poster
-            }
-            onError={(event) =>
-              (event.target.src = require("../assets/images/placeholder.jpg").default)
-            }
-          />
-        </label>
+        <div className={styles.row}>
+          <label className={styles.poster}>
+            <img
+              src={
+                state.poster &&
+                `http://localhost:9000/stream/image/${state.poster}`
+              }
+              onError={(event) =>
+                (event.target.src =
+                  state.poster &&
+                  `http://localhost:9000/stream/image/${state.poster}`)
+              }
+            />
+          </label>
+        </div>
         <div className={styles.row}>
           <div className={styles.longBox}>
             <label>Poster</label>

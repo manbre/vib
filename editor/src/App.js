@@ -27,18 +27,17 @@ const App = () => {
 
   //------------------------------------------------------------------------------------
   //WebSocket
-  const [ready, val, send] = useWebSocket();
+  const [isReady, val, send] = useWebSocket();
 
   useEffect(() => {
-    val && console.log(val);
     val && val.name === "select" && dispatch(selectVideo(val.video));
-/*     val === "frontend is on" && dispatch(toggleFrontend(true));
+    /*     val === "frontend is on" && dispatch(toggleFrontend(true));
     val === "frontend is off" && dispatch(toggleFrontend(false)); */
   }, [val]);
 
   useEffect(() => {
-    event && event.name !== "" && ready && send(JSON.stringify(event));
-  }, [ready, event]);
+    event && event.name !== "" && isReady && send(JSON.stringify(event));
+  }, [isReady, event]);
 
   //------------------------------------------------------------------------------------
 

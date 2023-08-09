@@ -46,6 +46,19 @@ const getAllMovies = async (req, res) => {
 };
 
 /**
+ * @req id
+ * @res movie by id
+ */
+const getMovieById = async (req, res) => {
+  let movie = await Movies.findOne({
+    where: { id: req.params.id },
+  }).catch((err) => {
+    res.send(err);
+  });
+  res.send(movie);
+};
+
+/**
  * @req search, input
  * @res movies by search
  */
@@ -397,6 +410,7 @@ module.exports = {
   getAllGenres,
   //
   getAllMovies,
+  getMovieById,
   getMoviesBySearch,
   getMoviesByGenre,
   //

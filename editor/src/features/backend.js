@@ -5,7 +5,12 @@ export const backend = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:9000/" }),
   endpoints: (builder) => ({
     //------------------------------------------------------------------------------------
-    //MUTATIONS (Editor)
+    //QUERIES
+    getMovieById: builder.query({
+      query: (id) => `movies/id/${id}`,
+    }),
+    //------------------------------------------------------------------------------------
+    //MUTATIONS
     //
     createNewMovie: builder.mutation({
       query: (movie) => ({
@@ -77,6 +82,8 @@ export const backend = createApi({
 });
 
 export const {
+  useGetMovieByIdQuery,
+  //
   useCreateNewMovieMutation,
   useCreateNewEpisodeMutation,
   //

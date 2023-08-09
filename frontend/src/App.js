@@ -14,27 +14,27 @@ const App = () => {
 
   //------------------------------------------------------------------------------------
   //WebSocket
-  const [ready, val, send] = useWebSocket();
+  const [isReady, val, send] = useWebSocket();
 
   useEffect(() => {
-    if (ready) {
+    if (isReady) {
       /*       !isFrontend && send(JSON.stringify("frontend is off"));
       isFrontend && send(JSON.stringify("frontend is on")); */
     }
-  }, [ready, isFrontend]);
+  }, [isReady, isFrontend]);
 
   useEffect(() => {
-    ready &&
+    isReady &&
       send(
         JSON.stringify({
-          name: "select",
-          type: "movie",
-          video: selectedVideo,
+          name: "",
+          type: 1,
+          id: selectedVideo && selectedVideo.id,
         })
       );
-  }, [ready, selectedVideo]);
+  }, [isReady, selectedVideo]);
 
-/*   window.onload = () => {
+  /*   window.onload = () => {
     setIsFrontend(true);
   }; */
 

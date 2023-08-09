@@ -3,22 +3,14 @@ import { createSlice } from "@reduxjs/toolkit";
 export const eventSlice = createSlice({
   name: "event",
   initialState: {
-    event: { name: "", type: "movie", video: null },
-    done: false,
-    message: "",
+    event: { name: "", type: 1, id: null }, //1: movie, 2: tvshow
   },
   reducers: {
     bringEvent: (state, action) => {
       state.event = action.payload;
     },
-    isDone: (state, action) => {
-      state.done = action.payload;
-    },
-    showMessage: (state, action) => {
-      state.message = action.payload;
-    },
   },
 });
 
-export const { bringEvent, isDone, showMessage } = eventSlice.actions;
+export const { bringEvent } = eventSlice.actions;
 export default eventSlice.reducer;

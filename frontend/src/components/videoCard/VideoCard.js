@@ -1,12 +1,11 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoCard.module.css";
 import { selectVideo } from "../../features/video";
 
 const VideoCard = ({ video }) => {
   const markedCard = useSelector((state) => state.view.card);
-  const viewType = useSelector((state) => state.view.viewType);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -21,28 +20,13 @@ const VideoCard = ({ video }) => {
         }
       }
     }
+    //=== null ________ !important!
     if (markedCard === null) {
       for (let i = 0; i < elements.length; i++) {
         elements[i].style = "border: none;";
       }
     }
   }, [markedCard]);
-
-  const getTitle = () => {
-    switch (viewType) {
-      case 1:
-        return <p>{video.title}</p>;
-      case 2:
-        return (
-          <>
-            <p>
-              {video.series} - Season {video.season}
-            </p>
-          </>
-        );
-      default:
-    }
-  };
 
   return (
     <div

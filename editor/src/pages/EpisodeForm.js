@@ -31,7 +31,6 @@ const EpisodeForm = (props) => {
   const [german, setGerman] = useState("");
   const [english, setEnglish] = useState("");
 
-
   const [createEpisode] = useCreateNewEpisodeMutation();
   const [updateEpisode] = useUpdateEpisodeMutation();
   const [deleteEpisode] = useDeleteEpisodeMutation();
@@ -195,13 +194,7 @@ const EpisodeForm = (props) => {
     <div className={styles.container}>
       <div id="episode_form" className={styles.form}>
         <label className={styles.poster}>
-          <img
-            src={poster}
-            onError={(event) =>
-              (event.target.src = require("../assets/images/placeholder.jpg").default)
-            }
-            onLoad={(event) => (event.target.style.display = "inline-block")}
-          />
+          <img src={poster} />
         </label>
         <div className={styles.row}>
           <div className={styles.longBox}>

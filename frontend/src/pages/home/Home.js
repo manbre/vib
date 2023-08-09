@@ -37,8 +37,8 @@ const Home = () => {
   const [isReady, val, send] = useWebSocket();
   useEffect(() => {
     val &&
-      val.name !== "" &&
-      val.name !== "select" &&
+      val.name &&
+      val.name === "update" &&
       refetchByGenre() &&
       dispatch(selectVideo(null));
   }, [val]);
