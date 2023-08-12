@@ -3,17 +3,18 @@ const router = express.Router();
 const movieController = require("../controllers/movieController");
 
 router.get("/", movieController.getAllMovies);
-router.get("/id/:id", movieController.getMovieById);
+router.get("/id/:id", movieController.getOneMovieById);
 router.get("/genres", movieController.getAllGenres);
 router.get("/genre/:genre", movieController.getMoviesByGenre);
 router.get("/search/:search/:input", movieController.getMoviesBySearch);
 //
-router.post("/", movieController.createNewMovie);
-router.post("/files", movieController.copyMovieFiles);
+router.post("/", movieController.createMovieData);
+router.post("/files", movieController.createMovieFiles);
 //
-router.put("/", movieController.updateMovie);
+router.put("/", movieController.updateMovieData);
+router.put("/files", movieController.updateMovieFiles);
 //
-router.delete("/", movieController.deleteMovie);
+router.delete("/", movieController.deleteMovieData);
 router.delete("/files", movieController.deleteMovieFiles);
 
 module.exports = router;

@@ -21,7 +21,7 @@ const App = () => {
 
   const type = useSelector((state) => state.view.type);
   const event = useSelector((state) => state.event.event);
-  const selected = useSelector((state) => state.video.video);
+  const selectedVideo = useSelector((state) => state.video.video);
 
   const dispatch = useDispatch();
 
@@ -46,12 +46,12 @@ const App = () => {
       <MessageBox message={box} />
       <TopBar />
       <TabBar />
-      {type === "movie" ? (
+      {type === 1 ? (
         <MovieForm
           changeMessage={(message) => setBox(message)}
           childRef={movieEditor}
         />
-      ) : type === "episode" ? (
+      ) : type === 2 ? (
         <EpisodeForm
           changeMessage={(message) => setBox(message)}
           childRef={episodeEditor}
@@ -59,12 +59,12 @@ const App = () => {
       ) : (
         <SourceForm />
       )}
-      {type !== "source" && (
+      {type !== 3 && (
         <div className={styles.btnsBar}>
           <button
             className={styles.deleteBtn}
             onClick={() =>
-              type === "movie"
+              type === 1
                 ? movieEditor.current.deleteVideo()
                 : episodeEditor.current.deleteVideo()
             }
@@ -72,11 +72,11 @@ const App = () => {
           <button
             className={styles.submitBtn}
             onClick={() =>
-              type === "movie"
-                ? !selected
+              type === 1
+                ? !selectedVideo
                   ? movieEditor.current.createVideo()
                   : movieEditor.current.updateVideo()
-                : !selected
+                : !selectedVideo
                 ? episodeEditor.current.createVideo()
                 : episodeEditor.current.updateVideo()
             }

@@ -12,7 +12,7 @@ export const backend = createApi({
     //------------------------------------------------------------------------------------
     //MUTATIONS
     //
-    createNewMovie: builder.mutation({
+    createMovieData: builder.mutation({
       query: (movie) => ({
         url: "/movies",
         method: "POST",
@@ -57,10 +57,17 @@ export const backend = createApi({
       }),
     }),
     //
-    copyMovieFiles: builder.mutation({
+    createMovieFiles: builder.mutation({
       query: (movie) => ({
         url: "/movies/files",
         method: "POST",
+        body: movie,
+      }),
+    }),
+    updateMovieFiles: builder.mutation({
+      query: (movie) => ({
+        url: "/movies/files",
+        method: "PUT",
         body: movie,
       }),
     }),
@@ -84,7 +91,7 @@ export const backend = createApi({
 export const {
   useGetMovieByIdQuery,
   //
-  useCreateNewMovieMutation,
+  useCreateMovieDataMutation,
   useCreateNewEpisodeMutation,
   //
   useUpdateMovieMutation,
@@ -93,7 +100,8 @@ export const {
   useDeleteMovieMutation,
   useDeleteEpisodeMutation,
   //
-  useCopyMovieFilesMutation,
+  useCreateMovieFilesMutation,
+  useUpdateMovieFilesMutation,
   useDeleteMovieFilesMutation,
   useCopyEpisodeFilesMutation,
 } = backend;

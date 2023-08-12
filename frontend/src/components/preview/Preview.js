@@ -153,7 +153,7 @@ const Preview = () => {
         onClick={() => dispatch(selectVideo(null))}
       ></button>
       <div className={styles.trailer}>
-        {trailer ? (
+ {/*        {trailer ? (
           <video
             autoPlay
             loop
@@ -172,7 +172,7 @@ const Preview = () => {
               (event.target.src = `http://localhost:9000/stream/image/${poster}`)
             }
           />
-        )}
+        )} */}
         <div className={styles.btns}>
           {getPlayButtons()}
           <div className={styles.audios}>
@@ -206,7 +206,9 @@ const Preview = () => {
         <div className={styles.numbers}>
           {viewType === 1 && (
             <div className={styles.rating}>
-              {rating > 59 ? (
+              {rating > 74 ? (
+                <span className={styles.fresh}></span>
+              ) : rating > 59 ? (
                 <span className={styles.tomatoes}></span>
               ) : (
                 <span className={styles.rotten}></span>

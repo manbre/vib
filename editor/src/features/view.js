@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 export const viewSlice = createSlice({
   name: "view",
   initialState: {
-    /* movie, episode, source */
-    type: "movie",
+    /* 1: movie, 2: episode, 3: source */
+    type: 1,
     isFrontend: false,
   },
   reducers: {

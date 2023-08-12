@@ -164,6 +164,7 @@
 .hourglass,
 .rotten,
 .tomatoes,
+.fresh,
 .oscar {
   width: 1rem;
   aspect-ratio: 1/1;
@@ -185,6 +186,9 @@
 }
 .tomatoes {
   background-image: url("../../assets/icons/rotten_tomatoes_60.png");
+}
+.fresh {
+  background-image: url("../../assets/icons/rotten_tomatoes_75.png");
 }
 
 .oscar {

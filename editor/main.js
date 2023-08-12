@@ -8,8 +8,10 @@ const isDev = !app.isPackaged;
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 800,
+    width: 600,
+    minWidth: 500,
+    height: 900,
+    minHeight: 750,
     icon: __dirname + "./src/assets/images/logo.png",
     webPreferences: {
       nodeIntegration: false,

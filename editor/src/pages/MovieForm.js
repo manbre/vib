@@ -1,25 +1,27 @@
 import React from "react";
-import { useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { bringEvent } from "../features/event";
+import { selectVideo } from "../features/video";
 import useOmdb from "../hooks/useOmdb";
 import useWebSocket from "../hooks/useWebSocket";
 
 import {
   useGetMovieByIdQuery,
   //
-  useCreateNewMovieMutation,
+  useCreateMovieDataMutation,
   useUpdateMovieMutation,
   useDeleteMovieMutation,
-  useCopyMovieFilesMutation,
+  //
+  useCreateMovieFilesMutation,
+  useUpdateMovieFilesMutation,
   useDeleteMovieFilesMutation,
 } from "../features/backend";
 
 const MovieForm = (props) => {
   //
   const initialState = {
-    id: "",
     title: "",
     series: "",
     director: "",
@@ -42,21 +44,35 @@ const MovieForm = (props) => {
     initialState
   );
 
-  const [createMovie] = useCreateNewMovieMutation();
+  const [selectedId, setSelectedId] = useState(null);
+
+  const [createMovieData] = useCreateMovieDataMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie] = useDeleteMovieMutation();
-  const [copyMovieFiles] = useCopyMovieFilesMutation();
+  const [createMovieFiles] = useCreateMovieFilesMutation();
+  const [updateMovieFiles] = useUpdateMovieFilesMutation();
   const [deleteMovieFiles] = useDeleteMovieFilesMutation();
 
   const selectedVideo = useSelector((state) => state.video.video);
 
   const dispatch = useDispatch();
   const [isReady, val, send] = useWebSocket();
-  const { data: selected } = useGetMovieByIdQuery(val && val.id && val.id);
+  const { data: selected } = useGetMovieByIdQuery(selectedId && selectedId);
+
+  useEffect(() => {
+    val &&
+      val.name &&
+      val.name === "selected" &&
+      val.type &&
+      val.type === 1 &&
+      val.id &&
+      setSelectedId(val.id);
+  }, [val]);
 
   useEffect(() => {
     resetInput();
     selected && updateState(selected);
+    selected && dispatch(selectVideo(selected));
   }, [selected]);
 
   const { omdbData, fetchOmdb } = useOmdb();
@@ -87,23 +103,58 @@ const MovieForm = (props) => {
 
   const createVideo = () => {
     if (state.title !== "") {
-      createMovie(state)
+      createMovieData(state)
         .unwrap()
         .then((payload) => props.changeMessage(payload.message))
         .catch((error) => props.changeMessage(error.message))
-        .then(copyFiles())
+        .then(updateFiles())
         .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
         .then(resetInput());
     }
   };
 
   const updateVideo = () => {
-    updateMovie(state)
+    updateMovie({
+      id: selectedVideo.id,
+      //
+      ...(state.title !== selectedVideo.title
+        ? { title: state.title }
+        : { title: selectedVideo.title }),
+      ...(state.series !== selectedVideo.series && { series: state.series }),
+      ...(state.director !== selectedVideo.director && {
+        director: state.director,
+      }),
+      ...(state.genre !== selectedVideo.genre && { genre: state.genre }),
+      //
+      ...(state.year !== selectedVideo.year && { year: state.year }),
+      ...(state.awards !== selectedVideo.awards && { awards: state.awards }),
+      ...(state.rating !== selectedVideo.rating && { rating: state.rating }),
+      ...(state.runtime !== selectedVideo.runtime && {
+        runtime: state.runtime,
+      }),
+      //
+      ...(state.actors !== selectedVideo.actors && { actors: state.actors }),
+      ...(state.plot !== selectedVideo.plot && { plot: state.plot }),
+      //
+      ...((state.poster !== selectedVideo.poster ||
+        state.title !== selectedVideo.title) && { poster: state.poster }),
+      ...((state.trailer !== selectedVideo.trailer ||
+        state.title !== selectedVideo.title) && {
+        trailer: state.trailer,
+      }),
+      ...((state.german !== selectedVideo.german ||
+        state.title !== selectedVideo.title) && { german: state.german }),
+      ...((state.english !== selectedVideo.english ||
+        state.title !== selectedVideo.title) && {
+        english: state.english,
+      }),
+    })
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
-      .then(copyFiles())
+      .then(updateFiles())
       .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
+      .then(dispatch(selectVideo(null)))
       .then(resetInput());
   };
 
@@ -113,17 +164,65 @@ const MovieForm = (props) => {
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
       .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
+      .then(
+        deleteMovieFiles({
+          title: selectedVideo && selectedVideo.title,
+          poster: null,
+          trailer: null,
+          german: null,
+          english: null,
+        })
+      )
+      .then(dispatch(selectVideo(null)))
       .then(resetInput());
   };
 
-  const deleteFiles = () => {};
-
-  const copyFiles = () => {
-    (state.poster != null ||
-      state.trailer != null ||
-      state.german != null ||
-      state.english != null) &&
-      copyMovieFiles(state);
+  const updateFiles = () => {
+    if (selectedVideo) {
+      console.log(
+        state.poster !== selectedVideo.poster ||
+          state.title !== selectedVideo.title
+      );
+      updateMovieFiles({
+        //rename file if state of filename is different to filename of selectedVideo
+        title: state.title,
+        old_title: state.title !== selectedVideo.title && selectedVideo.title,
+        poster:
+          (state.poster !== selectedVideo.poster ||
+            state.title !== selectedVideo.title) &&
+          state.poster,
+        trailer:
+          (state.trailer !== selectedVideo.trailer ||
+            state.title !== selectedVideo.title) &&
+          state.trailer,
+        german:
+          (state.german !== selectedVideo.german ||
+            state.title !== selectedVideo.title) &&
+          state.german,
+        english:
+          (state.english !== selectedVideo.english ||
+            state.title !== selectedVideo.title) &&
+          state.english,
+      });
+      //
+      deleteMovieFiles({
+        //deletes file if state of filename is ""
+        title: selectedVideo.title,
+        poster: state.poster !== "" && state.poster,
+        trailer: state.trailer !== "" && state.trailer,
+        german: state.german !== "" && state.german,
+        english: state.english !== "" && state.english,
+      });
+    } else {
+      (poster || trailer || german || english) &&
+        createMovieFiles({
+          title: state.title,
+          poster: state.poster,
+          trailer: state.trailer,
+          german: state.german,
+          english: state.english,
+        });
+    }
   };
 
   const resetInput = () => {
@@ -196,7 +295,7 @@ const MovieForm = (props) => {
 
         <div className={styles.row}>
           <label className={styles.poster}>
-            <img
+        {/*     <img
               src={
                 state.poster && !state.poster.includes("http")
                   ? `http://localhost:9000/stream/image/${state.poster}`
@@ -206,9 +305,9 @@ const MovieForm = (props) => {
                 (event.target.src =
                   state.poster && !state.poster.includes("http")
                     ? `http://localhost:9000/stream/image/${state.poster}`
-                    : "")
+                    : state.poster)
               }
-            />
+            /> */}
           </label>
         </div>
         <div className={styles.row}>

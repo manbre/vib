@@ -27,7 +27,7 @@ const App = () => {
     isReady &&
       send(
         JSON.stringify({
-          name: "",
+          name: "selected",
           type: 1,
           id: selectedVideo && selectedVideo.id,
         })

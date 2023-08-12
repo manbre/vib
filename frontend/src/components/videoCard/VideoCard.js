@@ -34,7 +34,7 @@ const VideoCard = ({ video }) => {
       onClick={() => dispatch(selectVideo(video))}
     >
       <div className={styles.poster}>
-        <img
+     {/*    <img
           alt="poster"
           src={
             video.poster
@@ -44,7 +44,7 @@ const VideoCard = ({ video }) => {
           onError={(event) =>
             (event.target.src = `http://localhost:9000/stream/image/${video.poster}`)
           }
-        />
+        /> */}
       </div>
 
       <div className={styles.info}>
