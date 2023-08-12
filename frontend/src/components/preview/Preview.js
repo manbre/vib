@@ -4,6 +4,7 @@ import styles from "./Preview.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CardSlider from "../cardSlider/CardSlider";
+import AsyncPoster from "../asyncPoster/AsnycPoster";
 import { selectVideo } from "../../features/video";
 import { selectAudio } from "../../features/video";
 import { muteTrailer } from "../../features/view";
@@ -153,7 +154,7 @@ const Preview = () => {
         onClick={() => dispatch(selectVideo(null))}
       ></button>
       <div className={styles.trailer}>
- {/*        {trailer ? (
+        {trailer ? (
           <video
             autoPlay
             loop
@@ -161,18 +162,8 @@ const Preview = () => {
             src={`http://localhost:9000/stream/video/trailer/${trailer}`}
           ></video>
         ) : (
-          <img
-            alt="poster"
-            src={
-              poster
-                ? `http://localhost:9000/stream/image/${poster}`
-                : require("../../assets/images/placeholder.jpg")
-            }
-            onError={(event) =>
-              (event.target.src = `http://localhost:9000/stream/image/${poster}`)
-            }
-          />
-        )} */}
+          <AsyncPoster src={`http://localhost:9000/stream/image/${poster}`} />
+        )}
         <div className={styles.btns}>
           {getPlayButtons()}
           <div className={styles.audios}>

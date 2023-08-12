@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoCard.module.css";
 import { selectVideo } from "../../features/video";
+import AsyncPoster from "../asyncPoster/AsnycPoster";
 
 const VideoCard = ({ video }) => {
   const markedCard = useSelector((state) => state.view.card);
@@ -34,17 +35,9 @@ const VideoCard = ({ video }) => {
       onClick={() => dispatch(selectVideo(video))}
     >
       <div className={styles.poster}>
-     {/*    <img
-          alt="poster"
-          src={
-            video.poster
-              ? `http://localhost:9000/stream/image/${video.poster}`
-              : require("../../assets/images/placeholder.jpg")
-          }
-          onError={(event) =>
-            (event.target.src = `http://localhost:9000/stream/image/${video.poster}`)
-          }
-        /> */}
+        <AsyncPoster
+          src={`http://localhost:9000/stream/image/${video.poster}`}
+        />
       </div>
 
       <div className={styles.info}>

@@ -6,6 +6,7 @@ import { bringEvent } from "../features/event";
 import { selectVideo } from "../features/video";
 import useOmdb from "../hooks/useOmdb";
 import useWebSocket from "../hooks/useWebSocket";
+import AsyncPoster from "../components/asyncPoster/AsnycPoster";
 
 import {
   useGetMovieByIdQuery,
@@ -295,19 +296,13 @@ const MovieForm = (props) => {
 
         <div className={styles.row}>
           <label className={styles.poster}>
-        {/*     <img
-              src={
-                state.poster && !state.poster.includes("http")
-                  ? `http://localhost:9000/stream/image/${state.poster}`
-                  : state.poster
-              }
-              onError={(event) =>
-                (event.target.src =
-                  state.poster && !state.poster.includes("http")
-                    ? `http://localhost:9000/stream/image/${state.poster}`
-                    : state.poster)
-              }
-            /> */}
+            {state.poster && !state.poster.includes("http") ? (
+              <AsyncPoster
+                src={`http://localhost:9000/stream/image/${state.poster}`}
+              />
+            ) : (
+              <AsyncPoster src={state.poster} />
+            )}
           </label>
         </div>
         <div className={styles.row}>
