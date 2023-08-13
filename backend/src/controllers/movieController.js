@@ -323,11 +323,6 @@ const deleteMovieData = async (req, res) => {
  * @res copy files to directory
  */
 const createMovieFiles = async (req, res) => {
-  let posterIsReady = true;
-  let trailerIsReady = true;
-  let germanIsReady = true;
-  let englishIsReady = true;
-
   let posterDir = dir + "//poster//";
   let trailerDir = dir + "//trailer//";
   let germanDir = dir + "//de//";
@@ -335,87 +330,76 @@ const createMovieFiles = async (req, res) => {
   //
 
   if (req.body.poster) {
-    posterIsReady = false;
     //create "dir" if not exists, "recursive: true" => for parent folder too
     !fs.existsSync(posterDir) && fs.mkdirSync(posterDir, { recursive: true });
     //download poster from OMDB api to location
     if (req.body.poster.includes("http")) {
       let file = fs.createWriteStream(posterDir + req.body.title + ".jpg");
-      https
-        .get(req.body.poster, (response) => {
-          response.pipe(file);
-          file.on("finish", () => {
-            file.close();
-          });
-        })
-        .then((posterIsReady = true))
-        .then(console.log("poster is ready"));
+      https.get(req.body.poster, (response) => {
+        response.pipe(file);
+        file.on("finish", () => {
+          file.close();
+        });
+      });
     } else {
       //copy and rename file to directory
-      fs.copyFile(req.body.poster, posterDir + req.body.title + ".jpg")
-        .then((posterIsReady = true))
-        .then(console.log("poster is ready"));
+      fs.copyFile(
+        req.body.poster,
+        posterDir + req.body.title + ".jpg",
+        (err) => {
+          err && console.log(err);
+        }
+      );
     }
   } else {
-    fs.existsSync(posterDir) &&
-      fs
-        .rm(posterDir, (err) => {
-          console.log(err);
-        })
-        .then((posterIsReady = true));
+    fs.existsSync(posterDir + req.body.title + ".jpg") &&
+      fs.rm(posterDir + req.body.title + ".jpg", (err) => {
+        err && console.log(err);
+      });
   }
   //
   if (req.body.trailer) {
-    trailerIsReady = false;
     !fs.existsSync(trailerDir) && fs.mkdirSync(trailerDir, { recursive: true });
-    fs.copyFile(req.body.trailer, trailerDir + req.body.title + ".mp4")
-      .then((trailerIsReady = true))
-      .then(console.log("trailer is ready"));
+    fs.copyFile(
+      req.body.trailer,
+      trailerDir + req.body.title + ".mp4",
+      (err) => {
+        err && console.log(err);
+      }
+    );
   } else {
-    fs.existsSync(trailerDir) &&
-      fs
-        .rm(trailerDir, (err) => {
-          console.log(err);
-        })
-        .then((trailerIsReady = true));
+    fs.existsSync(trailerDir + req.body.title + ".mp4") &&
+      fs.rm(trailerDir + req.body.title + ".mp4", (err) => {
+        err && console.log(err);
+      });
   }
   //
   if (req.body.german) {
-    germanIsReady = false;
     !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
-    fs.copyFile(req.body.german, req.body.title + "_de.mp4")
-      .then((germanIsReady = true))
-      .then(console.log("german is ready"));
+    fs.copyFile(req.body.german, req.body.title + "_de.mp4", (err) => {
+      err && console.log(err);
+    });
   } else {
-    fs.existsSync(germanDir) &&
-      fs
-        .rm(germanDir, (err) => {
-          console.log(err);
-        })
-        .then((germanIsReady = true));
+    fs.existsSync(germanDir + req.body.title + ".mp4") &&
+      fs.rm(germanDir + req.body.title + ".mp4", (err) => {
+        err && console.log(err);
+      });
   }
   //
   if (req.body.english) {
-    englishIsReady = false;
     !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
-    fs.copyFile(req.body.english, req.body.title + "_en.mp4")
-      .then((englishIsReady = true))
-      .then(console.log("english is ready"));
-  } else {
-    fs.existsSync(englishDir) &&
-      fs
-        .rm(englishDir, (err) => {
-          console.log(err);
-        })
-        .then((englishIsReady = true));
-  }
-  posterIsReady &&
-    trailerIsReady &&
-    germanIsReady &&
-    englishIsReady &&
-    res.status(200).send({
-      message: "movie files of '" + req.body.title + "' have been updated.",
+    fs.copyFile(req.body.english, req.body.title + "_en.mp4", (err) => {
+      err && console.log(err);
     });
+  } else {
+    fs.existsSync(englishDir + req.body.title + ".mp4") &&
+      fs.rm(englishDir + req.body.title + ".mp4", (err) => {
+        err && console.log(err);
+      });
+  }
+  res.status(200).send({
+    message: "movie files of '" + req.body.title + "' have been updated.",
+  });
 };
 
 const updateMovieFiles = async (req, res) => {
@@ -464,22 +448,22 @@ const deleteMovieFiles = async (req, res) => {
     !req.body.poster &&
       fs.existsSync(posterDir) &&
       fs.rm(posterDir, (err) => {
-        console.log(err);
+        err && console.log(err);
       });
     !req.body.trailer &&
       fs.existsSync(trailerDir) &&
       fs.rm(trailerDir, (err) => {
-        console.log(err);
+        err && console.log(err);
       });
     !req.body.german &&
       fs.existsSync(germanDir) &&
       fs.rm(germanDir, (err) => {
-        console.log(err);
+        err && console.log(err);
       });
     !req.body.english &&
       fs.existsSync(englishDir) &&
       fs.rm(englishDir, (err) => {
-        console.log(err);
+        err && console.log(err);
       });
   } catch {
     res.status(500).send({

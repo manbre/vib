@@ -58,7 +58,9 @@ const MovieForm = (props) => {
 
   const dispatch = useDispatch();
   const [isReady, val, send] = useWebSocket();
-  const { data: selected } = useGetMovieByIdQuery(selectedId && selectedId);
+  const { data: selected, refetch: reselect } = useGetMovieByIdQuery(
+    selectedId && selectedId
+  );
 
   useEffect(() => {
     val &&
@@ -156,58 +158,50 @@ const MovieForm = (props) => {
       .then(updateFiles())
       .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
       .then(dispatch(selectVideo(null)))
-      .then(resetInput());
+      .then(resetInput())
+      .then(reselect());
   };
 
   const deleteVideo = () => {
+    deleteMovieFiles({
+      title: selectedVideo && selectedVideo.title,
+      poster: null,
+      trailer: null,
+      german: null,
+      english: null,
+    });
     deleteMovie(state)
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
       .then(dispatch(bringEvent({ name: "update", type: 1, id: null })))
-      .then(
-        deleteMovieFiles({
-          title: selectedVideo && selectedVideo.title,
-          poster: null,
-          trailer: null,
-          german: null,
-          english: null,
-        })
-      )
       .then(dispatch(selectVideo(null)))
       .then(resetInput());
   };
 
   const updateFiles = () => {
     if (selectedVideo) {
-      console.log(
-        state.poster !== selectedVideo.poster ||
-          state.title !== selectedVideo.title
-      );
+      createMovieFiles({
+        //create new file if filename of state is different to filename of selectedVideo
+        title: state.title,
+        poster: state.poster !== selectedVideo.poster && state.poster,
+        trailer: state.trailer !== selectedVideo.trailer && state.trailer,
+        german: state.german !== selectedVideo.german && state.german,
+        english: state.english !== selectedVideo.english && state.english,
+      });
+      //
       updateMovieFiles({
-        //rename file if state of filename is different to filename of selectedVideo
+        //rename file if title of state of is different to title of selectedVideo
         title: state.title,
         old_title: state.title !== selectedVideo.title && selectedVideo.title,
-        poster:
-          (state.poster !== selectedVideo.poster ||
-            state.title !== selectedVideo.title) &&
-          state.poster,
-        trailer:
-          (state.trailer !== selectedVideo.trailer ||
-            state.title !== selectedVideo.title) &&
-          state.trailer,
-        german:
-          (state.german !== selectedVideo.german ||
-            state.title !== selectedVideo.title) &&
-          state.german,
-        english:
-          (state.english !== selectedVideo.english ||
-            state.title !== selectedVideo.title) &&
-          state.english,
+        poster: state.title !== selectedVideo.title && state.poster,
+        trailer: state.title !== selectedVideo.title && state.trailer,
+        german: state.title !== selectedVideo.title && state.german,
+        english: state.title !== selectedVideo.title && state.english,
       });
       //
       deleteMovieFiles({
-        //deletes file if state of filename is ""
+        //delete file if filename of state is ""
         title: selectedVideo.title,
         poster: state.poster !== "" && state.poster,
         trailer: state.trailer !== "" && state.trailer,
@@ -296,7 +290,9 @@ const MovieForm = (props) => {
 
         <div className={styles.row}>
           <label className={styles.poster}>
-            {state.poster && !state.poster.includes("http") ? (
+            {state.poster &&
+            !state.poster.includes("http") &&
+            !state.poster.includes(":") ? (
               <AsyncPoster
                 src={`http://localhost:9000/stream/image/${state.poster}`}
               />

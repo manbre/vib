@@ -1,9 +1,10 @@
 import React from "react";
+import { useState, useEffect } from "react";
 
 const AsyncPoster = (props) => {
-  const [loadedSrc, setLoadedSrc] = React.useState(null);
+  const [loadedSrc, setLoadedSrc] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setLoadedSrc(null);
     if (props.src) {
       const handleLoad = () => {
