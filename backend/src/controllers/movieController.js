@@ -323,6 +323,7 @@ const deleteMovieData = async (req, res) => {
  * @res copy files to directory
  */
 const createMovieFiles = async (req, res) => {
+  console.log("__________________create files:___________________________");
   let posterDir = dir + "//poster//";
   let trailerDir = dir + "//trailer//";
   let germanDir = dir + "//de//";
@@ -351,15 +352,11 @@ const createMovieFiles = async (req, res) => {
         }
       );
     }
-  } else {
-    fs.existsSync(posterDir + req.body.title + ".jpg") &&
-      fs.rm(posterDir + req.body.title + ".jpg", (err) => {
-        err && console.log(err);
-      });
   }
-  //
-  if (req.body.trailer) {
-    !fs.existsSync(trailerDir) && fs.mkdirSync(trailerDir, { recursive: true });
+  req.body.trailer &&
+    console.log("create trailer") &&
+    !fs.existsSync(trailerDir) &&
+    fs.mkdirSync(trailerDir, { recursive: true }) &&
     fs.copyFile(
       req.body.trailer,
       trailerDir + req.body.title + ".mp4",
@@ -367,42 +364,26 @@ const createMovieFiles = async (req, res) => {
         err && console.log(err);
       }
     );
-  } else {
-    fs.existsSync(trailerDir + req.body.title + ".mp4") &&
-      fs.rm(trailerDir + req.body.title + ".mp4", (err) => {
-        err && console.log(err);
-      });
-  }
-  //
-  if (req.body.german) {
-    !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
+  req.body.german &&
+    !fs.existsSync(germanDir) &&
+    fs.mkdirSync(germanDir, { recursive: true }) &&
     fs.copyFile(req.body.german, req.body.title + "_de.mp4", (err) => {
       err && console.log(err);
     });
-  } else {
-    fs.existsSync(germanDir + req.body.title + ".mp4") &&
-      fs.rm(germanDir + req.body.title + ".mp4", (err) => {
-        err && console.log(err);
-      });
-  }
-  //
-  if (req.body.english) {
-    !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
+  req.body.english &&
+    !fs.existsSync(englishDir) &&
+    fs.mkdirSync(englishDir, { recursive: true }) &&
     fs.copyFile(req.body.english, req.body.title + "_en.mp4", (err) => {
       err && console.log(err);
     });
-  } else {
-    fs.existsSync(englishDir + req.body.title + ".mp4") &&
-      fs.rm(englishDir + req.body.title + ".mp4", (err) => {
-        err && console.log(err);
-      });
-  }
+
   res.status(200).send({
     message: "movie files of '" + req.body.title + "' have been updated.",
   });
 };
 
 const updateMovieFiles = async (req, res) => {
+  console.log("__________________update files:___________________________");
   let oldPosterDir = dir + "//poster//" + req.body.old_title + ".jpg";
   let oldTrailerDir = dir + "//trailer//" + req.body.old_title + ".mp4";
   let oldGermanDir = dir + "//de//" + req.body.old_title + "_de.mp4";
@@ -413,12 +394,13 @@ const updateMovieFiles = async (req, res) => {
   let newGermanDir = dir + "//de//" + req.body.title + "_de.mp4";
   let newEnglishDir = dir + "//en//" + req.body.title + "_en.mp4";
   //
-  console.log(req.body.poster);
   req.body.poster &&
+    console.log("rename poster") &&
     fs.rename(oldPosterDir, newPosterDir, (err) => {
       err && console.log(err);
     });
   req.body.trailer &&
+    console.log("rename trailer") &&
     fs.rename(oldTrailerDir, newTrailerDir, (err) => {
       err && console.log(err);
     });
@@ -439,6 +421,7 @@ const updateMovieFiles = async (req, res) => {
  * @req movie
  */
 const deleteMovieFiles = async (req, res) => {
+  console.log("__________________delete files:___________________________");
   try {
     let posterDir = dir + "//poster//" + req.body.title + ".jpg";
     let trailerDir = dir + "//trailer//" + req.body.title + ".mp4";

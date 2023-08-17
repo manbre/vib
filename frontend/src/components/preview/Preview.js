@@ -162,7 +162,9 @@ const Preview = () => {
             src={`http://localhost:9000/stream/video/trailer/${trailer}`}
           ></video>
         ) : (
-          <AsyncPoster src={`http://localhost:9000/stream/image/${poster}`} />
+          <AsyncPoster
+            src={`http://localhost:9000/stream/image/${poster}`}
+          />
         )}
         <div className={styles.btns}>
           {getPlayButtons()}

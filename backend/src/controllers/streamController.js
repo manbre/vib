@@ -53,12 +53,12 @@ const getVideoStream = (req, res) => {
 };
 
 const getImageStream = (req, res) => {
-  const fileName = req.params.filename;
-  const filePath = location + "vib\\movies\\poster\\" + fileName;
-  if (!filePath) {
-    return res.status(404).send("File not found");
-  }
   try {
+    const fileName = req.params.filename;
+    const filePath = location + "vib\\movies\\poster\\" + fileName;
+    if (!filePath) {
+      return res.status(404).send("File not found");
+    }
     const head = {
       "Content-Type": "image/jpeg",
     };

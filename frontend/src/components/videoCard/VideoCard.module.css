@@ -7,11 +7,11 @@
   margin: 0.7rem;
   cursor: pointer;
   border-radius: var(--border-radius);
-  outline: 2px solid rgb(var(--menu-color))
+  outline: 2px solid rgb(var(--menu-color));
 }
 
 .container:hover {
-  outline: 5px solid white;
+  outline: 4px solid white;
 }
 
 .poster {
@@ -22,6 +22,15 @@
 .poster > img {
   width: 100%;
   aspect-ratio: 1/1.5;
+}
+
+.fade_in {
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+.fade_out {
+  opacity: 0;
+  transition: opacity 0.5s;
 }
 
 .info {
@@ -41,13 +50,13 @@
   );
   background: rgba(var(--menu-color), 0.2);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
 }
 
 .year p,
 .runtime p {
   color: rgb(var(--prim-text));
-  font-size: calc((var(--card-width)) * 1 / 13)
+  font-size: calc((var(--card-width)) * 1 / 13);
 }
 
 .languages {

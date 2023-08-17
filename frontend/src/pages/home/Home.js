@@ -67,7 +67,7 @@ const Home = () => {
         <header>
           <ChipSlider />
         </header>
-        <VideoWall filteredVideos={movies} />
+        <VideoWall filteredVideos={movies} socketVal={val} />
       </section>
 
       {selectedVideo && (
