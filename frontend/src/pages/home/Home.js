@@ -25,25 +25,19 @@ const Home = () => {
   const genre = useSelector((state) => state.video.genre);
   const title = useSelector((state) => state.video.title);
 
-  const {
-    data: moviesByGenre,
-    refetch: refetchByGenre,
-  } = useGetMoviesByGenreQuery(genre);
-  /*   const { data: moviesByTitle } = useGetMoviesBySearchQuery({
+  const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
+
+  const { data: moviesByTitle } = useGetMoviesBySearchQuery({
     search: search,
     input: title,
-  }); */
+  });
+
+  const [movies, setMovies] = useState([]);
 
   const [isReady, val, send] = useWebSocket();
   useEffect(() => {
-    val &&
-      val.name &&
-      val.name === "update" &&
-      refetchByGenre() &&
-      dispatch(selectVideo(null));
+    val && val.name && val.name === "update" && dispatch(selectVideo(null));
   }, [val]);
-
-  const [movies, setMovies] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -55,11 +49,11 @@ const Home = () => {
 
   useEffect(() => {
     moviesByGenre && setMovies(moviesByGenre ?? []);
-  }, [viewType, moviesByGenre]);
+  }, [viewType, genre]);
 
-  /*   useEffect(() => {
+  useEffect(() => {
     moviesByTitle && setMovies(moviesByTitle ?? []);
-  }, [moviesByTitle]); */
+  }, [viewType, search, title]);
 
   return (
     <div className={styles.container}>
@@ -67,14 +61,18 @@ const Home = () => {
         <header>
           <ChipSlider />
         </header>
-        <VideoWall filteredVideos={movies} socketVal={val} />
+
+        <VideoWall filteredVideos={movies} />
+
+        <footer>
+          <p>{movies.length}</p>
+          <SearchBar />
+        </footer>
       </section>
 
-      {selectedVideo && (
-        <section className={styles.right}>
-          <Preview />
-        </section>
-      )}
+      <section className={styles.right}>
+        <Preview />
+      </section>
     </div>
   );
 };

@@ -49,9 +49,10 @@ const VideoWall = ({ filteredVideos }) => {
 
   return (
     <div className={styles.container}>
-      {filteredVideos.map((video, index) => (
-        <VideoCard video={video} key={video.id} index={index} />
-      ))}
+      {Array.isArray(filteredVideos) &&
+        filteredVideos.map((video, index) => (
+          <VideoCard video={video} key={video.id} index={index} />
+        ))}
     </div>
   );
 };

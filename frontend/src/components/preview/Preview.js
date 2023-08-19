@@ -149,10 +149,6 @@ const Preview = () => {
 
   return (
     <div className={styles.container}>
-      <button
-        className={styles.closeBtn}
-        onClick={() => dispatch(selectVideo(null))}
-      ></button>
       <div className={styles.trailer}>
         {trailer ? (
           <video
@@ -162,20 +158,18 @@ const Preview = () => {
             src={`http://localhost:9000/stream/video/trailer/${trailer}`}
           ></video>
         ) : (
-          <AsyncPoster
-            src={`http://localhost:9000/stream/image/${poster}`}
-          />
+          <img src={`http://localhost:9000/stream/image/${poster}`} />
         )}
         <div className={styles.btns}>
           {getPlayButtons()}
           <div className={styles.audios}>
-            {selectedVideo.german && (
+            {selectedVideo && selectedVideo.german && (
               <label
                 className={styles.german}
                 onClick={() => takeAudio(1)}
               ></label>
             )}
-            {selectedVideo.english && (
+            {selectedVideo && selectedVideo.english && (
               <label
                 className={styles.english}
                 onClick={() => takeAudio(2)}
@@ -183,7 +177,7 @@ const Preview = () => {
             )}
           </div>
         </div>
-        {viewType == 1 && trailer && (
+        {viewType === 1 && trailer && (
           <button
             className={isMuted ? styles.volBtn : styles.muteBtn}
             onClick={() =>

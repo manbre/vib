@@ -12,10 +12,6 @@ export const backend = createApi({
     getSource: builder.query({
       query: () => "/source/",
     }),
-
-    getPosterStream: builder.query({
-      query: (filename) => `/stream/image/${filename}`,
-    }),
     //------------------------------------------------------------------------------------
     //ChipSlider
     getMovieGenres: builder.query({
@@ -81,7 +77,6 @@ export const backend = createApi({
 
 export const {
   useGetSourceQuery,
-  useGetPosterStreamQuery,
   //
   useGetMovieGenresQuery,
   useGetEpisodeGenresQuery,

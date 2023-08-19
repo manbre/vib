@@ -2,9 +2,9 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./SearchBar.module.css";
+import { selectGenre } from "../../features/video";
 import { selectTitle } from "../../features/video";
 import { selectSearch } from "../../features/video";
-import { selectGenre } from "../../features/video";
 
 const SearchBar = () => {
   const dispatch = useDispatch();
@@ -18,8 +18,8 @@ const SearchBar = () => {
 
   useEffect(() => {
     document.getElementById("myInput").value = "";
-    dispatch(selectTitle(""));
-  }, [viewType, dispatch]);
+    dispatch(selectSearch("title"));
+  }, [viewType]);
 
   useEffect(() => {
     input === ""
@@ -27,29 +27,21 @@ const SearchBar = () => {
         ? dispatch(selectGenre("0"))
         : dispatch(selectGenre("All"))
       : dispatch(selectTitle(input));
-  }, [input, dispatch, genre]);
+  }, [input]);
 
   const handleSearchChange = (e) => {
-    input === ""
-      ? genre === "All"
-        ? dispatch(selectGenre("0"))
-        : dispatch(selectGenre("All"))
-      : dispatch(selectSearch(e.target.value));
+    dispatch(selectSearch(e.target.value));
   };
 
   return (
     <div className={styles.container}>
-      {viewType === 1 ? (
-        <div className={styles.select}>
-          <select id="mySelect" onChange={(e) => handleSearchChange(e)}>
-            <option value="title">Title</option>
-            <option value="director">Director</option>
-            <option value="actor">Actor</option>
-          </select>
-        </div>
-      ) : (
-        <label className={styles.defaultSelect}>Title</label>
-      )}
+      <div className={styles.select}>
+        <select id="mySelect" onChange={(e) => handleSearchChange(e)}>
+          <option value="title">Title</option>
+          <option value="director">Director</option>
+          <option value="actor">Actor</option>
+        </select>
+      </div>
       <input
         className={styles.searchInput}
         id="myInput"

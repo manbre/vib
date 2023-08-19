@@ -1,6 +1,15 @@
 .container {
   display: flex;
-  margin-right: 1em;
+  margin-right: 1rem;
+}
+
+.selectLabel {
+  display: flex;
+  align-items: center;
+  height: 2em;
+  padding-right: 0.5em;
+  color: rgb(var(--sec-text));
+  font-size: 0.8em;
 }
 
 select {
@@ -9,26 +18,10 @@ select {
   height: 2em;
   border-style: none;
   background-color: rgb(var(--top-color));
-  border-top-left-radius: var(--videoCard-radius);
-  border-bottom-left-radius: var(--videoCard-radius);
-  text-align-last: center;
+  border-radius: var(--videoCard-radius);
+  text-align: center;
   font-size: 0.8em;
   cursor: pointer;
-}
-
-select:hover {
-  border: 1px solid rgb(var(--sec-text));
-}
-
-.defaultSelect {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 5em;
-  height: 2em;
-  background-color: rgb(var(--top-color));
-  border-radius: var(--videoCard-radius);
-  font-size: 0.8em;
 }
 
 .searchInput {
@@ -36,14 +29,7 @@ select:hover {
   height: 2em;
   padding-left: 0.6em;
   border-style: none;
-  border-top-right-radius: var(--videoCard-radius);
-  border-bottom-right-radius: var(--videoCard-radius);
+  border-radius: var(--videoCard-radius);
+  margin-left: 0.5em;
   background-color: rgb(var(--top-color));
-}
-
-.searchInput:focus {
-  border: 1px solid rgb(var(--sec-text));
-}
-
-@media only screen and (min-width: 1440px) {
 }

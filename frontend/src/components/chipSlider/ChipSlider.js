@@ -25,6 +25,9 @@ const ChipSlider = () => {
   window.addEventListener("resize", () => {
     checkScroll();
   });
+  useEffect(() => {
+    checkScroll();
+  }, []);
 
   useEffect(() => {
     switch (viewType) {

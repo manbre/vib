@@ -10,17 +10,34 @@
   flex-direction: column;
   overflow-y: auto;
   width: 60%;
-  height: 100vh; /*for vertical scrolling*/ 
+  height: 100vh; /*for vertical scrolling*/
   background-color: rgb(var(--back-color));
 }
 
-header {
+header{
   position: sticky;
   top: 0;
   z-index: 2;
   width: 100%;
   padding-top: 1rem;
   background-color: rgb(var(--back-color));
+}
+
+footer{
+  position: absolute;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  width: 60%;
+  height: 4rem;
+  padding-top: 1rem;
+  background-color: rgb(var(--back-color));
+}
+
+.topBar{
+  display: flex;
+  background-color: aqua;
 }
 
 .right {

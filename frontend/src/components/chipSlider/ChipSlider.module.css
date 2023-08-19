@@ -4,9 +4,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  padding-left: 0.5em;
+  padding-top: 2rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.5rem;
   text-align: center;
   background-color: rgb(var(--back-color));
 }
