@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import VideoPlayer from "../../components/videoPlayer/VideoPlayer";
 import SearchBar from "../../components/searchBar/SearchBar";
@@ -33,13 +34,17 @@ const Home = () => {
   });
 
   const [movies, setMovies] = useState([]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [isReady, val, send] = useWebSocket();
   useEffect(() => {
-    val && val.name && val.name === "update" && dispatch(selectVideo(null));
+    val &&
+      val.name &&
+      val.name === "update" &&
+      dispatch(selectVideo(null)) &&
+      navigate(0);
   }, [val]);
-
-  const dispatch = useDispatch();
 
   /*   useEffect(() => {
     console.log(action);
@@ -49,11 +54,11 @@ const Home = () => {
 
   useEffect(() => {
     moviesByGenre && setMovies(moviesByGenre ?? []);
-  }, [viewType, genre]);
+  }, [viewType, moviesByGenre]);
 
   useEffect(() => {
     moviesByTitle && setMovies(moviesByTitle ?? []);
-  }, [viewType, search, title]);
+  }, [moviesByTitle]);
 
   return (
     <div className={styles.container}>
@@ -65,7 +70,6 @@ const Home = () => {
         <VideoWall filteredVideos={movies} />
 
         <footer>
-          <p>{movies.length}</p>
           <SearchBar />
         </footer>
       </section>

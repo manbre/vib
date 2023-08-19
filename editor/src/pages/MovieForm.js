@@ -117,6 +117,7 @@ const MovieForm = (props) => {
   };
 
   const updateVideo = () => {
+    console.log(state.trailer);
     updateMovie({
       id: selectedVideo.id,
       //
@@ -139,18 +140,10 @@ const MovieForm = (props) => {
       ...(state.actors !== selectedVideo.actors && { actors: state.actors }),
       ...(state.plot !== selectedVideo.plot && { plot: state.plot }),
       //
-      ...((state.poster !== selectedVideo.poster ||
-        state.title !== selectedVideo.title) && { poster: state.poster }),
-      ...((state.trailer !== selectedVideo.trailer ||
-        state.title !== selectedVideo.title) && {
-        trailer: state.trailer,
-      }),
-      ...((state.german !== selectedVideo.german ||
-        state.title !== selectedVideo.title) && { german: state.german }),
-      ...((state.english !== selectedVideo.english ||
-        state.title !== selectedVideo.title) && {
-        english: state.english,
-      }),
+      ...{ poster: state.poster },
+      ...{ trailer: state.trailer },
+      ...{ german: state.german },
+      ...{ english: state.english },
     })
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))

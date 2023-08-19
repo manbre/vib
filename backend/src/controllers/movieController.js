@@ -242,6 +242,10 @@ const updateMovieData = async (req, res) => {
   let germanPath = req.body.title + "_de.mp4";
   let englishPath = req.body.title + "_en.mp4";
 
+  console.log(
+    "______________________________________trailer: " + req.body.trailer
+  );
+
   await Movies.update(
     {
       ...(req.body.title && { title: req.body.title }),
@@ -258,10 +262,10 @@ const updateMovieData = async (req, res) => {
       ...(req.body.actors && { director: req.body.actors }),
       ...(req.body.plot && { plot: req.body.plot }),
       //
-      ...(req.body.poster && { poster: posterPath }),
-      ...(req.body.trailer && { trailer: trailerPath }),
-      ...(req.body.german && { german: germanPath }),
-      ...(req.body.english && { english: englishPath }),
+      ...(req.body.poster ? { poster: posterPath } : { poster: "" }),
+      ...(req.body.trailer ? { trailer: trailerPath } : { trailer: "" }),
+      ...(req.body.german ? { german: germanPath } : { german: "" }),
+      ...(req.body.english ? { english: englishPath } : { english: "" }),
       //
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
       ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
@@ -269,19 +273,16 @@ const updateMovieData = async (req, res) => {
     {
       where: { id: req.body.id },
     }
-  )
-    .then(() => {
-      res.status(200).send({
-        message: "movie data of '" + req.body.title + "' have been updated.",
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          "error while updating movie data of '" + req.body.title + "': ",
-        err,
-      });
+  ).catch((err) => {
+    res.status(500).send({
+      message: "error while updating movie data of '" + req.body.title + "': ",
+      err,
     });
+  });
+
+  res.status(200).send({
+    message: "movie data of '" + req.body.title + "' have been updated.",
+  });
 };
 
 /**
@@ -342,29 +343,30 @@ const createMovieFiles = async (req, res) => {
       );
     }
   }
-  req.body.trailer &&
-    console.log("create trailer") &&
-    !fs.existsSync(trailerDir) &&
-    fs.mkdirSync(trailerDir, { recursive: true }) &&
+  if (req.body.trailer) {
+    !fs.existsSync(trailerDir) && fs.mkdirSync(trailerDir, { recursive: true });
     fs.copyFile(
       req.body.trailer,
       trailerDir + req.body.title + ".mp4",
       (err) => {
-        err && console.log(err);
+        console.log(err);
       }
     );
-  req.body.german &&
-    !fs.existsSync(germanDir) &&
-    fs.mkdirSync(germanDir, { recursive: true }) &&
+  }
+
+  if (req.body.german) {
+    !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
     fs.copyFile(req.body.german, req.body.title + "_de.mp4", (err) => {
-      err && console.log(err);
+      console.log(err);
     });
-  req.body.english &&
-    !fs.existsSync(englishDir) &&
-    fs.mkdirSync(englishDir, { recursive: true }) &&
+  }
+
+  if (req.body.english) {
+    !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
     fs.copyFile(req.body.english, req.body.title + "_en.mp4", (err) => {
-      err && console.log(err);
+      console.log(err);
     });
+  }
 
   res.status(200).send({
     message: "movie files of '" + req.body.title + "' have been updated.",
@@ -384,12 +386,10 @@ const updateMovieFiles = async (req, res) => {
   let newEnglishDir = dir + "//en//" + req.body.title + "_en.mp4";
   //
   req.body.poster &&
-    console.log("rename poster") &&
     fs.rename(oldPosterDir, newPosterDir, (err) => {
       err && console.log(err);
     });
   req.body.trailer &&
-    console.log("rename trailer") &&
     fs.rename(oldTrailerDir, newTrailerDir, (err) => {
       err && console.log(err);
     });

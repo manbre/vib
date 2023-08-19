@@ -29,14 +29,13 @@ const SearchBar = () => {
       : dispatch(selectTitle(input));
   }, [input]);
 
-  const handleSearchChange = (e) => {
-    dispatch(selectSearch(e.target.value));
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.select}>
-        <select id="mySelect" onChange={(e) => handleSearchChange(e)}>
+        <select
+          id="mySelect"
+          onChange={(e) => dispatch(selectSearch(e.target.value))}
+        >
           <option value="title">Title</option>
           <option value="director">Director</option>
           <option value="actor">Actor</option>
