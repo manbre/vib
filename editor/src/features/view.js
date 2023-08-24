@@ -4,18 +4,22 @@ export const viewSlice = createSlice({
   name: "view",
   initialState: {
     /* 1: movie, 2: episode, 3: source */
-    type: 1,
-    isFrontend: false,
+    type: {
+      movie: 1,
+      episode: 2,
+      source: 3,
+    },
+    event: { name: null, type: null, value: null },
   },
   reducers: {
     setType: (state, action) => {
       state.type = action.payload;
     },
-    toggleFrontend: (state, action) => {
-      state.isFrontend = action.payload;
+    setEvent: (state, action) => {
+      state.event = action.payload;
     },
   },
 });
 
-export const { setType, toggleFrontend } = viewSlice.actions;
+export const { setType, setEvent } = viewSlice.actions;
 export default viewSlice.reducer;

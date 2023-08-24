@@ -11,6 +11,7 @@ import Preview from "../../components/preview/Preview";
 import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import { selectVideo } from "../../features/video";
+import { toggleLoaded } from "../../features/view";
 import useWebSocket from "../../hooks/useWebSocket";
 
 import {
@@ -19,8 +20,29 @@ import {
 } from "../../features/backend";
 
 const Home = () => {
-  const viewType = useSelector((state) => state.view.viewType);
   const selectedVideo = useSelector((state) => state.video.video);
+  const [isReady, val, send] = useWebSocket();
+  //val: receiving messages
+  useEffect(() => {
+    if (val && val.name) {
+      console.log(val.name);
+      val.name === "done" && navigate(0) && toggleLoaded(false);
+      (val.name === "create" || val.name === "delete") && navigate(0);
+    }
+  }, [val]);
+
+  useEffect(() => {
+    selectedVideo &&
+      isReady &&
+      send(
+        JSON.stringify({
+          type: 1,
+          id: selectedVideo.id,
+        })
+      );
+  }, [isReady, selectedVideo]);
+
+  const viewType = useSelector((state) => state.view.viewType);
   const search = useSelector((state) => state.video.search);
 
   const genre = useSelector((state) => state.video.genre);
@@ -36,15 +58,6 @@ const Home = () => {
   const [movies, setMovies] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const [isReady, val, send] = useWebSocket();
-  useEffect(() => {
-    val &&
-      val.name &&
-      val.name === "update" &&
-      dispatch(selectVideo(null)) &&
-      navigate(0);
-  }, [val]);
 
   /*   useEffect(() => {
     console.log(action);

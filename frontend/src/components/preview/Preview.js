@@ -13,6 +13,7 @@ const Preview = () => {
   const selectedVideo = useSelector((state) => state.video.video);
   const viewType = useSelector((state) => state.view.viewType);
   const isMuted = useSelector((state) => state.view.muted);
+  const isLoaded = useSelector((state) => state.view.isLoaded);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   //
@@ -150,7 +151,7 @@ const Preview = () => {
   return (
     <div className={styles.container}>
       <div className={styles.trailer}>
-        {trailer ? (
+        {trailer && isLoaded ? (
           <video
             autoPlay
             loop
@@ -158,7 +159,9 @@ const Preview = () => {
             src={`http://localhost:9000/stream/video/trailer/${trailer}`}
           ></video>
         ) : (
-          <img src={`http://localhost:9000/stream/image/${poster}`} />
+          isLoaded && (
+            <img src={`http://localhost:9000/stream/image/${poster}`} />
+          )
         )}
         <div className={styles.btns}>
           {getPlayButtons()}

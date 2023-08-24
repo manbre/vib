@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useRef, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import styles from "./App.module.css";
 import TopBar from "./components/topBar/TopBar";
 import TabBar from "./components/tabBar/TabBar";
@@ -8,36 +7,73 @@ import MessageBox from "./components/messageBox/MessageBox";
 import MovieForm from "./pages/MovieForm";
 import EpisodeForm from "./pages/EpisodeForm";
 import SourceForm from "./pages/SourceForm";
-import { selectVideo } from "./features/video";
-import { bringEvent } from "./features/event";
-import { toggleFrontend } from "./features/view";
 import useWebSocket from "./hooks/useWebSocket";
+import { useGetMovieByIdQuery } from "./features/backend";
 
 const App = () => {
   const movieEditor = useRef();
   const episodeEditor = useRef();
 
+  const [event, setEvent] = useState({
+    name: null,
+    type: null,
+    value: null,
+  });
   const [box, setBox] = useState("");
+  const [type, setType] = useState(1);
+  const [id, setId] = useState(null);
 
-  const type = useSelector((state) => state.view.type);
-  const event = useSelector((state) => state.event.event);
-  const selectedVideo = useSelector((state) => state.video.video);
-
-  const dispatch = useDispatch();
+  const { data: selected } = useGetMovieByIdQuery(id && type === 1 && id);
 
   //------------------------------------------------------------------------------------
   //WebSocket
   const [isReady, val, send] = useWebSocket();
 
   useEffect(() => {
-    val && val.name === "select" && dispatch(selectVideo(val.video));
-    /*     val === "frontend is on" && dispatch(toggleFrontend(true));
-    val === "frontend is off" && dispatch(toggleFrontend(false)); */
+    val && val.id && setId(val.id);
+    val && val.type && setType(val.type);
   }, [val]);
 
   useEffect(() => {
-    event && event.name !== "" && isReady && send(JSON.stringify(event));
-  }, [isReady, event]);
+    event.name && isReady && send(JSON.stringify(event));
+  }, [event, isReady]);
+
+  const handleSubmit = () => {
+    setEvent({ name: "change", type: type, value: null });
+    if (selected) {
+      type === 1 &&
+        movieEditor.current
+          .updateVideo()
+          .then(setEvent({ name: "done", type: type, value: null }));
+      type === 2 &&
+        episodeEditor.current
+          .updateVideo()
+          .then(setEvent({ name: "done", type: type, value: null }));
+    } else {
+      type === 1 &&
+        movieEditor.current
+          .createVideo()
+          .then(setEvent({ name: "done", type: type, value: null }));
+      type === 2 &&
+        episodeEditor.current
+          .createVideo()
+          .then(setEvent({ name: "done", type: type, value: null }));
+    }
+  };
+
+  const handleDelete = () => {
+    setEvent({ name: "change", type: type, value: null });
+    if (selected) {
+      type === 1 &&
+        movieEditor.current
+          .deleteVideo()
+          .then(setEvent({ name: "done", type: type, value: null }));
+      type === 2 &&
+        episodeEditor.current
+          .deleteVideo()
+          .then(setEvent({ name: "done", type: type, value: null }));
+    }
+  };
 
   //------------------------------------------------------------------------------------
 
@@ -48,11 +84,13 @@ const App = () => {
       <TabBar />
       {type === 1 ? (
         <MovieForm
+          selected={selected}
           changeMessage={(message) => setBox(message)}
           childRef={movieEditor}
         />
       ) : type === 2 ? (
         <EpisodeForm
+          selected={selected}
           changeMessage={(message) => setBox(message)}
           childRef={episodeEditor}
         />
@@ -63,23 +101,11 @@ const App = () => {
         <div className={styles.btnsBar}>
           <button
             className={styles.deleteBtn}
-            onClick={() =>
-              type === 1
-                ? movieEditor.current.deleteVideo()
-                : episodeEditor.current.deleteVideo()
-            }
+            onClick={() => handleDelete()}
           ></button>
           <button
             className={styles.submitBtn}
-            onClick={() =>
-              type === 1
-                ? !selectedVideo
-                  ? movieEditor.current.createVideo()
-                  : movieEditor.current.updateVideo()
-                : !selectedVideo
-                ? episodeEditor.current.createVideo()
-                : episodeEditor.current.updateVideo()
-            }
+            onClick={() => handleSubmit()}
           ></button>
         </div>
       )}

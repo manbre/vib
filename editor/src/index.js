@@ -5,7 +5,6 @@ import "./index.css"; /* !important! must be after import of App */
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import { backend } from "./features/backend";
-import eventReducer from "./features/event";
 import sourceReducer from "./features/source";
 import videoReducer from "./features/video";
 import viewReducer from "./features/view";
@@ -15,7 +14,6 @@ const store = configureStore({
     source: sourceReducer,
     view: viewReducer,
     video: videoReducer,
-    event: eventReducer,
     [backend.reducerPath]: backend.reducer,
   },
   middleware: (getDefaultMiddleware) =>

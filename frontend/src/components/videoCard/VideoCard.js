@@ -6,16 +6,11 @@ import { selectVideo } from "../../features/video";
 import AsyncPoster from "../asyncPoster/AsnycPoster";
 import useWebSocket from "../../hooks/useWebSocket";
 
-const VideoCard = ({ video, socketVal }) => {
+const VideoCard = ({ video }) => {
   const markedCard = useSelector((state) => state.view.card);
+  const isLoaded = useSelector((state) => state.view.isLoaded);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    socketVal &&
-      socketVal.name &&
-      socketVal.name === "update" &&
-      window.location.reload(false);
-  }, [socketVal]);
 
   useEffect(() => {
     let elements = document.getElementsByClassName(`${styles.container}`);
@@ -43,7 +38,9 @@ const VideoCard = ({ video, socketVal }) => {
       onClick={() => dispatch(selectVideo(video))}
     >
       <div className={styles.poster}>
-        <img src={`http://localhost:9000/stream/image/${video.poster}`} />
+        {isLoaded && (
+          <img src={`http://localhost:9000/stream/image/${video.poster}`} />
+        )}
       </div>
 
       <div className={styles.info}>

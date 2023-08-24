@@ -48,25 +48,33 @@ const getVideoStream = (req, res) => {
       "Content-Type": "video/mp4",
     };
     res.writeHead(200, head);
-    fs.createReadStream(filePath).pipe(res);
+    const readstream = fs.createReadStream(filePath);
+    readstream.on("open", () => {
+      readstream.pipe(res);
+    });
+    readstream.on("error", (err) => {
+      res.end(err);
+    });
   }
 };
 
 const getImageStream = (req, res) => {
-  try {
-    const fileName = req.params.filename;
-    const filePath = location + "vib\\movies\\poster\\" + fileName;
-    if (!filePath) {
-      return res.status(404).send("File not found");
-    }
-    const head = {
-      "Content-Type": "image/jpeg",
-    };
-    res.writeHead(200, head);
-    fs.createReadStream(filePath).pipe(res);
-  } catch (error) {
-    console.log(error);
+  const fileName = req.params.filename;
+  const filePath = location + "vib\\movies\\poster\\" + fileName;
+  if (!filePath) {
+    return res.status(404).send("File not found");
   }
+  const head = {
+    "Content-Type": "image/jpeg",
+  };
+  res.writeHead(200, head);
+  const readstream = fs.createReadStream(filePath);
+  readstream.on("open", () => {
+    readstream.pipe(res);
+  });
+  readstream.on("error", (err) => {
+    res.end(err);
+  });
 };
 
 module.exports = {
