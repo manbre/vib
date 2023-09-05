@@ -10,8 +10,9 @@ import PreviewHero from "../../components/previewHero/PreviewHero";
 import Preview from "../../components/preview/Preview";
 import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
+import SpinLoader from "../../components/spinLoader/SpinLoader";
 import { selectVideo } from "../../features/video";
-import { toggleLoaded } from "../../features/view";
+import { toggleLoading } from "../../features/view";
 import useWebSocket from "../../hooks/useWebSocket";
 
 import {
@@ -20,14 +21,23 @@ import {
 } from "../../features/backend";
 
 const Home = () => {
+  const dispatch = useDispatch();
   const selectedVideo = useSelector((state) => state.video.video);
+  const isLoading = useSelector((state) => state.view.isLoading);
   const [isReady, val, send] = useWebSocket();
+
   //val: receiving messages
   useEffect(() => {
     if (val && val.name) {
-      console.log(val.name);
-      val.name === "done" && navigate(0) && toggleLoaded(false);
-      (val.name === "create" || val.name === "delete") && navigate(0);
+      if (val.name === "done") {
+        console.log(val.name);
+        navigate(0);
+        dispatch(toggleLoading(false));
+      }
+      if (val.name === "change") {
+        console.log(val.name);
+        dispatch(toggleLoading(true));
+      }
     }
   }, [val]);
 
@@ -56,7 +66,6 @@ const Home = () => {
   });
 
   const [movies, setMovies] = useState([]);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   /*   useEffect(() => {
@@ -73,8 +82,19 @@ const Home = () => {
     moviesByTitle && setMovies(moviesByTitle ?? []);
   }, [moviesByTitle]);
 
+  useEffect(() => {
+    let loader = document.getElementById("loader");
+    isLoading
+      ? loader && (loader.style = "display: block;")
+      : loader && (loader.style = "display: none;");
+  }, [isLoading]);
+
   return (
     <div className={styles.container}>
+      <div id="loader" className={styles.loadingScreen}>
+        <SpinLoader />
+      </div>
+
       <section className={styles.left}>
         <header>
           <ChipSlider />
@@ -86,7 +106,6 @@ const Home = () => {
           <SearchBar />
         </footer>
       </section>
-
       <section className={styles.right}>
         <Preview />
       </section>

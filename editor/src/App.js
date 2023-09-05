@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
-import { useRef, useState } from "react";
+import React from "react";
+import { useRef, useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import styles from "./App.module.css";
 import TopBar from "./components/topBar/TopBar";
 import TabBar from "./components/tabBar/TabBar";
@@ -9,20 +10,18 @@ import EpisodeForm from "./pages/EpisodeForm";
 import SourceForm from "./pages/SourceForm";
 import useWebSocket from "./hooks/useWebSocket";
 import { useGetMovieByIdQuery } from "./features/backend";
+import { setEvent } from "./features/view";
 
 const App = () => {
+  const dispatch = useDispatch();
   const movieEditor = useRef();
   const episodeEditor = useRef();
 
-  const [event, setEvent] = useState({
-    name: null,
-    type: null,
-    value: null,
-  });
   const [box, setBox] = useState("");
   const [type, setType] = useState(1);
   const [id, setId] = useState(null);
 
+  const event = useSelector((state) => state.view.event);
   const { data: selected } = useGetMovieByIdQuery(id && type === 1 && id);
 
   //------------------------------------------------------------------------------------
@@ -35,43 +34,26 @@ const App = () => {
   }, [val]);
 
   useEffect(() => {
-    event.name && isReady && send(JSON.stringify(event));
+    console.log(event && event.name)
+    isReady && send(JSON.stringify(event));
   }, [event, isReady]);
 
   const handleSubmit = () => {
-    setEvent({ name: "change", type: type, value: null });
+    dispatch(setEvent({ name: "change", type: 1, value: null }));
     if (selected) {
-      type === 1 &&
-        movieEditor.current
-          .updateVideo()
-          .then(setEvent({ name: "done", type: type, value: null }));
-      type === 2 &&
-        episodeEditor.current
-          .updateVideo()
-          .then(setEvent({ name: "done", type: type, value: null }));
+      type === 1 && movieEditor.current.updateVideo();
+      type === 2 && episodeEditor.current.updateVideo();
     } else {
-      type === 1 &&
-        movieEditor.current
-          .createVideo()
-          .then(setEvent({ name: "done", type: type, value: null }));
-      type === 2 &&
-        episodeEditor.current
-          .createVideo()
-          .then(setEvent({ name: "done", type: type, value: null }));
+      type === 1 && movieEditor.current.createVideo();
+      type === 2 && episodeEditor.current.createVideo();
     }
   };
 
   const handleDelete = () => {
-    setEvent({ name: "change", type: type, value: null });
+    dispatch(setEvent({ name: "change", type: 1, value: null }));
     if (selected) {
-      type === 1 &&
-        movieEditor.current
-          .deleteVideo()
-          .then(setEvent({ name: "done", type: type, value: null }));
-      type === 2 &&
-        episodeEditor.current
-          .deleteVideo()
-          .then(setEvent({ name: "done", type: type, value: null }));
+      type === 1 && movieEditor.current.deleteVideo();
+      type === 2 && episodeEditor.current.deleteVideo();
     }
   };
 

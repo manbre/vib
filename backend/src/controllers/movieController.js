@@ -84,7 +84,6 @@ const getOneMovieById = async (req, res) => {
  */
 const getMoviesByGenre = async (req, res) => {
   let movies = [];
-  console.log(req.params.genre);
   if (req.params.genre === "All" || req.params.genre === "0") {
     movies = await Movies.findAll({
       order: [[sequelize.literal("series, year"), "ASC"]],
@@ -192,10 +191,11 @@ const getMoviesBySearch = async (req, res) => {
  * @req movie
  */
 const createMovieData = async (req, res) => {
-  let posterPath = req.body.title + ".jpg";
-  let trailerPath = req.body.title + ".mp4";
-  let germanPath = req.body.title + "_de.mp4";
-  let englishPath = req.body.title + "_en.mp4";
+  let num = req.body.changes + 1;
+  let posterPath = req.body.title + "_" + num + ".jpg";
+  let trailerPath = req.body.title + "_" + num + ".mp4";
+  let germanPath = req.body.title + "_" + num + "_de.mp4";
+  let englishPath = req.body.title + "_" + num + "_en.mp4";
   //
   await Movies.create({
     title: req.body.title,
@@ -216,6 +216,8 @@ const createMovieData = async (req, res) => {
     trailer: req.body.trailer && trailerPath,
     german: req.body.german && germanPath,
     english: req.body.english && englishPath,
+    //
+    changes: num,
   })
     .then(() => {
       res.status(200).send({
@@ -237,15 +239,12 @@ const createMovieData = async (req, res) => {
  * @req movie
  */
 const updateMovieData = async (req, res) => {
-  let posterPath = req.body.title + ".jpg";
-  let trailerPath = req.body.title + ".mp4";
-  let germanPath = req.body.title + "_de.mp4";
-  let englishPath = req.body.title + "_en.mp4";
-
-  console.log(
-    "______________________________________trailer: " + req.body.trailer
-  );
-
+  let num = req.body.changes + 1;
+  let posterPath = req.body.title + "_" + num + ".jpg";
+  let trailerPath = req.body.title + "_" + num + ".mp4";
+  let germanPath = req.body.title + "_" + num + "_de.mp4";
+  let englishPath = req.body.title + "_" + num + "_en.mp4";
+  //
   await Movies.update(
     {
       ...(req.body.title && { title: req.body.title }),
@@ -262,10 +261,20 @@ const updateMovieData = async (req, res) => {
       ...(req.body.actors && { director: req.body.actors }),
       ...(req.body.plot && { plot: req.body.plot }),
       //
-      ...(req.body.poster ? { poster: posterPath } : { poster: "" }),
-      ...(req.body.trailer ? { trailer: trailerPath } : { trailer: "" }),
-      ...(req.body.german ? { german: germanPath } : { german: "" }),
-      ...(req.body.english ? { english: englishPath } : { english: "" }),
+      ...(req.body.poster
+        ? { poster: posterPath }
+        : req.body.poster === "" && { poster: "" }),
+      ...(req.body.trailer
+        ? { trailer: trailerPath }
+        : req.body.trailer === "" && { trailer: "" }),
+      ...(req.body.german
+        ? { german: germanPath }
+        : req.body.german === "" && { german: "" }),
+      ...(req.body.english
+        ? { english: englishPath }
+        : req.body.english === "" && { english: "" }),
+      //
+      ...(req.body.changes && { changes: num }),
       //
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
       ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
@@ -313,11 +322,12 @@ const deleteMovieData = async (req, res) => {
  * @res copy files to directory
  */
 const createMovieFiles = async (req, res) => {
-  console.log("__________________create files:___________________________");
+  console.log("_______________________________________CREATE FILES");
   let posterDir = dir + "//poster//";
   let trailerDir = dir + "//trailer//";
   let germanDir = dir + "//de//";
   let englishDir = dir + "//en//";
+  let num = req.body.changes + 1;
   //
 
   if (req.body.poster) {
@@ -325,7 +335,9 @@ const createMovieFiles = async (req, res) => {
     !fs.existsSync(posterDir) && fs.mkdirSync(posterDir, { recursive: true });
     //download poster from OMDB api to location
     if (req.body.poster.includes("http")) {
-      let file = fs.createWriteStream(posterDir + req.body.title + ".jpg");
+      let file = fs.createWriteStream(
+        posterDir + req.body.title + "_" + num + ".jpg"
+      );
       https.get(req.body.poster, (response) => {
         response.pipe(file);
         file.on("finish", () => {
@@ -336,7 +348,7 @@ const createMovieFiles = async (req, res) => {
       //copy and rename file to directory
       fs.copyFile(
         req.body.poster,
-        posterDir + req.body.title + ".jpg",
+        posterDir + req.body.title + "_" + num + ".jpg",
         (err) => {
           err && console.log(err);
         }
@@ -347,7 +359,7 @@ const createMovieFiles = async (req, res) => {
     !fs.existsSync(trailerDir) && fs.mkdirSync(trailerDir, { recursive: true });
     fs.copyFile(
       req.body.trailer,
-      trailerDir + req.body.title + ".mp4",
+      trailerDir + req.body.title + "_" + num + ".mp4",
       (err) => {
         console.log(err);
       }
@@ -356,16 +368,24 @@ const createMovieFiles = async (req, res) => {
 
   if (req.body.german) {
     !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
-    fs.copyFile(req.body.german, req.body.title + "_de.mp4", (err) => {
-      console.log(err);
-    });
+    fs.copyFile(
+      req.body.german,
+      req.body.title + "_" + num + "_de.mp4",
+      (err) => {
+        console.log(err);
+      }
+    );
   }
 
   if (req.body.english) {
     !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
-    fs.copyFile(req.body.english, req.body.title + "_en.mp4", (err) => {
-      console.log(err);
-    });
+    fs.copyFile(
+      req.body.english,
+      req.body.title + "_" + num + "_en.mp4",
+      (err) => {
+        console.log(err);
+      }
+    );
   }
 
   res.status(200).send({
@@ -373,17 +393,26 @@ const createMovieFiles = async (req, res) => {
   });
 };
 
+//rename files
 const updateMovieFiles = async (req, res) => {
-  console.log("__________________update files:___________________________");
-  let oldPosterDir = dir + "//poster//" + req.body.old_title + ".jpg";
-  let oldTrailerDir = dir + "//trailer//" + req.body.old_title + ".mp4";
-  let oldGermanDir = dir + "//de//" + req.body.old_title + "_de.mp4";
-  let oldEnglishDir = dir + "//en//" + req.body.old_title + "_en.mp4";
+  console.log("_______________________________________UPDATE FILES");
+  let oldPosterDir =
+    dir + "//poster//" + req.body.old_title + "_" + req.body.changes + ".jpg";
+  let oldTrailerDir =
+    dir + "//trailer//" + req.body.old_title + "_" + req.body.changes + ".mp4";
+  let oldGermanDir =
+    dir + "//de//" + req.body.old_title + "_" + req.body.changes + "_de.mp4";
+  let oldEnglishDir =
+    dir + "//en//" + req.body.old_title + "_" + req.body.changes + "_en.mp4";
   //
-  let newPosterDir = dir + "//poster//" + req.body.title + ".jpg";
-  let newTrailerDir = dir + "//trailer//" + req.body.title + ".mp4";
-  let newGermanDir = dir + "//de//" + req.body.title + "_de.mp4";
-  let newEnglishDir = dir + "//en//" + req.body.title + "_en.mp4";
+  let newPosterDir =
+    dir + "//poster//" + req.body.title + "_" + req.body.changes + ".jpg";
+  let newTrailerDir =
+    dir + "//trailer//" + req.body.title + "_" + req.body.changes + ".mp4";
+  let newGermanDir =
+    dir + "//de//" + req.body.title + "_" + req.body.changes + "_de.mp4";
+  let newEnglishDir =
+    dir + "//en//" + req.body.title + "_" + req.body.changes + "_en.mp4";
   //
   req.body.poster &&
     fs.rename(oldPosterDir, newPosterDir, (err) => {
@@ -410,12 +439,12 @@ const updateMovieFiles = async (req, res) => {
  * @req movie
  */
 const deleteMovieFiles = async (req, res) => {
-  console.log("__________________delete files:___________________________");
   try {
-    let posterDir = dir + "//poster//" + req.body.title + ".jpg";
-    let trailerDir = dir + "//trailer//" + req.body.title + ".mp4";
-    let germanDir = dir + "//de//" + req.body.title + "_de.mp4";
-    let englishDir = dir + "//en//" + req.body.title + "_en.mp4";
+    let num = req.body.changes;
+    let posterDir = dir + "//poster//" + req.body.title + "_" + num + ".jpg";
+    let trailerDir = dir + "//trailer//" + req.body.title + "_" + num + ".mp4";
+    let germanDir = dir + "//de//" + req.body.title + "_" + num + "_de.mp4";
+    let englishDir = dir + "//en//" + req.body.title + "_" + num + "_en.mp4";
     //delete file if is not in the body and exist
     !req.body.poster &&
       fs.existsSync(posterDir) &&

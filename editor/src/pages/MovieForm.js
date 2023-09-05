@@ -1,7 +1,9 @@
 import React from "react";
 import { useEffect, useReducer } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { selectVideo } from "../features/video";
+import { setEvent } from "../features/view";
 import useOmdb from "../hooks/useOmdb";
 
 import {
@@ -15,6 +17,11 @@ import {
 } from "../features/backend";
 
 const MovieForm = (props) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log(props.selected?.changes);
+  }, [props]);
   //
   const initialState = {
     title: "",
@@ -32,6 +39,7 @@ const MovieForm = (props) => {
     trailer: "",
     german: "",
     english: "",
+    changes: 0,
   };
 
   const [state, updateState] = useReducer(
@@ -84,6 +92,7 @@ const MovieForm = (props) => {
         .then((payload) => props.changeMessage(payload.message))
         .catch((error) => props.changeMessage(error.message))
         .then(updateFiles())
+        .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
         .then(resetInput());
     }
   };
@@ -111,15 +120,22 @@ const MovieForm = (props) => {
       ...(state.actors !== props.selected.actors && { actors: state.actors }),
       ...(state.plot !== props.selected.plot && { plot: state.plot }),
       //
-      ...{ poster: state.poster },
-      ...{ trailer: state.trailer },
-      ...{ german: state.german },
-      ...{ english: state.english },
+      ...(state.poster !== props.selected.poster && { poster: state.poster }),
+      ...(state.trailer !== props.selected.trailer && {
+        trailer: state.trailer,
+      }),
+      ...(state.german !== props.selected.german && { german: state.german }),
+      ...(state.english !== props.selected.english && {
+        english: state.english,
+      }),
+      //
+      changes: props.selected.changes,
     })
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
       .then(updateFiles())
+      .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
       .then(resetInput());
   };
 
@@ -135,6 +151,7 @@ const MovieForm = (props) => {
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
+      .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
       .then(resetInput());
   };
 
@@ -147,17 +164,21 @@ const MovieForm = (props) => {
         trailer: state.trailer !== props.selected.trailer && state.trailer,
         german: state.german !== props.selected.german && state.german,
         english: state.english !== props.selected.english && state.english,
+        changes: props.selected.changes,
       });
       //
-      updateMovieFiles({
-        //rename file if title of state of is different to title of selectedVideo
-        title: state.title,
-        old_title: state.title !== props.selected.title && props.selected.title,
-        poster: state.title !== props.selected.title && state.poster,
-        trailer: state.title !== props.selected.title && state.trailer,
-        german: state.title !== props.selected.title && state.german,
-        english: state.title !== props.selected.title && state.english,
-      });
+      if (state.title !== props.selected.title) {
+        updateMovieFiles({
+          //rename file if title of state of is different to title of selectedVideo
+          title: state.title,
+          old_title: props.selected.title,
+          poster: state.poster,
+          trailer: state.trailer,
+          german: state.german,
+          english: state.english,
+          changes: props.selected.changes,
+        });
+      }
       //
       deleteMovieFiles({
         //delete file if filename of state is ""
@@ -166,6 +187,7 @@ const MovieForm = (props) => {
         trailer: state.trailer !== "" && state.trailer,
         german: state.german !== "" && state.german,
         english: state.english !== "" && state.english,
+        changes: props.selected.changes,
       });
     } else {
       (poster || trailer || german || english) &&
@@ -175,6 +197,7 @@ const MovieForm = (props) => {
           trailer: state.trailer,
           german: state.german,
           english: state.english,
+          changes: state.changes,
         });
     }
   };

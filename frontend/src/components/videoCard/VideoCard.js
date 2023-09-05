@@ -11,7 +11,6 @@ const VideoCard = ({ video }) => {
   const isLoaded = useSelector((state) => state.view.isLoaded);
   const dispatch = useDispatch();
 
-
   useEffect(() => {
     let elements = document.getElementsByClassName(`${styles.container}`);
     //!== null ________ !important!
@@ -32,15 +31,16 @@ const VideoCard = ({ video }) => {
     }
   }, [markedCard]);
 
+
   return (
     <div
       className={styles.container}
       onClick={() => dispatch(selectVideo(video))}
     >
       <div className={styles.poster}>
-        {isLoaded && (
-          <img src={`http://localhost:9000/stream/image/${video.poster}`} />
-        )}
+        <AsyncPoster
+          src={`http://localhost:9000/stream/image/${video.poster}`}
+        />
       </div>
 
       <div className={styles.info}>
