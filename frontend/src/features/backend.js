@@ -6,7 +6,7 @@ export const backend = createApi({
   tagTypes: ["Movie", "Episode"],
   endpoints: (builder) => ({
     //------------------------------------------------------------------------------------
-    // Queries
+    // QUERIES
     //------------------------------------------------------------------------------------
     //
     getSource: builder.query({

@@ -12,14 +12,14 @@ export const backend = createApi({
     //------------------------------------------------------------------------------------
     //MUTATIONS
     //
-    createMovieData: builder.mutation({
+    createMovie: builder.mutation({
       query: (movie) => ({
         url: "/movies",
         method: "POST",
         body: movie,
       }),
     }),
-    createNewEpisode: builder.mutation({
+    createEpisode: builder.mutation({
       query: (episode) => ({
         url: "/episodes",
         method: "POST",
@@ -56,52 +56,18 @@ export const backend = createApi({
         body: episode,
       }),
     }),
-    //
-    createMovieFiles: builder.mutation({
-      query: (movie) => ({
-        url: "/movies/files",
-        method: "POST",
-        body: movie,
-      }),
-    }),
-    updateMovieFiles: builder.mutation({
-      query: (movie) => ({
-        url: "/movies/files",
-        method: "PUT",
-        body: movie,
-      }),
-    }),
-    deleteMovieFiles: builder.mutation({
-      query: (files) => ({
-        url: "/movies/files",
-        method: "DELETE",
-        body: files,
-      }),
-    }),
-    copyEpisodeFiles: builder.mutation({
-      query: (episode) => ({
-        url: "/episodes/files",
-        method: "POST",
-        body: episode,
-      }),
-    }),
   }),
 });
 
 export const {
   useGetMovieByIdQuery,
   //
-  useCreateMovieDataMutation,
-  useCreateNewEpisodeMutation,
+  useCreateMovieMutation,
+  useCreateEpisodeMutation,
   //
   useUpdateMovieMutation,
   useUpdateEpisodeMutation,
   //
   useDeleteMovieMutation,
   useDeleteEpisodeMutation,
-  //
-  useCreateMovieFilesMutation,
-  useUpdateMovieFilesMutation,
-  useDeleteMovieFilesMutation,
-  useCopyEpisodeFilesMutation,
 } = backend;

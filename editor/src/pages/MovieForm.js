@@ -7,13 +7,9 @@ import { setEvent } from "../features/view";
 import useOmdb from "../hooks/useOmdb";
 
 import {
-  useCreateMovieDataMutation,
+  useCreateMovieMutation,
   useUpdateMovieMutation,
   useDeleteMovieMutation,
-  //
-  useCreateMovieFilesMutation,
-  useUpdateMovieFilesMutation,
-  useDeleteMovieFilesMutation,
 } from "../features/backend";
 
 const MovieForm = (props) => {
@@ -29,7 +25,7 @@ const MovieForm = (props) => {
     director: "",
     genre: "",
     year: "",
-    part: "",
+    fsk: "",
     awards: "",
     rating: "",
     runtime: "",
@@ -47,12 +43,9 @@ const MovieForm = (props) => {
     initialState
   );
 
-  const [createMovieData] = useCreateMovieDataMutation();
+  const [createMovie] = useCreateMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie] = useDeleteMovieMutation();
-  const [createMovieFiles] = useCreateMovieFilesMutation();
-  const [updateMovieFiles] = useUpdateMovieFilesMutation();
-  const [deleteMovieFiles] = useDeleteMovieFilesMutation();
 
   useEffect(() => {
     resetInput();
@@ -87,11 +80,10 @@ const MovieForm = (props) => {
 
   const createVideo = () => {
     if (state.title !== "") {
-      createMovieData(state)
+      createMovie(state)
         .unwrap()
         .then((payload) => props.changeMessage(payload.message))
         .catch((error) => props.changeMessage(error.message))
-        .then(updateFiles())
         .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
         .then(resetInput());
     }
@@ -134,72 +126,17 @@ const MovieForm = (props) => {
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
-      .then(updateFiles())
       .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
       .then(resetInput());
   };
 
   const deleteVideo = () => {
-    deleteMovieFiles({
-      title: props.selected && props.selected.title,
-      poster: null,
-      trailer: null,
-      german: null,
-      english: null,
-    });
-    deleteMovie(state)
+    deleteMovie(props.selected)
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
       .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
       .then(resetInput());
-  };
-
-  const updateFiles = () => {
-    if (props.selected) {
-      createMovieFiles({
-        //create new file if filename of state is different to filename of selectedVideo
-        title: state.title,
-        poster: state.poster !== props.selected.poster && state.poster,
-        trailer: state.trailer !== props.selected.trailer && state.trailer,
-        german: state.german !== props.selected.german && state.german,
-        english: state.english !== props.selected.english && state.english,
-        changes: props.selected.changes,
-      });
-      //
-      if (state.title !== props.selected.title) {
-        updateMovieFiles({
-          //rename file if title of state of is different to title of selectedVideo
-          title: state.title,
-          old_title: props.selected.title,
-          poster: state.poster,
-          trailer: state.trailer,
-          german: state.german,
-          english: state.english,
-          changes: props.selected.changes,
-        });
-      }
-      //
-      deleteMovieFiles({
-        //delete file if filename of state is ""
-        id: props.selected.id,
-        poster: state.poster !== "" && state.poster,
-        trailer: state.trailer !== "" && state.trailer,
-        german: state.german !== "" && state.german,
-        english: state.english !== "" && state.english,
-        changes: props.selected.changes,
-      });
-    } else {
-      (poster || trailer || german || english) &&
-        createMovieFiles({
-          id: lastId?.id,
-          poster: state.poster,
-          trailer: state.trailer,
-          german: state.german,
-          english: state.english,
-          changes: state.changes,
-        });
-    }
   };
 
   const resetInput = () => {
@@ -210,7 +147,7 @@ const MovieForm = (props) => {
       director: "",
       genre: "",
       year: "",
-      part: "",
+      fsk: "",
       awards: "",
       rating: "",
       runtime: "",
@@ -370,12 +307,12 @@ const MovieForm = (props) => {
         <div className={styles.row}>
           <div className={styles.box}>
             <div className={styles.shortBox}>
-              <label>Part</label>
+              <label>FSK</label>
               <input
                 className={styles.lineInput}
                 type="text"
-                value={state.part || ""}
-                onChange={(e) => updateState({ part: e.target.value })}
+                value={state.fsk || ""}
+                onChange={(e) => updateState({ fsk: e.target.value })}
               ></input>
             </div>
             <div className={styles.shortBox}>

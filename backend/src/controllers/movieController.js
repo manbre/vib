@@ -33,17 +33,14 @@ const getAllMovies = async (req, res) => {
  * @res one movie by id
  */
 const getOneMovieById = async (req, res) => {
-  await Movies.findOne({
+  let movie = await Movies.findOne({
     where: { id: req.params.id },
-  })
-    .then((res) => {
-      res.send(res);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "error while getting movie data by id: " + err,
-      });
+  }).catch((err) => {
+    res.status(500).send({
+      message: "error while getting movie data by id: " + err,
     });
+  });
+  res.send(movie);
 };
 
 /**
@@ -88,35 +85,28 @@ const getAllGenres = async (req, res) => {
  * @res movies by genre
  */
 const getMoviesByGenre = async (req, res) => {
+  let movies;
   if (req.params.genre === "All" || req.params.genre === "0") {
-    await Movies.findAll({
+    movies = await Movies.findAll({
       order: [[sequelize.literal("series, year"), "ASC"]],
-    })
-      .then((res) => {
-        res.send(res);
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message: "error while filtering movie data by genre: ",
-          err,
-        });
+    }).catch((err) => {
+      res.status(500).send({
+        message: "error while filtering movie data by genre: ",
+        err,
       });
+    });
   } else if (req.params.genre === "Recent") {
-    await Movies.findAll({
+    movies = await Movies.findAll({
       limit: 3,
       order: [[sequelize.literal("last_watched"), "DESC"]],
-    })
-      .then((res) => {
-        res.send(res);
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message: "error while filtering movie data by genre: ",
-          err,
-        });
+    }).catch((err) => {
+      res.status(500).send({
+        message: "error while filtering movie data by genre: ",
+        err,
       });
+    });
   } else {
-    await Movies.findAll({
+    movies = await Movies.findAll({
       where: {
         genre: sequelize.where(
           sequelize.col("genre"),
@@ -125,17 +115,14 @@ const getMoviesByGenre = async (req, res) => {
         ),
       },
       order: [[sequelize.literal("series, year"), "ASC"]],
-    })
-      .then((res) => {
-        res.send(res);
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message: "error while filtering movie data by genre: ",
-          err,
-        });
+    }).catch((err) => {
+      res.status(500).send({
+        message: "error while filtering movie data by genre: ",
+        err,
       });
+    });
   }
+  res.send(movies);
 };
 
 /**
@@ -143,9 +130,10 @@ const getMoviesByGenre = async (req, res) => {
  * @res movies by search
  */
 const getMoviesBySearch = async (req, res) => {
+  let movies;
   switch (req.params.search) {
     case "title":
-      await Movies.findAll({
+      movies = await Movies.findAll({
         where: {
           title: sequelize.where(
             sequelize.col("title"),
@@ -154,18 +142,14 @@ const getMoviesBySearch = async (req, res) => {
           ),
         },
         order: [[sequelize.literal("series, year"), "ASC"]],
-      })
-        .then((res) => {
-          res.send(res);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message: "error while filtering movie data by title search: " + err,
-          });
+      }).catch((err) => {
+        res.status(500).send({
+          message: "error while filtering movie data by title search: " + err,
         });
+      });
       break;
     case "director":
-      await Movies.findAll({
+      movies = await Movies.findAll({
         where: {
           director: sequelize.where(
             sequelize.col("director"),
@@ -174,19 +158,15 @@ const getMoviesBySearch = async (req, res) => {
           ),
         },
         order: [[sequelize.literal("series, year"), "ASC"]],
-      })
-        .then((res) => {
-          res.send(res);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              "error while filtering movie data by director search: " + err,
-          });
+      }).catch((err) => {
+        res.status(500).send({
+          message:
+            "error while filtering movie data by director search: " + err,
         });
+      });
       break;
     case "actor":
-      await Movies.findAll({
+      movies = await Movies.findAll({
         where: {
           actors: sequelize.where(
             sequelize.col("actors"),
@@ -195,18 +175,15 @@ const getMoviesBySearch = async (req, res) => {
           ),
         },
         order: [[sequelize.literal("series, year"), "ASC"]],
-      })
-        .then((res) => {
-          res.send(res);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message: "error while filtering movie data by actor search: " + err,
-          });
+      }).catch((err) => {
+        res.status(500).send({
+          message: "error while filtering movie data by actor search: " + err,
         });
+      });
       break;
     default:
   }
+  res.send(movies);
 };
 
 //------------------------------------------------------------------------
