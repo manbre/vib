@@ -15,17 +15,15 @@ const dir = path;
  * @res all movies
  */
 const getAllMovies = async (req, res) => {
+  let movies;
   await Movies.findAll({
     order: [[sequelize.literal("series, year"), "ASC"]],
-  })
-    .then((res) => {
-      res.send(res);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "error while getting all movies: " + err,
-      });
+  }).catch((err) => {
+    res.status(500).send({
+      message: "error while getting all movies: " + err,
     });
+  });
+  res.send(movies);
 };
 
 /**
@@ -33,7 +31,8 @@ const getAllMovies = async (req, res) => {
  * @res one movie by id
  */
 const getOneMovieById = async (req, res) => {
-  let movie = await Movies.findOne({
+  let movie;
+  movie = await Movies.findOne({
     where: { id: req.params.id },
   }).catch((err) => {
     res.status(500).send({
