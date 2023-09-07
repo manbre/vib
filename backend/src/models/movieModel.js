@@ -10,7 +10,7 @@ movieModel.init(
     director: { type: DataTypes.TEXT },
     genre: { type: DataTypes.TEXT },
     //
-    part: { type: DataTypes.INTEGER, defaultValue: 1 },
+    fsk: { type: DataTypes.INTEGER }, //voluntary self regulation
     year: { type: DataTypes.INTEGER },
     awards: { type: DataTypes.INTEGER }, //oscars
     rating: { type: DataTypes.INTEGER }, //rotten tomatoes
@@ -24,7 +24,7 @@ movieModel.init(
     german: { type: DataTypes.TEXT }, //path of german .mp4 file
     english: { type: DataTypes.TEXT }, //path of english .mp4 file
     //
-    changes: { type: DataTypes.INTEGER, defaultValue: 0  },
+    changes: { type: DataTypes.INTEGER, defaultValue: 0 },
     //
     elapsed_time: { type: DataTypes.INTEGER, defaultValue: 0 },
     last_watched: { type: DataTypes.DATE },

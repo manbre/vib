@@ -8,13 +8,8 @@ router.get("/genres", movieController.getAllGenres);
 router.get("/genre/:genre", movieController.getMoviesByGenre);
 router.get("/search/:search/:input", movieController.getMoviesBySearch);
 //
-router.post("/", movieController.createMovieData);
-router.post("/files", movieController.createMovieFiles);
-//
-router.put("/", movieController.updateMovieData);
-router.put("/files", movieController.updateMovieFiles);
-//
-router.delete("/", movieController.deleteMovieData);
-router.delete("/files", movieController.deleteMovieFiles);
+router.post("/", movieController.createMovie);
+router.put("/", movieController.updateMovie);
+router.delete("/", movieController.deleteMovie);
 
 module.exports = router;

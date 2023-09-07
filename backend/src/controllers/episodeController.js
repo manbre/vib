@@ -7,34 +7,6 @@ const fs = require("fs");
 const dir = "E:\\vib\\show\\";
 
 /**
- * @res all genres
- */
-const getAllGenres = async (req, res) => {
-  let genres = await Episodes.findAll({}).catch((err) => {
-    res.send(err);
-  });
-  let a = [];
-  //get data out of json
-  for (let i = 0; i < genres.length; i++) {
-    let str = genres[i].genre;
-    a.push(str);
-  }
-  //eliminates ","
-  let b = a.toString().split(", ");
-  let c = b.toString().split(",");
-  //eliminates duplicates and spaces
-  let d = [];
-  for (let i = 0; i < c.length; i++) {
-    let str = c[i];
-    if (!d.includes(c[i]) && c[i] != "") {
-      d.push(str);
-    }
-  }
-  d.sort();
-  res.send(d);
-};
-
-/**
  * @req series
  * @res all seasons
  */
@@ -115,6 +87,35 @@ const getRecent = async (req, res) => {
     res.send(err);
   });
   res.send(episode);
+};
+
+/**
+ * @req -
+ * @res all genres
+ */
+const getAllGenres = async (req, res) => {
+  let genres = await Episodes.findAll({}).catch((err) => {
+    res.send(err);
+  });
+  let a = [];
+  //get data out of json
+  for (let i = 0; i < genres.length; i++) {
+    let str = genres[i].genre;
+    a.push(str);
+  }
+  //eliminates ","
+  let b = a.toString().split(", ");
+  let c = b.toString().split(",");
+  //eliminates duplicates and spaces
+  let d = [];
+  for (let i = 0; i < c.length; i++) {
+    let str = c[i];
+    if (!d.includes(c[i]) && c[i] != "") {
+      d.push(str);
+    }
+  }
+  d.sort();
+  res.send(d);
 };
 
 /**

@@ -182,7 +182,7 @@ const MovieForm = (props) => {
       //
       deleteMovieFiles({
         //delete file if filename of state is ""
-        title: props.selected.title,
+        id: props.selected.id,
         poster: state.poster !== "" && state.poster,
         trailer: state.trailer !== "" && state.trailer,
         german: state.german !== "" && state.german,
@@ -192,7 +192,7 @@ const MovieForm = (props) => {
     } else {
       (poster || trailer || german || english) &&
         createMovieFiles({
-          title: state.title,
+          id: lastId?.id,
           poster: state.poster,
           trailer: state.trailer,
           german: state.german,
