@@ -189,76 +189,24 @@ const getMoviesBySearch = async (req, res) => {
 // CREATE, UPDATE, DELETE movie data
 //------------------------------------------------------------------------
 /**
- * @req movie
- * @res -
+ * @param {*} req
+ * @param {*} movie_id
+ * @param {*} posterPath
+ * @param {*} trailerPath
+ * @param {*} germanPath
+ * @param {*} englishPath
  */
-const createMovie = async (req, res) => {
-  let movie_id;
-  let num = req.body.changes + 1;
-  await Movies.create({
-    title: req.body.title,
-    series: req.body.series ? req.body.series : req.body.title,
-    fsk: req.body.fsk,
-    director: req.body.director,
-    genre: req.body.genre,
-    year: req.body.year,
-    awards: req.body.awards,
-    rating: req.body.rating,
-    runtime: req.body.runtime,
-    actors: req.body.actors,
-    plot: req.body.plot,
-    changes: num,
-  }).then((res) => (movie_id = res.id));
-  //=====================================================
-  createFiles(req, movie_id);
-  //=====================================================
-  let posterPath = movie_id + "_" + num + ".jpg";
-  let trailerPath = movie_id + "_" + num + ".mp4";
-  let germanPath = movie_id + "_" + num + "_de.mp4";
-  let englishPath = movie_id + "_" + num + "_en.mp4";
-  //insert files in database
+const createFileData = async (
+  req,
+  movie_id,
+  posterPath,
+  trailerPath,
+  germanPath,
+  englishPath
+) => {
   await Movies.update(
     {
-      poster: req.body.poster && posterPath,
-      trailer: req.body.trailer && trailerPath,
-      german: req.body.german && germanPath,
-      english: req.body.english && englishPath,
-    },
-    { where: { id: movie_id } }
-  );
-};
-
-/**
- * @req movie
- * @res -
- */
-const updateMovie = async (req, res) => {
-  let movie_id = req.body.id;
-  let num = req.body.changes + 1;
-  let posterPath = movie_id + "_" + num + ".jpg";
-  let trailerPath = movie_id + "_" + num + ".mp4";
-  let germanPath = movie_id + "_" + num + "_de.mp4";
-  let englishPath = movie_id + "_" + num + "_en.mp4";
-  //=====================================================
-  createFiles(req, movie_id);
-  deleteFiles(req, true);
-  //=====================================================
-  await Movies.update(
-    {
-      ...(req.body.title && { title: req.body.title }),
-      ...(req.body.series && { series: req.body.series }),
-      ...(req.body.fsk && { fsk: req.body.fsk }),
-      ...(req.body.director && { director: req.body.director }),
-      ...(req.body.genre && { genre: req.body.genre }),
-      //
-      ...(req.body.year && { year: req.body.year }),
-      ...(req.body.awards && { awards: req.body.awards }),
-      ...(req.body.rating && { rating: req.body.rating }),
-      ...(req.body.runtime && { runtime: req.body.runtime }),
-      //
-      ...(req.body.actors && { director: req.body.actors }),
-      ...(req.body.plot && { plot: req.body.plot }),
-      //
+      //no update if file is null / undefined
       ...(req.body.poster
         ? { poster: posterPath }
         : req.body.poster === "" && { poster: "" }),
@@ -271,25 +219,85 @@ const updateMovie = async (req, res) => {
       ...(req.body.english
         ? { english: englishPath }
         : req.body.english === "" && { english: "" }),
-      //
-      ...(req.body.changes && { changes: num }),
-      //
+    },
+    { where: { id: movie_id } }
+  );
+};
+
+/**
+ * @req movie
+ * @res -
+ */
+const createMovie = async (req, res) => {
+  let movie_id;
+  await Movies.create({
+    title: req.body.title,
+    series: req.body.series ? req.body.series : req.body.title,
+    fsk: req.body.fsk,
+    director: req.body.director,
+    genre: req.body.genre,
+    year: req.body.year,
+    awards: req.body.awards,
+    rating: req.body.rating,
+    runtime: req.body.runtime,
+    actors: req.body.actors,
+    plot: req.body.plot,
+    changes: req.body.changes + 1,
+  }).then((res) => (movie_id = res.id));
+  //=====================================================
+  createFiles(req, movie_id)
+    .then(() => {
+      res.status(200).send({
+        message: "movie '" + req.body.title + "' has been created.",
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "error while creating movie '" + req.body.title + "': " + err,
+      });
+    });
+};
+
+/**
+ * @req movie
+ * @res -
+ */
+const updateMovie = async (req, res) => {
+  let movie_id = req.body.id;
+  await Movies.update(
+    {
+      ...(req.body.title && { title: req.body.title }),
+      ...(req.body.series && { series: req.body.series }),
+      ...(req.body.fsk && { fsk: req.body.fsk }),
+      ...(req.body.director && { director: req.body.director }),
+      ...(req.body.genre && { genre: req.body.genre }),
+      ...(req.body.year && { year: req.body.year }),
+      ...(req.body.awards && { awards: req.body.awards }),
+      ...(req.body.rating && { rating: req.body.rating }),
+      ...(req.body.runtime && { runtime: req.body.runtime }),
+      ...(req.body.actors && { director: req.body.actors }),
+      ...(req.body.plot && { plot: req.body.plot }),
+      ...(req.body.changes && { changes: req.body.changes + 1 }),
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
       ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
     },
     {
       where: { id: movie_id },
     }
-  ).catch((err) => {
-    res.status(500).send({
-      message: "error while updating movie data of '" + req.body.title + "': ",
-      err,
-    });
-  });
+  );
+  //=====================================================
 
-  res.status(200).send({
-    message: "movie data of '" + req.body.title + "' have been updated.",
-  });
+  createFiles(req, movie_id)
+    .then(() => {
+      res.status(200).send({
+        message: "movie '" + req.body.title + "' has been updated.",
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "error while updating movie '" + req.body.title + "': " + err,
+      });
+    });
 };
 
 /**
@@ -303,14 +311,12 @@ const deleteMovie = async (req, res) => {
   await Movies.destroy({ where: { id: req.body.id } })
     .then(() => {
       res.status(200).send({
-        message: "movie data of '" + req.body.title + "' have been removed.",
+        message: "movie '" + req.body.title + "' has been removed.",
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message:
-          "error while removing movie data of '" + req.body.title + "': ",
-        err,
+        message: "error while removing movie '" + req.body.title + "': " + err,
       });
     });
 };
@@ -343,7 +349,7 @@ const createFiles = (req, movie_id) => {
       https.get(req.body.poster, (res) => {
         res.pipe(file);
         file.on("error", (err) => {
-          console.log(err);
+          if (err) throw err;
         });
         file.on("finish", () => {
           file.close();
@@ -352,28 +358,36 @@ const createFiles = (req, movie_id) => {
     } else {
       //copy and rename local file to directory
       fs.copyFile(req.body.poster, posterDir + posterPath, (err) => {
-        console.log(err);
+        if (err) throw err;
       });
     }
   }
   if (req.body.trailer) {
     !fs.existsSync(trailerDir) && fs.mkdirSync(trailerDir, { recursive: true });
     fs.copyFile(req.body.trailer, trailerDir + trailerPath, (err) => {
-      console.log(err);
+      if (err) throw err;
     });
   }
   if (req.body.german) {
     !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
     fs.copyFile(req.body.german, germanDir + germanPath, (err) => {
-      console.log(err);
+      if (err) throw err;
     });
   }
   if (req.body.english) {
     !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
     fs.copyFile(req.body.english, englishDir + englishPath, (err) => {
-      console.log(err);
+      if (err) throw err;
     });
   }
+  return createFileData(
+    req,
+    movie_id,
+    posterPath,
+    trailerPath,
+    germanPath,
+    englishPath
+  );
 };
 
 /**

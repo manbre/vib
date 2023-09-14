@@ -12,7 +12,7 @@ import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import SpinLoader from "../../components/spinLoader/SpinLoader";
 import { selectVideo } from "../../features/video";
-import { toggleLoading } from "../../features/view";
+import { toggleLoaded } from "../../features/view";
 import useWebSocket from "../../hooks/useWebSocket";
 
 import {
@@ -23,7 +23,7 @@ import {
 const Home = () => {
   const dispatch = useDispatch();
   const selectedVideo = useSelector((state) => state.video.video);
-  const isLoading = useSelector((state) => state.view.isLoading);
+  const isLoaded = useSelector((state) => state.view.isLoaded);
   const [isReady, val, send] = useWebSocket();
 
   //val: receiving messages
@@ -32,11 +32,11 @@ const Home = () => {
       if (val.name === "done") {
         console.log(val.name);
         navigate(0);
-        dispatch(toggleLoading(false));
+        dispatch(toggleLoaded(true));
       }
       if (val.name === "change") {
         console.log(val.name);
-        dispatch(toggleLoading(true));
+        dispatch(toggleLoaded(false));
       }
     }
   }, [val]);
@@ -84,10 +84,19 @@ const Home = () => {
 
   useEffect(() => {
     let loader = document.getElementById("loader");
-    isLoading
-      ? loader && (loader.style = "display: block;")
-      : loader && (loader.style = "display: none;");
-  }, [isLoading]);
+    !isLoaded
+      ? (loader.style = "display: block;") && clearCache()
+      : (loader.style = "display: none;");
+  }, [isLoaded]);
+
+  const clearCache = () => {
+    //clears complete cache data
+    caches.keys().then((names) => {
+      names.forEach((name) => {
+        caches.delete(name);
+      });
+    });
+  };
 
   return (
     <div className={styles.container}>

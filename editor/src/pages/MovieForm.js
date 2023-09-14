@@ -2,7 +2,6 @@ import React from "react";
 import { useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./Form.module.css";
-import { selectVideo } from "../features/video";
 import { setEvent } from "../features/view";
 import useOmdb from "../hooks/useOmdb";
 
@@ -15,10 +14,6 @@ import {
 const MovieForm = (props) => {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log(props.selected?.changes);
-  }, [props]);
-  //
   const initialState = {
     title: "",
     series: "",
@@ -92,31 +87,41 @@ const MovieForm = (props) => {
   const updateVideo = () => {
     updateMovie({
       id: props.selected.id,
-      //
       ...(state.title !== props.selected.title
         ? { title: state.title }
         : { title: props.selected.title }),
-      ...(state.series !== props.selected.series && { series: state.series }),
+      ...(state.series !== props.selected.series && {
+        series: state.series,
+      }),
       ...(state.director !== props.selected.director && {
         director: state.director,
       }),
       ...(state.genre !== props.selected.genre && { genre: state.genre }),
-      //
       ...(state.year !== props.selected.year && { year: state.year }),
-      ...(state.awards !== props.selected.awards && { awards: state.awards }),
-      ...(state.rating !== props.selected.rating && { rating: state.rating }),
+      ...(state.awards !== props.selected.awards && {
+        awards: state.awards,
+      }),
+      ...(state.rating !== props.selected.rating && {
+        rating: state.rating,
+      }),
       ...(state.runtime !== props.selected.runtime && {
         runtime: state.runtime,
       }),
       //
-      ...(state.actors !== props.selected.actors && { actors: state.actors }),
+      ...(state.actors !== props.selected.actors && {
+        actors: state.actors,
+      }),
       ...(state.plot !== props.selected.plot && { plot: state.plot }),
       //
-      ...(state.poster !== props.selected.poster && { poster: state.poster }),
+      ...(state.poster !== props.selected.poster && {
+        poster: state.poster,
+      }),
       ...(state.trailer !== props.selected.trailer && {
         trailer: state.trailer,
       }),
-      ...(state.german !== props.selected.german && { german: state.german }),
+      ...(state.german !== props.selected.german && {
+        german: state.german,
+      }),
       ...(state.english !== props.selected.english && {
         english: state.english,
       }),
@@ -157,6 +162,7 @@ const MovieForm = (props) => {
       trailer: "",
       german: "",
       english: "",
+      changes: 0,
     });
     //
     let fields = document

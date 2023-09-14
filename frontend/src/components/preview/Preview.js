@@ -156,10 +156,15 @@ const Preview = () => {
             autoPlay
             loop
             muted={isMuted}
-            src={`http://localhost:9000/stream/video/trailer/${trailer}`}
+            src={
+              isLoaded &&
+              `http://localhost:9000/stream/video/trailer/${trailer}`
+            }
           ></video>
         ) : (
-          <AsyncPoster src={`http://localhost:9000/stream/image/${poster}`} />
+          <AsyncPoster
+            src={isLoaded && `http://localhost:9000/stream/image/${poster}`}
+          />
         )}
         <div className={styles.btns}>
           {getPlayButtons()}

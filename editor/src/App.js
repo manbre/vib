@@ -22,25 +22,25 @@ const App = () => {
   const [id, setId] = useState(null);
 
   const event = useSelector((state) => state.view.event);
-  const { data: selected } = useGetMovieByIdQuery(id && type === 1 && id);
+  const { data: selectedMovie } = useGetMovieByIdQuery(id && type === 1 && id);
 
   //------------------------------------------------------------------------------------
   //WebSocket
   const [isReady, val, send] = useWebSocket();
 
   useEffect(() => {
-    val && val.id && setId(val.id);
-    val && val.type && setType(val.type);
+    val?.id && setId(val.id);
+    val?.type && setType(val.type);
   }, [val]);
 
   useEffect(() => {
-    console.log(event && event.name)
+    console.log(event && event.name);
     isReady && send(JSON.stringify(event));
   }, [event, isReady]);
 
   const handleSubmit = () => {
     dispatch(setEvent({ name: "change", type: 1, value: null }));
-    if (selected) {
+    if (selectedMovie) {
       type === 1 && movieEditor.current.updateVideo();
       type === 2 && episodeEditor.current.updateVideo();
     } else {
@@ -51,7 +51,7 @@ const App = () => {
 
   const handleDelete = () => {
     dispatch(setEvent({ name: "change", type: 1, value: null }));
-    if (selected) {
+    if (selectedMovie) {
       type === 1 && movieEditor.current.deleteVideo();
       type === 2 && episodeEditor.current.deleteVideo();
     }
@@ -66,13 +66,13 @@ const App = () => {
       <TabBar />
       {type === 1 ? (
         <MovieForm
-          selected={selected}
+          selected={selectedMovie}
           changeMessage={(message) => setBox(message)}
           childRef={movieEditor}
         />
       ) : type === 2 ? (
         <EpisodeForm
-          selected={selected}
+          selected={selectedMovie}
           changeMessage={(message) => setBox(message)}
           childRef={episodeEditor}
         />

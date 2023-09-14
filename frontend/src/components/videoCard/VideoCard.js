@@ -31,16 +31,15 @@ const VideoCard = ({ video }) => {
     }
   }, [markedCard]);
 
-
   return (
     <div
       className={styles.container}
       onClick={() => dispatch(selectVideo(video))}
     >
       <div className={styles.poster}>
-        <AsyncPoster
-          src={`http://localhost:9000/stream/image/${video.poster}`}
-        />
+          <AsyncPoster
+            src={isLoaded && (`http://localhost:9000/stream/image/${video.poster}`)}
+          />
       </div>
 
       <div className={styles.info}>
