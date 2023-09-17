@@ -9,6 +9,7 @@ import {
   useCreateMovieMutation,
   useUpdateMovieMutation,
   useDeleteMovieMutation,
+  useUpdateMovieFilesMutation,
 } from "../features/backend";
 
 const MovieForm = (props) => {
@@ -41,6 +42,7 @@ const MovieForm = (props) => {
   const [createMovie] = useCreateMovieMutation();
   const [updateMovie] = useUpdateMovieMutation();
   const [deleteMovie] = useDeleteMovieMutation();
+  const [updateMovieFiles] = useUpdateMovieFilesMutation();
 
   useEffect(() => {
     resetInput();
@@ -75,12 +77,24 @@ const MovieForm = (props) => {
 
   const createVideo = () => {
     if (state.title !== "") {
+      let obj = state;
       createMovie(state)
         .unwrap()
-        .then((payload) => props.changeMessage(payload.message))
-        .catch((error) => props.changeMessage(error.message))
-        .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
-        .then(resetInput());
+        .catch((err) => props.changeMessage("creating data error: '" + err))
+        .then((res) => {
+          obj.id = res.id;
+          console.log(obj);
+          updateMovieFiles(obj)
+            .unwrap()
+            .then(() =>
+              props.changeMessage("'" + state.title + "' was created")
+            )
+            .catch((err) =>
+              props.changeMessage("creating files error: '" + err)
+            )
+            .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
+            .then(resetInput());
+        });
     }
   };
 
@@ -112,6 +126,14 @@ const MovieForm = (props) => {
         actors: state.actors,
       }),
       ...(state.plot !== props.selected.plot && { plot: state.plot }),
+      changes: props.selected.changes,
+    })
+      .unwrap()
+      .catch((err) => props.changeMessage("updating data error: " + err));
+    //
+    updateMovieFiles({
+      id: props.selected.id,
+      changes: props.selected.changes,
       //
       ...(state.poster !== props.selected.poster && {
         poster: state.poster,
@@ -125,12 +147,12 @@ const MovieForm = (props) => {
       ...(state.english !== props.selected.english && {
         english: state.english,
       }),
-      //
-      changes: props.selected.changes,
     })
       .unwrap()
-      .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message))
+      .then(() =>
+        props.changeMessage("'" + props.selected.title + "' was updated")
+      )
+      .catch((err) => props.changeMessage("updating files error: " + err))
       .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
       .then(resetInput());
   };
@@ -138,8 +160,10 @@ const MovieForm = (props) => {
   const deleteVideo = () => {
     deleteMovie(props.selected)
       .unwrap()
-      .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message))
+      .then(() =>
+        props.changeMessage("'" + props.selected.title + "' was deleted")
+      )
+      .catch((err) => props.changeMessage("deleting error: '" + err))
       .then(dispatch(setEvent({ name: "done", type: 1, value: null })))
       .then(resetInput());
   };

@@ -11,5 +11,7 @@ router.get("/search/:search/:input", movieController.getMoviesBySearch);
 router.post("/", movieController.createMovie);
 router.put("/", movieController.updateMovie);
 router.delete("/", movieController.deleteMovie);
+//
+router.put("/files", movieController.updateMovieFiles);
 
 module.exports = router;

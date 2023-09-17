@@ -37,9 +37,13 @@ const VideoCard = ({ video }) => {
       onClick={() => dispatch(selectVideo(video))}
     >
       <div className={styles.poster}>
-          <AsyncPoster
-            src={isLoaded && (`http://localhost:9000/stream/image/${video.poster}`)}
-          />
+        <AsyncPoster
+          src={
+            isLoaded &&
+            video.poster &&
+            `http://localhost:9000/stream/image/${video.poster}`
+          }
+        />
       </div>
 
       <div className={styles.info}>

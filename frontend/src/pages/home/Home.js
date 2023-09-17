@@ -28,16 +28,12 @@ const Home = () => {
 
   //val: receiving messages
   useEffect(() => {
-    if (val && val.name) {
-      if (val.name === "done") {
-        console.log(val.name);
-        navigate(0);
-        dispatch(toggleLoaded(true));
-      }
-      if (val.name === "change") {
-        console.log(val.name);
-        dispatch(toggleLoaded(false));
-      }
+    if (val?.name === "done") {
+      dispatch(toggleLoaded(true));
+      navigate(0);
+    }
+    if (val?.name === "change") {
+      dispatch(toggleLoaded(false));
     }
   }, [val]);
 
@@ -67,12 +63,6 @@ const Home = () => {
 
   const [movies, setMovies] = useState([]);
   const navigate = useNavigate();
-
-  /*   useEffect(() => {
-    console.log(action);
-    action.name != "select" && action.name != "" && setEvent(action);
-    refetch();
-  }, [action]); */
 
   useEffect(() => {
     moviesByGenre && setMovies(moviesByGenre ?? []);

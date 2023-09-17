@@ -158,12 +158,17 @@ const Preview = () => {
             muted={isMuted}
             src={
               isLoaded &&
+              trailer &&
               `http://localhost:9000/stream/video/trailer/${trailer}`
             }
           ></video>
         ) : (
           <AsyncPoster
-            src={isLoaded && `http://localhost:9000/stream/image/${poster}`}
+            src={
+              isLoaded &&
+              poster &&
+              `http://localhost:9000/stream/image/${poster}`
+            }
           />
         )}
         <div className={styles.btns}>

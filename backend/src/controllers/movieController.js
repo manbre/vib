@@ -243,13 +243,10 @@ const createMovie = async (req, res) => {
     actors: req.body.actors,
     plot: req.body.plot,
     changes: req.body.changes + 1,
-  }).then((res) => (movie_id = res.id));
-  //=====================================================
-  createFiles(req, movie_id)
-    .then(() => {
-      res.status(200).send({
-        message: "movie '" + req.body.title + "' has been created.",
-      });
+  })
+    //=====================================================
+    .then((result) => {
+      res.status(200).send(result);
     })
     .catch((err) => {
       res.status(500).send({
@@ -284,19 +281,14 @@ const updateMovie = async (req, res) => {
     {
       where: { id: movie_id },
     }
-  );
-  //=====================================================
+  )
+    //=====================================================
 
-  createFiles(req, movie_id)
     .then(() => {
-      res.status(200).send({
-        message: "movie '" + req.body.title + "' has been updated.",
-      });
+      res.status(200);
     })
     .catch((err) => {
-      res.status(500).send({
-        message: "error while updating movie '" + req.body.title + "': " + err,
-      });
+      res.status(500).send(err);
     });
 };
 
@@ -309,26 +301,24 @@ const deleteMovie = async (req, res) => {
   deleteFiles(req, false);
   //=====================================================
   await Movies.destroy({ where: { id: req.body.id } })
-    .then(() => {
-      res.status(200).send({
-        message: "movie '" + req.body.title + "' has been removed.",
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "error while removing movie '" + req.body.title + "': " + err,
-      });
-    });
+    .then(() => res.status(200))
+    .catch((err) => res.status(500).send(err));
 };
 
 //------------------------------------------------------------------------
 // CREATE / DELETE movie files
 //------------------------------------------------------------------------
 /**
- * @param {*} req
- * @param {*} movie_id
+ * @req movie including new id
+ * @res -
  */
-const createFiles = (req, movie_id) => {
+const updateMovieFiles = async (req, res) => {
+  let movie_id = req.body.id;
+  let isPosterReady = req.body.poster ? false : true;
+  let isTrailerReady = req.body.trailer ? false : true;
+  let isGermanReady = req.body.german ? false : true;
+  let isEnglishReady = req.body.english ? false : true;
+  //
   let num = req.body.changes + 1;
   let posterPath = movie_id + "_" + num + ".jpg";
   let trailerPath = movie_id + "_" + num + ".mp4";
@@ -346,48 +336,125 @@ const createFiles = (req, movie_id) => {
     //download poster from OMDB api to location
     if (req.body.poster.includes("http")) {
       let file = fs.createWriteStream(posterDir + posterPath);
-      https.get(req.body.poster, (res) => {
-        res.pipe(file);
+      https.get(req.body.poster, (result) => {
+        result.pipe(file);
         file.on("error", (err) => {
-          if (err) throw err;
+          err && res.status(500).send(err);
         });
         file.on("finish", () => {
           file.close();
         });
+        isPosterReady = true;
+        //
+        isPosterReady &&
+          isTrailerReady &&
+          isGermanReady &&
+          isEnglishReady &&
+          //
+          createFileData(
+            req,
+            movie_id,
+            posterPath,
+            trailerPath,
+            germanPath,
+            englishPath
+          )
+            .then(res.status(200))
+            .catch((err) => res.status(500).send(err));
       });
     } else {
       //copy and rename local file to directory
       fs.copyFile(req.body.poster, posterDir + posterPath, (err) => {
-        if (err) throw err;
+        err && res.status(500).send(err);
+        isPosterReady = true;
+        //
+        isPosterReady &&
+          isTrailerReady &&
+          isGermanReady &&
+          isEnglishReady &&
+          //
+          createFileData(
+            req,
+            movie_id,
+            posterPath,
+            trailerPath,
+            germanPath,
+            englishPath
+          )
+            .then(res.status(200))
+            .catch((err) => res.status(500).send(err));
       });
     }
   }
   if (req.body.trailer) {
     !fs.existsSync(trailerDir) && fs.mkdirSync(trailerDir, { recursive: true });
     fs.copyFile(req.body.trailer, trailerDir + trailerPath, (err) => {
-      if (err) throw err;
+      err && res.status(500).send(err);
+      isTrailerReady = true;
+      //
+      isPosterReady &&
+        isTrailerReady &&
+        isGermanReady &&
+        isEnglishReady &&
+        //
+        createFileData(
+          req,
+          movie_id,
+          posterPath,
+          trailerPath,
+          germanPath,
+          englishPath
+        )
+          .then(res.status(200))
+          .catch((err) => res.status(500).send(err));
     });
   }
   if (req.body.german) {
     !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
     fs.copyFile(req.body.german, germanDir + germanPath, (err) => {
-      if (err) throw err;
+      err && res.status(500).send(err);
+      isGermanReady = true;
+      //
+      isPosterReady &&
+        isTrailerReady &&
+        isGermanReady &&
+        isEnglishReady &&
+        //
+        createFileData(
+          req,
+          movie_id,
+          posterPath,
+          trailerPath,
+          germanPath,
+          englishPath
+        )
+          .then(res.status(200))
+          .catch((err) => res.status(500).send(err));
     });
   }
   if (req.body.english) {
     !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
     fs.copyFile(req.body.english, englishDir + englishPath, (err) => {
-      if (err) throw err;
+      err && res.status(500).send(err);
+      isEnglishReady = true;
+      //
+      isPosterReady &&
+        isTrailerReady &&
+        isGermanReady &&
+        isEnglishReady &&
+        //
+        createFileData(
+          req,
+          movie_id,
+          posterPath,
+          trailerPath,
+          germanPath,
+          englishPath
+        )
+          .then(res.status(200))
+          .catch((err) => res.status(500).send(err));
     });
   }
-  return createFileData(
-    req,
-    movie_id,
-    posterPath,
-    trailerPath,
-    germanPath,
-    englishPath
-  );
 };
 
 /**
@@ -435,4 +502,6 @@ module.exports = {
   createMovie,
   updateMovie,
   deleteMovie,
+  //
+  updateMovieFiles,
 };

@@ -56,6 +56,14 @@ export const backend = createApi({
         body: episode,
       }),
     }),
+    //
+    updateMovieFiles: builder.mutation({
+      query: (movie) => ({
+        url: "/movies/files",
+        method: "PUT",
+        body: movie,
+      }),
+    }),
   }),
 });
 
@@ -70,4 +78,6 @@ export const {
   //
   useDeleteMovieMutation,
   useDeleteEpisodeMutation,
+  //
+  useUpdateMovieFilesMutation,
 } = backend;

@@ -39,7 +39,7 @@ const App = () => {
   }, [event, isReady]);
 
   const handleSubmit = () => {
-    dispatch(setEvent({ name: "change", type: 1, value: null }));
+    isReady && send(JSON.stringify({ name: "change", type: 1, value: null }));
     if (selectedMovie) {
       type === 1 && movieEditor.current.updateVideo();
       type === 2 && episodeEditor.current.updateVideo();
