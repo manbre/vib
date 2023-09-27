@@ -4,8 +4,7 @@ const Movies = require("../models/movieModel");
 const https = require("https");
 const fs = require("fs");
 //
-const path = "E:\\vib\\movies\\";
-const dir = path;
+const dir = "E:\\vib\\movies\\";
 
 //------------------------------------------------------------------------
 // QUERY movie data
@@ -20,10 +19,10 @@ const getAllMovies = async (req, res) => {
     order: [[sequelize.literal("series, year"), "ASC"]],
   }).catch((err) => {
     res.status(500).send({
-      message: "error while getting all movies: " + err,
+      message: "get-all movies error: " + err,
     });
   });
-  res.send(movies);
+  res.status(200).send(movies);
 };
 
 /**
@@ -35,11 +34,9 @@ const getOneMovieById = async (req, res) => {
   movie = await Movies.findOne({
     where: { id: req.params.id },
   }).catch((err) => {
-    res.status(500).send({
-      message: "error while getting movie data by id: " + err,
-    });
+    res.status(500).send({ message: "get-movie by id error: " + err });
   });
-  res.send(movie);
+  res.status(200).send(movie);
 };
 
 /**
@@ -48,34 +45,32 @@ const getOneMovieById = async (req, res) => {
  */
 const getAllGenres = async (req, res) => {
   let genres = await Movies.findAll().catch((err) => {
-    res.status(500).send({
-      message: "error while getting all genres: " + err,
-    });
+    res.status(500).send({ message: "get-all genres error: " + err });
   });
+  //
   try {
-    let a = [];
+    let all = [];
     //get data out of json
     for (let i = 0; i < genres.length; i++) {
       let str = genres[i].genre;
-      a.push(str);
+      all.push(str);
     }
-    //eliminates ","
-    let b = a.toString().split(", ");
-    let c = b.toString().split(",");
+    //eliminates ", "
+    let withoutBlank = all.toString().split(", ");
+    let withoutComma = withoutBlank.toString().split(",");
     //eliminates duplicates and spaces
-    let d = [];
-    for (let i = 0; i < c.length; i++) {
-      let str = c[i];
-      if (!d.includes(c[i]) && c[i] != "") {
-        d.push(str);
+    let distinct = [];
+    for (let i = 0; i < withoutComma.length; i++) {
+      let str = withoutComma[i];
+      if (!distinct.includes(withoutComma[i]) && withoutComma[i] != "") {
+        distinct.push(str);
       }
     }
-    d.sort();
-    res.send(d);
+    //in alphabetical order
+    distinct.sort();
+    res.status(200).send(distinct);
   } catch (err) {
-    res.status(500).send({
-      message: "error while getting distinct genres: " + err,
-    });
+    res.status(500).send({ message: "get-distinct genres error: " + err });
   }
 };
 
@@ -89,20 +84,14 @@ const getMoviesByGenre = async (req, res) => {
     movies = await Movies.findAll({
       order: [[sequelize.literal("series, year"), "ASC"]],
     }).catch((err) => {
-      res.status(500).send({
-        message: "error while filtering movie data by genre: ",
-        err,
-      });
+      res.status(500).send({ message: "filter-movie by all error: " + err });
     });
   } else if (req.params.genre === "Recent") {
     movies = await Movies.findAll({
       limit: 3,
       order: [[sequelize.literal("last_watched"), "DESC"]],
     }).catch((err) => {
-      res.status(500).send({
-        message: "error while filtering movie data by genre: ",
-        err,
-      });
+      res.status(500).send({ message: "filter-movie by recent error: " + err });
     });
   } else {
     movies = await Movies.findAll({
@@ -115,13 +104,10 @@ const getMoviesByGenre = async (req, res) => {
       },
       order: [[sequelize.literal("series, year"), "ASC"]],
     }).catch((err) => {
-      res.status(500).send({
-        message: "error while filtering movie data by genre: ",
-        err,
-      });
+      res.status(500).send({ message: "filter-movie by genre error: " + err });
     });
   }
-  res.send(movies);
+  res.status(200).send(movies);
 };
 
 /**
@@ -142,9 +128,9 @@ const getMoviesBySearch = async (req, res) => {
         },
         order: [[sequelize.literal("series, year"), "ASC"]],
       }).catch((err) => {
-        res.status(500).send({
-          message: "error while filtering movie data by title search: " + err,
-        });
+        res
+          .status(500)
+          .send({ message: "filter-movie by title error: " + err });
       });
       break;
     case "director":
@@ -158,10 +144,9 @@ const getMoviesBySearch = async (req, res) => {
         },
         order: [[sequelize.literal("series, year"), "ASC"]],
       }).catch((err) => {
-        res.status(500).send({
-          message:
-            "error while filtering movie data by director search: " + err,
-        });
+        res
+          .status(500)
+          .send({ message: "filter-movie by director error: " + err });
       });
       break;
     case "actor":
@@ -175,14 +160,14 @@ const getMoviesBySearch = async (req, res) => {
         },
         order: [[sequelize.literal("series, year"), "ASC"]],
       }).catch((err) => {
-        res.status(500).send({
-          message: "error while filtering movie data by actor search: " + err,
-        });
+        res
+          .status(500)
+          .send({ message: "filter-movie by actor error: " + err });
       });
       break;
     default:
   }
-  res.send(movies);
+  res.status(200).send(movies);
 };
 
 //------------------------------------------------------------------------
@@ -190,11 +175,54 @@ const getMoviesBySearch = async (req, res) => {
 //------------------------------------------------------------------------
 /**
  * @param {*} req
- * @param {*} movie_id
- * @param {*} posterPath
- * @param {*} trailerPath
- * @param {*} germanPath
- * @param {*} englishPath
+ * @param {*} isMovie
+ */
+const deleteFiles = async (req, isMovie) => {
+  //delete previous file
+  let previousChange = req.body.changes - 1;
+  isMovie &&
+    req.body.poster &&
+    deleteFile(
+      dir + "//poster//" + req.body.id + "_" + previousChange + ".jpg"
+    );
+  isMovie &&
+    req.body.trailer &&
+    deleteFile(
+      dir + "//trailer//" + req.body.id + "_" + previousChange + ".mp4"
+    );
+  //delete file if
+  //-> entry is empty and movie exist
+  //-> or if movie not exist
+  (req.body.poster === "" || !isMovie) &&
+    deleteFile(
+      dir + "//poster//" + req.body.id + "_" + req.body.changes + ".jpg"
+    );
+  (req.body.trailer === "" || !isMovie) &&
+    deleteFile(
+      dir + "//trailer//" + req.body.id + "_" + req.body.changes + ".mp4"
+    );
+  (req.body.german === "" || !isMovie) &&
+    deleteFile(
+      dir + "//de//" + req.body.id + "_" + req.body.changes + "._de.mp4"
+    );
+  (req.body.poster === "" || !isMovie) &&
+    deleteFile(
+      dir + "//en//" + req.body.id + "_" + req.body.changes + "._en.mp4"
+    );
+};
+const deleteFile = (dir) => {
+  fs.existsSync(dir) &&
+    fs.rm(dir, (err) => {
+      if (err) throw err;
+    });
+};
+/**
+ * @param req
+ * @param movie_id
+ * @param posterPath
+ * @param trailerPath
+ * @param germanPath
+ * @param englishPath
  */
 const createFileData = async (
   req,
@@ -221,15 +249,14 @@ const createFileData = async (
         : req.body.english === "" && { english: "" }),
     },
     { where: { id: movie_id } }
-  );
+  ).then(deleteFiles(req, true));
 };
 
 /**
  * @req movie
- * @res -
+ * @res movie as result
  */
 const createMovie = async (req, res) => {
-  let movie_id;
   await Movies.create({
     title: req.body.title,
     series: req.body.series ? req.body.series : req.body.title,
@@ -242,7 +269,7 @@ const createMovie = async (req, res) => {
     runtime: req.body.runtime,
     actors: req.body.actors,
     plot: req.body.plot,
-    changes: req.body.changes + 1,
+    changes: req.body.changes,
   })
     //=====================================================
     .then((result) => {
@@ -250,7 +277,7 @@ const createMovie = async (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: "error while creating movie '" + req.body.title + "': " + err,
+        message: "create-movie '" + req.body.title + "' error: " + err,
       });
     });
 };
@@ -274,21 +301,23 @@ const updateMovie = async (req, res) => {
       ...(req.body.runtime && { runtime: req.body.runtime }),
       ...(req.body.actors && { director: req.body.actors }),
       ...(req.body.plot && { plot: req.body.plot }),
-      ...(req.body.changes && { changes: req.body.changes + 1 }),
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
       ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
+      changes: req.body.changes,
     },
     {
       where: { id: movie_id },
     }
   )
-    //=====================================================
-
-    .then(() => {
-      res.status(200);
-    })
+    .then(
+      res
+        .status(200)
+        .send({ message: "movie data of'" + req.body.title + "' was updated" })
+    )
     .catch((err) => {
-      res.status(500).send(err);
+      res.status(500).send({
+        message: "update-movie '" + req.body.title + "' error: " + err,
+      });
     });
 };
 
@@ -301,8 +330,16 @@ const deleteMovie = async (req, res) => {
   deleteFiles(req, false);
   //=====================================================
   await Movies.destroy({ where: { id: req.body.id } })
-    .then(() => res.status(200))
-    .catch((err) => res.status(500).send(err));
+    .then(
+      res
+        .status(200)
+        .send({ message: "movie '" + req.body.title + "' was deleted" })
+    )
+    .catch((err) => {
+      res.status(500).send({
+        message: "delete-movie '" + req.body.title + "' error: " + err,
+      });
+    });
 };
 
 //------------------------------------------------------------------------
@@ -319,27 +356,27 @@ const updateMovieFiles = async (req, res) => {
   let isGermanReady = req.body.german ? false : true;
   let isEnglishReady = req.body.english ? false : true;
   //
-  let num = req.body.changes + 1;
-  let posterPath = movie_id + "_" + num + ".jpg";
-  let trailerPath = movie_id + "_" + num + ".mp4";
-  let germanPath = movie_id + "_" + num + "_de.mp4";
-  let englishPath = movie_id + "_" + num + "_en.mp4";
+  let posterName = movie_id + "_" + req.body.changes + ".jpg";
+  let trailerName = movie_id + "_" + req.body.changes + "_trailer.mp4";
+  let germanName = movie_id + "_de.mp4";
+  let englishName = movie_id + "_en.mp4";
   //
-  let posterDir = dir + "//poster//";
-  let trailerDir = dir + "//trailer//";
-  let germanDir = dir + "//de//";
-  let englishDir = dir + "//en//";
+  let posterFolder = dir + "//poster//";
+  let trailerFolder = dir + "//trailer//";
+  let germanFolder = dir + "//de//";
+  let englishFolder = dir + "//en//";
   //
   if (req.body.poster) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
-    !fs.existsSync(posterDir) && fs.mkdirSync(posterDir, { recursive: true });
+    !fs.existsSync(posterFolder) &&
+      fs.mkdirSync(posterFolder, { recursive: true });
     //download poster from OMDB api to location
     if (req.body.poster.includes("http")) {
-      let file = fs.createWriteStream(posterDir + posterPath);
-      https.get(req.body.poster, (result) => {
-        result.pipe(file);
+      let file = fs.createWriteStream(posterFolder + posterName);
+      https.get(req.body.poster, (response) => {
+        response.pipe(file);
         file.on("error", (err) => {
-          err && res.status(500).send(err);
+          if (err) throw err;
         });
         file.on("finish", () => {
           file.close();
@@ -354,18 +391,16 @@ const updateMovieFiles = async (req, res) => {
           createFileData(
             req,
             movie_id,
-            posterPath,
-            trailerPath,
-            germanPath,
-            englishPath
-          )
-            .then(res.status(200))
-            .catch((err) => res.status(500).send(err));
+            posterName,
+            trailerName,
+            germanName,
+            englishName
+          );
       });
     } else {
       //copy and rename local file to directory
-      fs.copyFile(req.body.poster, posterDir + posterPath, (err) => {
-        err && res.status(500).send(err);
+      fs.copyFile(req.body.poster, posterFolder + posterName, (err) => {
+        if (err) throw err;
         isPosterReady = true;
         //
         isPosterReady &&
@@ -376,20 +411,19 @@ const updateMovieFiles = async (req, res) => {
           createFileData(
             req,
             movie_id,
-            posterPath,
-            trailerPath,
-            germanPath,
-            englishPath
-          )
-            .then(res.status(200))
-            .catch((err) => res.status(500).send(err));
+            posterName,
+            trailerName,
+            germanName,
+            englishName
+          );
       });
     }
   }
   if (req.body.trailer) {
-    !fs.existsSync(trailerDir) && fs.mkdirSync(trailerDir, { recursive: true });
-    fs.copyFile(req.body.trailer, trailerDir + trailerPath, (err) => {
-      err && res.status(500).send(err);
+    !fs.existsSync(trailerFolder) &&
+      fs.mkdirSync(trailerFolder, { recursive: true });
+    fs.copyFile(req.body.trailer, trailerFolder + trailerName, (err) => {
+      if (err) throw err;
       isTrailerReady = true;
       //
       isPosterReady &&
@@ -400,19 +434,18 @@ const updateMovieFiles = async (req, res) => {
         createFileData(
           req,
           movie_id,
-          posterPath,
-          trailerPath,
-          germanPath,
-          englishPath
-        )
-          .then(res.status(200))
-          .catch((err) => res.status(500).send(err));
+          posterName,
+          trailerName,
+          germanName,
+          englishName
+        );
     });
   }
   if (req.body.german) {
-    !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
-    fs.copyFile(req.body.german, germanDir + germanPath, (err) => {
-      err && res.status(500).send(err);
+    !fs.existsSync(germanFolder) &&
+      fs.mkdirSync(germanFolder, { recursive: true });
+    fs.copyFile(req.body.german, germanFolder + germanName, (err) => {
+      if (err) throw err;
       isGermanReady = true;
       //
       isPosterReady &&
@@ -423,19 +456,18 @@ const updateMovieFiles = async (req, res) => {
         createFileData(
           req,
           movie_id,
-          posterPath,
-          trailerPath,
-          germanPath,
-          englishPath
-        )
-          .then(res.status(200))
-          .catch((err) => res.status(500).send(err));
+          posterName,
+          trailerName,
+          germanName,
+          englishName
+        );
     });
   }
   if (req.body.english) {
-    !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
-    fs.copyFile(req.body.english, englishDir + englishPath, (err) => {
-      err && res.status(500).send(err);
+    !fs.existsSync(englishFolder) &&
+      fs.mkdirSync(englishFolder, { recursive: true });
+    fs.copyFile(req.body.english, englishFolder + englishName, (err) => {
+      if (err) throw err;
       isEnglishReady = true;
       //
       isPosterReady &&
@@ -446,50 +478,14 @@ const updateMovieFiles = async (req, res) => {
         createFileData(
           req,
           movie_id,
-          posterPath,
-          trailerPath,
-          germanPath,
-          englishPath
-        )
-          .then(res.status(200))
-          .catch((err) => res.status(500).send(err));
+          posterName,
+          trailerName,
+          germanName,
+          englishName
+        );
     });
   }
-};
-
-/**
- * @param {*} req
- * @param {*} isMovie
- */
-const deleteFiles = (req, isMovie) => {
-  let num = req.body.changes;
-  let posterDir = dir + "//poster//" + req.body.id + "_" + num + ".jpg";
-  let trailerDir = dir + "//trailer//" + req.body.id + "_" + num + ".mp4";
-  let germanDir = dir + "//de//" + req.body.id + "_" + num + "_de.mp4";
-  let englishDir = dir + "//en//" + req.body.id + "_" + num + "_en.mp4";
-  //delete file if
-  //-> entry is empty and movie exist
-  //-> or if movie not exist
-  (req.body.poster === "" || !isMovie) &&
-    fs.existsSync(posterDir) &&
-    fs.rm(posterDir, (err) => {
-      console.log(err);
-    });
-  (req.body.trailer === "" || !isMovie) &&
-    fs.existsSync(trailerDir) &&
-    fs.rm(trailerDir, (err) => {
-      console.log(err);
-    });
-  (req.body.german === "" || !isMovie) &&
-    fs.existsSync(germanDir) &&
-    fs.rm(germanDir, (err) => {
-      console.log(err);
-    });
-  (req.body.english === "" || !isMovie) &&
-    fs.existsSync(englishDir) &&
-    fs.rm(englishDir, (err) => {
-      console.log(err);
-    });
+  res.send("new files created");
 };
 
 module.exports = {

@@ -28,9 +28,11 @@ const Home = () => {
 
   //val: receiving messages
   useEffect(() => {
+    console.log(val?.name);
     if (val?.name === "done") {
-      dispatch(toggleLoaded(true));
+      clearCache();
       navigate(0);
+      dispatch(toggleLoaded(true));
     }
     if (val?.name === "change") {
       dispatch(toggleLoaded(false));
@@ -75,7 +77,7 @@ const Home = () => {
   useEffect(() => {
     let loader = document.getElementById("loader");
     !isLoaded
-      ? (loader.style = "display: block;") && clearCache()
+      ? (loader.style = "display: block;")
       : (loader.style = "display: none;");
   }, [isLoaded]);
 

@@ -22,7 +22,9 @@ const App = () => {
   const [id, setId] = useState(null);
 
   const event = useSelector((state) => state.view.event);
-  const { data: selectedMovie } = useGetMovieByIdQuery(id && type === 1 && id);
+  const { data: selectedMovie, refetch } = useGetMovieByIdQuery(
+    id && type === 1 && id
+  );
 
   //------------------------------------------------------------------------------------
   //WebSocket
@@ -31,10 +33,10 @@ const App = () => {
   useEffect(() => {
     val?.id && setId(val.id);
     val?.type && setType(val.type);
+    refetch();
   }, [val]);
 
   useEffect(() => {
-    console.log(event && event.name);
     isReady && send(JSON.stringify(event));
   }, [event, isReady]);
 
