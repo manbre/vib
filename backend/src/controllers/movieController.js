@@ -14,8 +14,7 @@ const dir = "E:\\vib\\movies\\";
  * @res all movies
  */
 const getAllMovies = async (req, res) => {
-  let movies;
-  await Movies.findAll({
+  let movies = await Movies.findAll({
     order: [[sequelize.literal("series, year"), "ASC"]],
   }).catch((err) => {
     err &&
@@ -31,8 +30,7 @@ const getAllMovies = async (req, res) => {
  * @res one movie by id
  */
 const getOneMovieById = async (req, res) => {
-  let movie;
-  movie = await Movies.findOne({
+  let movie = await Movies.findOne({
     where: { id: req.params.id },
   }).catch((err) => {
     err &&
@@ -65,7 +63,7 @@ const getAllGenres = async (req, res) => {
     let distinct = [];
     for (let i = 0; i < withoutComma.length; i++) {
       let str = withoutComma[i];
-      if (!distinct.includes(withoutComma[i]) && withoutComma[i] != "") {
+      if (!distinct.includes(withoutComma[i]) && withoutComma[i] !== "") {
         distinct.push(str);
       }
     }

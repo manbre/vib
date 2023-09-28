@@ -37,7 +37,7 @@ const getVideoStream = (req, res) => {
       "Content-Range": `bytes ${start}-${end}/${fileSize}`,
       "Accept-Ranges": "bytes",
       "Content-Length": chunksize,
-      "Content-Type": "video/mp4",
+      "Content-Type": "media-type",
     };
     //206: partial content
     res.writeHead(206, head);
@@ -45,7 +45,7 @@ const getVideoStream = (req, res) => {
   } else {
     const head = {
       "Content-Length": fileSize,
-      "Content-Type": "video/mp4",
+      "Content-Type": "media-type",
     };
     res.writeHead(200, head);
     const readstream = fs.createReadStream(filePath);
