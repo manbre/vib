@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from "react-redux";
 import styles from "./SearchBar.module.css";
 import { selectGenre } from "../../features/video";
 import { selectTitle } from "../../features/video";
-import { selectSearch } from "../../features/video";
 
 const SearchBar = () => {
   const dispatch = useDispatch();
@@ -14,12 +13,7 @@ const SearchBar = () => {
 
   useEffect(() => {
     document.getElementById("myInput").value = "";
-  }, [genre]);
-
-  useEffect(() => {
-    document.getElementById("myInput").value = "";
-    dispatch(selectSearch("title"));
-  }, [viewType]);
+  }, [viewType, genre]);
 
   useEffect(() => {
     input === ""
@@ -31,16 +25,6 @@ const SearchBar = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.select}>
-        <select
-          id="mySelect"
-          onChange={(e) => dispatch(selectSearch(e.target.value))}
-        >
-          <option value="title">Title</option>
-          <option value="director">Director</option>
-          <option value="actor">Actor</option>
-        </select>
-      </div>
       <input
         className={styles.searchInput}
         id="myInput"

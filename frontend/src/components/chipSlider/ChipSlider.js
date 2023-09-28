@@ -19,6 +19,7 @@ const ChipSlider = () => {
   const dispatch = useDispatch();
   const selectedGenre = useSelector((state) => state.video.genre);
   const viewType = useSelector((state) => state.view.viewType);
+  
   const { data: movieGenres } = useGetMovieGenresQuery();
   const { data: episodeGenres } = useGetEpisodeGenresQuery();
 

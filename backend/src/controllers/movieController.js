@@ -130,7 +130,7 @@ const getMoviesByGenre = async (req, res) => {
  * @res movies by search
  */
 const getMoviesBySearch = async (req, res) => {
-  let movies;
+  let movies = [];
   //
   let titles = await Movies.findAll({
     where: {
@@ -147,7 +147,6 @@ const getMoviesBySearch = async (req, res) => {
         .status(500)
         .send({ message: "ERROR: Could not filter movies by title." });
   });
-  movies.push(titles);
   //
   let directors = await Movies.findAll({
     where: {
@@ -164,7 +163,6 @@ const getMoviesBySearch = async (req, res) => {
         .status(500)
         .send({ message: "ERROR: Could not filter movies by director." });
   });
-  movies.push(directors);
   //
   let actors = await Movies.findAll({
     where: {
@@ -181,12 +179,15 @@ const getMoviesBySearch = async (req, res) => {
         .status(500)
         .send({ message: "ERROR: Could not filter movies by actor." });
   });
-  movies.push(actors);
   //
-  movies.sort((a, b) => a.title.localeCompare(b.title));
-  movies
-    .map((item) => item.title)
-    .filter((value, index, self) => self.indexOf(value) === index);
+  //conclude results
+  let arr = titles.concat(directors).concat(actors);
+  //get distinct movies by title
+  movies = [...new Map(arr.map((item) => [item["title"], item])).values()];
+  //sort movies by title
+  movies.sort((a, b) =>
+    a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+  );
   //
   res.status(200).send(movies);
 };
@@ -346,7 +347,7 @@ const updateMovieFiles = async (req, res) => {
   let isEnglishReady = req.body.english ? false : true;
   //
   let posterName = req.body.id + "_" + req.body.changes + ".jpg";
-  let trailerName = req.body.id + "_" + req.body.changes + "_.mp4";
+  let trailerName = req.body.id + "_" + req.body.changes + ".mp4";
   let germanName = req.body.id + "_de.mp4";
   let englishName = req.body.id + "_en.mp4";
   //

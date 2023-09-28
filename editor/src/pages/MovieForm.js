@@ -40,18 +40,23 @@ const MovieForm = (props) => {
   );
 
   const [createMovie] = useCreateMovieMutation();
-  const [updateMovie] = useUpdateMovieMutation();
-  const [deleteMovie, { isSuccess: isDeleted }] = useDeleteMovieMutation();
-  const [updateFiles, { isSuccess: isUpdated }] = useUpdateMovieFilesMutation();
+  const [updateMovie, { isSuccess: isDataUpdated }] = useUpdateMovieMutation();
+  const [deleteMovie, { isSuccess: isMovieDeleted }] = useDeleteMovieMutation();
+  const [
+    updateFiles,
+    { isSuccess: areFilesUpdated },
+  ] = useUpdateMovieFilesMutation();
 
   useEffect(() => {
-    console.log(isUpdated);
-    isUpdated && dispatch(setEvent({ name: "done", type: 1, value: null }));
-  }, [isUpdated]);
+    isDataUpdated && dispatch(setEvent({ name: "done", type: 1, value: null }));
+    areFilesUpdated &&
+      dispatch(setEvent({ name: "done", type: 1, value: null }));
+  }, [isDataUpdated, areFilesUpdated]);
 
   useEffect(() => {
-    isDeleted && dispatch(setEvent({ name: "done", type: 1, value: null }));
-  }, [isDeleted]);
+    isMovieDeleted &&
+      dispatch(setEvent({ name: "done", type: 1, value: null }));
+  }, [isMovieDeleted]);
 
   useEffect(() => {
     resetInput();
@@ -101,8 +106,8 @@ const MovieForm = (props) => {
     }
   };
 
-  const updateVideo = async () => {
-    await updateMovie({
+  const updateVideo = () => {
+    updateMovie({
       id: props.selected.id,
       ...(state.title !== props.selected.title
         ? { title: state.title }

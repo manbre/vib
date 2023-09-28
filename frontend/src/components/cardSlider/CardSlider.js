@@ -11,10 +11,12 @@ import {
 const CardSlider = () => {
   const [episodes, setEpisodes] = useState([]);
   const [index, setIndex] = useState(0);
+  
   const dispatch = useDispatch();
   const selectedVideo = useSelector((state) => state.video.video);
   const genre = useSelector((state) => state.video.genre);
   const source = useSelector((state) => state.source.source);
+
   const { data: episodesBySeason } = useGetEpisodesBySeasonQuery({
     series: selectedVideo.series,
     season: selectedVideo.season,
@@ -30,7 +32,7 @@ const CardSlider = () => {
 
   useEffect(() => {
     let recent;
-    if (genre == "Recent" && recentEpisode) {
+    if (genre === "Recent" && recentEpisode) {
       recent = recentEpisode ?? [];
       setIndex(recent[0].episode - 1);
       dispatch(selectVideo(recent[0]));
