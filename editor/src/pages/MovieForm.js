@@ -45,7 +45,7 @@ const MovieForm = (props) => {
   const [updateFiles, { isSuccess: isUpdated }] = useUpdateMovieFilesMutation();
 
   useEffect(() => {
-    console.log(isUpdated)
+    console.log(isUpdated);
     isUpdated && dispatch(setEvent({ name: "done", type: 1, value: null }));
   }, [isUpdated]);
 
@@ -136,6 +136,7 @@ const MovieForm = (props) => {
     //
     updateFiles({
       id: props.selected.id,
+      title: props.selected.title,
       changes: props.selected.changes + 1,
       //
       ...(state.poster !== props.selected.poster && {
