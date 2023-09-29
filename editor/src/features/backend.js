@@ -79,6 +79,7 @@ export const backend = createApi({
 
 export const {
   useGetMovieByIdQuery,
+  useGetEpisodeByIdQuery,
   //
   useCreateMovieMutation,
   useCreateEpisodeMutation,

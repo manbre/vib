@@ -9,7 +9,7 @@ export const viewSlice = createSlice({
       episode: 2,
       source: 3,
     },
-    event: { name: null, type: null, value: null },
+    event: { name: null, value: null },
   },
   reducers: {
     setType: (state, action) => {

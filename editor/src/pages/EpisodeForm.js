@@ -53,14 +53,14 @@ const EpisodeForm = (props) => {
   ] = useUpdateEpisodeFilesMutation();
 
   useEffect(() => {
-    isDataUpdated && dispatch(setEvent({ name: "done", type: 2, value: null }));
+    isDataUpdated && dispatch(setEvent({ name: "done", value: null }));
     areFilesUpdated &&
-      dispatch(setEvent({ name: "done", type: 2, value: null }));
+      dispatch(setEvent({ name: "done", value: null }));
   }, [isDataUpdated, areFilesUpdated]);
 
   useEffect(() => {
     isEpisodeDeleted &&
-      dispatch(setEvent({ name: "done", type: 2, value: null }));
+      dispatch(setEvent({ name: "done", value: null }));
   }, [isEpisodeDeleted]);
 
   useEffect(() => {

@@ -355,6 +355,10 @@ const updateMovieFiles = async (req, res) => {
   let germanPath = germanFolder + germanName;
   let englishPath = englishFolder + englishName;
   //
+  let prevChange = req.body.changes - 1;
+  let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
+  let prevTrailerPath = trailerFolder + req.body.id + "_" + prevChange + ".mp4";
+  //
   if (req.body.poster) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
     !fs.existsSync(posterFolder) &&
@@ -396,7 +400,9 @@ const updateMovieFiles = async (req, res) => {
                 posterPath,
                 trailerPath,
                 germanPath,
-                englishPath
+                englishPath,
+                prevPosterPath,
+                prevTrailerPath
               )
             );
       });
@@ -428,7 +434,9 @@ const updateMovieFiles = async (req, res) => {
                 posterPath,
                 trailerPath,
                 germanPath,
-                englishPath
+                englishPath,
+                prevPosterPath,
+                prevTrailerPath
               )
             );
       });
@@ -463,7 +471,9 @@ const updateMovieFiles = async (req, res) => {
               posterPath,
               trailerPath,
               germanPath,
-              englishPath
+              englishPath,
+              prevPosterPath,
+              prevTrailerPath
             )
           );
     });
@@ -497,7 +507,9 @@ const updateMovieFiles = async (req, res) => {
               posterPath,
               trailerPath,
               germanPath,
-              englishPath
+              englishPath,
+              prevPosterPath,
+              prevTrailerPath
             )
           );
     });
@@ -531,7 +543,9 @@ const updateMovieFiles = async (req, res) => {
               posterPath,
               trailerPath,
               germanPath,
-              englishPath
+              englishPath,
+              prevPosterPath,
+              prevTrailerPath
             )
           );
     });
@@ -548,7 +562,9 @@ const deleteFiles = async (
   posterPath,
   trailerPath,
   germanPath,
-  englishPath
+  englishPath,
+  prevPosterPath,
+  prevTrailerPath
 ) => {
   //
   const deleteOneFile = (fileLocation) => {
@@ -559,15 +575,8 @@ const deleteFiles = async (
   };
   //delete previous files to clean up
   if (isMovie) {
-    let previousChange = req.body.changes - 1;
-    req.body.poster &&
-      deleteOneFile(
-        dir + "//poster//" + req.body.id + "_" + previousChange + ".jpg"
-      );
-    req.body.trailer &&
-      deleteOneFile(
-        dir + "//trailer//" + req.body.id + "_" + previousChange + ".mp4"
-      );
+    req.body.poster && deleteOneFile(prevPosterPath);
+    req.body.trailer && deleteOneFile(prevTrailerPath);
   }
   //delete file if
   //-> entry is empty and movie exist

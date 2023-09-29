@@ -385,8 +385,7 @@ const updateEpisodeFiles = async (req, res) => {
   let num = "" + req.body.season + n + req.body.episode;
   //
   //one poster per season
-  let posterName =
-    req.body.season + s + "_" + req.body.id + "_" + req.body.changes + ".jpg";
+  let posterName = req.body.id + "_" + req.body.changes + ".jpg";
   //one theme per series
   let themeName = "theme.mp3";
   let germanName = num + "_de.mp4";
@@ -404,6 +403,9 @@ const updateEpisodeFiles = async (req, res) => {
   let themePath = themeFolder + themeName;
   let germanPath = germanFolder + germanName;
   let englishPath = englishFolder + englishName;
+  //
+  let prevChange = req.body.changes - 1;
+  let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
   //
   if (req.body.poster) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
@@ -453,7 +455,8 @@ const updateEpisodeFiles = async (req, res) => {
                 posterPath,
                 themePath,
                 germanPath,
-                englishPath
+                englishPath,
+                prevPosterPath
               )
             );
       });
@@ -494,7 +497,8 @@ const updateEpisodeFiles = async (req, res) => {
                 posterPath,
                 themePath,
                 germanPath,
-                englishPath
+                englishPath,
+                prevPosterPath
               )
             );
       });
@@ -533,7 +537,8 @@ const updateEpisodeFiles = async (req, res) => {
               posterPath,
               themePath,
               germanPath,
-              englishPath
+              englishPath,
+              prevPosterPath
             )
           );
     });
@@ -576,7 +581,8 @@ const updateEpisodeFiles = async (req, res) => {
               posterPath,
               themePath,
               germanPath,
-              englishPath
+              englishPath,
+              prevPosterPath
             )
           );
     });
@@ -619,7 +625,8 @@ const updateEpisodeFiles = async (req, res) => {
               posterPath,
               themePath,
               germanPath,
-              englishPath
+              englishPath,
+              prevPosterPath
             )
           );
     });
@@ -636,7 +643,8 @@ const deleteFiles = async (
   posterPath,
   themePath,
   germanPath,
-  englishPath
+  englishPath,
+  prevPosterPath
 ) => {
   //
   const deleteOneFile = (fileLocation) => {
@@ -646,25 +654,9 @@ const deleteFiles = async (
       });
   };
   //
-  let n = req.body.episode < 10 ? "0" : "";
-  let s = req.body.season < 10 ? "00" : "0";
-  let num = "" + req.body.season + n + req.body.episode;
   //delete previous files to clean up
-  if (isEpisode) {
-    let previousChange = req.body.changes - 1;
-    req.body.poster &&
-      deleteOneFile(
-        dir +
-          "//" +
-          req.body.series +
-          "//" +
-          req.body.season +
-          s +
-          "_" +
-          previousChange +
-          ".jpg"
-      );
-  }
+  isEpisode && req.body.poster && deleteOneFile(prevPosterPath);
+
   // delete file if
   //-> entry is empty and movie exist
   //-> or if movie not exist

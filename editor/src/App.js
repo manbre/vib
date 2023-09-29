@@ -9,7 +9,10 @@ import MovieForm from "./pages/MovieForm";
 import EpisodeForm from "./pages/EpisodeForm";
 import SourceForm from "./pages/SourceForm";
 import useWebSocket from "./hooks/useWebSocket";
-import { useGetMovieByIdQuery } from "./features/backend";
+import {
+  useGetMovieByIdQuery,
+  useGetEpisodeByIdQuery,
+} from "./features/backend";
 import { setEvent } from "./features/view";
 
 const App = () => {
@@ -22,8 +25,11 @@ const App = () => {
   const [id, setId] = useState(null);
 
   const event = useSelector((state) => state.view.event);
-  const { data: selectedMovie, refetch } = useGetMovieByIdQuery(
+  const { data: selectedMovie, refetchMovie } = useGetMovieByIdQuery(
     id && type === 1 && id
+  );
+  const { data: selectedEpisode, refetchEpisode } = useGetEpisodeByIdQuery(
+    id && type === 2 && id
   );
 
   //------------------------------------------------------------------------------------
@@ -33,30 +39,45 @@ const App = () => {
   useEffect(() => {
     val?.id && setId(val.id);
     val?.type && setType(val.type);
-    refetch();
+    refetchMovie();
   }, [val]);
 
   useEffect(() => {
     isReady && send(JSON.stringify(event));
   }, [event, isReady]);
 
+  //TODO
   const handleSubmit = () => {
-    isReady && send(JSON.stringify({ name: "change", type: 1, value: null }));
     if (selectedMovie) {
-      type === 1 && movieEditor.current.updateVideo();
-      type === 2 && episodeEditor.current.updateVideo();
+      type === 1 &&
+        movieEditor.current.updateVideo() &&
+        isReady &&
+        send(JSON.stringify({ name: "change", value: null }));
+      type === 2 &&
+        episodeEditor.current.updateVideo() &&
+        isReady &&
+        send(JSON.stringify({ name: "change", value: null }));
     } else {
-      type === 1 && movieEditor.current.createVideo();
-      type === 2 && episodeEditor.current.createVideo();
+      type === 1 &&
+        movieEditor.current.createVideo() &&
+        isReady &&
+        send(JSON.stringify({ name: "change", value: null }));
+      type === 2 &&
+        episodeEditor.current.createVideo() &&
+        isReady &&
+        send(JSON.stringify({ name: "change", value: null }));
     }
   };
 
   const handleDelete = () => {
-    dispatch(setEvent({ name: "change", type: 1, value: null }));
-    if (selectedMovie) {
-      type === 1 && movieEditor.current.deleteVideo();
-      type === 2 && episodeEditor.current.deleteVideo();
-    }
+    selectedMovie &&
+      type === 1 &&
+      movieEditor.current.deleteVideo() &&
+      dispatch(setEvent({ name: "change", value: null }));
+    selectedEpisode &&
+      type === 2 &&
+      episodeEditor.current.deleteVideo() &&
+      dispatch(setEvent({ name: "change", value: null }));
   };
 
   //------------------------------------------------------------------------------------
