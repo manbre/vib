@@ -29,7 +29,7 @@ export const backend = createApi({
       providesTags: ["Episode"],
     }),
     getRecentEpisode: builder.query({
-      query: ({ series, season }) => `/recent/${series}/${season}`,
+      query: ({ series, season }) => `/episodes/recent/${series}/${season}`,
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ export const backend = createApi({
     }),
     getSeasonsBySeries: builder.query({
       //returns first episode (as sample) of the season
-      query: (series) => `/series/${series}`,
+      query: (series) => `/episodes/series/${series}`,
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------

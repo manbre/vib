@@ -53,61 +53,17 @@ const getSeasonsBySeries = async (req, res) => {
 };
 
 /**
- * @req series
- * @res all episodes
+ * @req id
+ * @res one episode by id
  */
-const getAllEpisodes = async (req, res) => {
-  let episodes = await Episodes.findAll({
-    order: [[sequelize.literal("series, season"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res.status(500).send({ message: "ERROR: Could not get all episodes." });
-  });
-  res.status(200).send(episodes);
-};
-
-/**
- * @req series, season
- * @res all episodes by season
- */
-const getEpisodesBySeason = async (req, res) => {
-  let episodes = await Episodes.findAll({
-    where: {
-      series: sequelize.where(sequelize.col("series"), req.params.series),
-      season: sequelize.where(sequelize.col("season"), req.params.season),
-    },
-    order: [[sequelize.literal("episode"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res.status(500).send({
-        message:
-          "ERROR: Could not get episodes of '" +
-          req.params.serie +
-          "' season '" +
-          req.params.season +
-          "'.",
-      });
-  });
-  res.status(200).send(episodes);
-};
-
-/**
- * @req series, season
- * @res recent episodes by season
- */
-const getRecent = async (req, res) => {
-  let episode = await Episodes.findAll({
-    limit: 1,
-    where: {
-      series: sequelize.where(sequelize.col("series"), req.params.series),
-      season: sequelize.where(sequelize.col("season"), req.params.season),
-    },
-    order: [[sequelize.literal("last_watched"), "DESC"]],
+const getOneEpisodeById = async (req, res) => {
+  let episode = await Episodes.findOne({
+    where: { id: req.params.id },
   }).catch((err) => {
     err &&
       res
         .status(500)
-        .send({ message: "ERROR: Could not get recent episodes." });
+        .send({ message: "ERROR: Could not get episode by 'id'." });
   });
   res.status(200).send(episode);
 };
@@ -149,6 +105,50 @@ const getAllGenres = async (req, res) => {
         .status(500)
         .send({ message: "ERROR: Could not get distinct genres." });
   }
+};
+
+/**
+ * @req series, season
+ * @res all episodes by season
+ */
+const getEpisodesBySeason = async (req, res) => {
+  let episodes = await Episodes.findAll({
+    where: {
+      series: sequelize.where(sequelize.col("series"), req.params.series),
+      season: sequelize.where(sequelize.col("season"), req.params.season),
+    },
+    order: [[sequelize.literal("episode"), "ASC"]],
+  }).catch((err) => {
+    err &&
+      res.status(500).send({
+        message:
+          "ERROR: Could not get episodes of '" +
+          req.params.serie +
+          "' season '" +
+          req.params.season +
+          "'.",
+      });
+  });
+  res.status(200).send(episodes);
+};
+
+/**
+ * @req series, season
+ * @res recent episodes by season
+ */
+const getRecentEpisode = async (req, res) => {
+  let episode = await Episodes.findAll({
+    limit: 1,
+    where: {
+      series: sequelize.where(sequelize.col("series"), req.params.series),
+      season: sequelize.where(sequelize.col("season"), req.params.season),
+    },
+    order: [[sequelize.literal("last_watched"), "DESC"]],
+  }).catch((err) => {
+    err &&
+      res.status(500).send({ message: "ERROR: Could not get recent episode." });
+  });
+  res.status(200).send(episode);
 };
 
 /**
@@ -203,10 +203,10 @@ const getSeasonsByGenre = async (req, res) => {
 // CREATE, UPDATE, DELETE movie data
 //------------------------------------------------------------------------
 /**
- * @req movie
- * @res movie as result
+ * @req episode
+ * @res episode as result
  */
-const createMovie = async (req, res) => {
+const createEpisode = async (req, res) => {
   await Episodes.create({
     series: req.body.series,
     title: req.body.title,
@@ -241,10 +241,10 @@ const createMovie = async (req, res) => {
 };
 
 /**
- * @req movie
+ * @req episode
  * @res -
  */
-const updateMovie = async (req, res) => {
+const updateEpisode = async (req, res) => {
   await Episodes.update(
     {
       ...(req.body.series && { series: req.body.series }),
@@ -293,55 +293,53 @@ const updateMovie = async (req, res) => {
 
 /**
  * @param req
- * @param posterPath
- * @param trailerPath
- * @param germanPath
- * @param englishPath
+ * @param posterName
+ * @param themeName
+ * @param germanName
+ * @param englishName
  */
 const updateFileData = async (
   req,
-  posterPath,
-  themePath,
-  germanPath,
-  englishPath
+  posterName,
+  themeName,
+  germanName,
+  englishName
 ) => {
   await Episodes.update(
     {
       //no update if file is null / undefined
       ...(req.body.poster
-        ? { poster: posterPath }
+        ? { poster: posterName }
         : req.body.poster === "" && { poster: "" }),
       ...(req.body.theme
-        ? { theme: themePath }
+        ? { theme: themeName }
         : req.body.theme === "" && { theme: "" }),
       ...(req.body.german
-        ? { german: germanPath }
+        ? { german: germanName }
         : req.body.german === "" && { german: "" }),
       ...(req.body.english
-        ? { english: englishPath }
+        ? { english: englishName }
         : req.body.english === "" && { english: "" }),
     },
     { where: { id: req.body.id } }
-  )
-    .then(deleteFiles(req, true))
-    .catch((err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not update file data of '" +
-            req.body.series +
-            "', episode '" +
-            req.body.episode +
-            "'.",
-        });
-    });
+  ).catch((err) => {
+    err &&
+      res.status(500).send({
+        message:
+          "ERROR: Could not update file data of '" +
+          req.body.series +
+          "', episode '" +
+          req.body.episode +
+          "'.",
+      });
+  });
 };
 
 /**
- * @req movie
+ * @req episode
  * @res -
  */
-const deleteMovie = async (req, res) => {
+const deleteEpisode = async (req, res) => {
   //=====================================================
   deleteFiles(req, false);
   //=====================================================
@@ -386,15 +384,26 @@ const updateEpisodeFiles = async (req, res) => {
   let s = req.body.season < 10 ? "00" : "0";
   let num = "" + req.body.season + n + req.body.episode;
   //
-  let posterName = req.body.season + s + "_" + req.body.changes + ".jpg";
-  let themeName = req.body.changes + ".mp3";
+  //one poster per season
+  let posterName =
+    req.body.season + s + "_" + req.body.id + "_" + req.body.changes + ".jpg";
+  //one theme per series
+  let themeName = "theme.mp3";
   let germanName = num + "_de.mp4";
   let englishName = num + "_en.mp4";
   //
-  let posterFolder = dir + "//" + req.body.series + "//";
+  let posterFolder =
+    dir + "//" + req.body.series + "//" + req.body.season + "//";
   let themeFolder = dir + "//" + req.body.series + "//";
-  let germanFolder = dir + "//" + req.body.series + "//de//";
-  let englishFolder = dir + "//" + req.body.series + "//en//";
+  let germanFolder =
+    dir + "//" + req.body.series + "//" + req.body.season + "//de//";
+  let englishFolder =
+    dir + "//" + req.body.series + "//" + req.body.season + "//en//";
+  //
+  let posterPath = posterFolder + posterName;
+  let themePath = themeFolder + themeName;
+  let germanPath = germanFolder + germanName;
+  let englishPath = englishFolder + englishName;
   //
   if (req.body.poster) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
@@ -402,7 +411,7 @@ const updateEpisodeFiles = async (req, res) => {
       fs.mkdirSync(posterFolder, { recursive: true });
     //download poster from OMDB api to location
     if (req.body.poster.includes("http")) {
-      let file = fs.createWriteStream(posterFolder + posterName);
+      let file = fs.createWriteStream(posterPath);
       https.get(req.body.poster, (response) => {
         response.pipe(file);
         file.on("error", (err) => {
@@ -426,26 +435,31 @@ const updateEpisodeFiles = async (req, res) => {
           isGermanReady &&
           isEnglishReady &&
           //
-          updateFileData(
-            req,
-            posterName,
-            themeName,
-            germanName,
-            englishName
-          ).then(
-            res.status(200).send({
-              message:
-                "files of '" +
-                req.body.series +
-                "', episode '" +
-                num +
-                "' were updated.",
-            })
-          );
+          updateFileData(req, posterName, themeName, germanName, englishName)
+            .then(
+              res.status(200).send({
+                message:
+                  "files of '" +
+                  req.body.series +
+                  "', episode '" +
+                  num +
+                  "' were updated.",
+              })
+            )
+            .then(
+              deleteFiles(
+                req,
+                true,
+                posterPath,
+                themePath,
+                germanPath,
+                englishPath
+              )
+            );
       });
     } else {
       //copy and rename local file to directory
-      fs.copyFile(req.body.poster, posterFolder + posterName, (err) => {
+      fs.copyFile(req.body.poster, posterPath, (err) => {
         err &&
           res.status(500).send({
             message:
@@ -462,29 +476,34 @@ const updateEpisodeFiles = async (req, res) => {
           isGermanReady &&
           isEnglishReady &&
           //
-          updateFileData(
-            req,
-            posterName,
-            themeName,
-            germanName,
-            englishName
-          ).then(
-            res.status(200).send({
-              message:
-                "files of '" +
-                req.body.series +
-                "', episode '" +
-                num +
-                "' were updated.",
-            })
-          );
+          updateFileData(req, posterName, themeName, germanName, englishName)
+            .then(
+              res.status(200).send({
+                message:
+                  "files of '" +
+                  req.body.series +
+                  "', episode '" +
+                  num +
+                  "' were updated.",
+              })
+            )
+            .then(
+              deleteFiles(
+                req,
+                true,
+                posterPath,
+                themePath,
+                germanPath,
+                englishPath
+              )
+            );
       });
     }
   }
   if (req.body.theme) {
     !fs.existsSync(themeFolder) &&
       fs.mkdirSync(themeFolder, { recursive: true });
-    fs.copyFile(req.body.theme, themeFolder + themeName, (err) => {
+    fs.copyFile(req.body.theme, themePath, (err) => {
       err &&
         res.status(500).send({
           message: "ERROR: Could not copy theme of '" + req.body.series + "'.",
@@ -496,28 +515,33 @@ const updateEpisodeFiles = async (req, res) => {
         isGermanReady &&
         isEnglishReady &&
         //
-        updateFileData(
-          req,
-          posterName,
-          themeName,
-          germanName,
-          englishName
-        ).then(
-          res.status(200).send({
-            message:
-              "files of '" +
-              req.body.series +
-              "', episode '" +
-              num +
-              "' were updated.",
-          })
-        );
+        updateFileData(req, posterName, themeName, germanName, englishName)
+          .then(
+            res.status(200).send({
+              message:
+                "files of '" +
+                req.body.series +
+                "', episode '" +
+                num +
+                "' were updated.",
+            })
+          )
+          .then(
+            deleteFiles(
+              req,
+              true,
+              posterPath,
+              themePath,
+              germanPath,
+              englishPath
+            )
+          );
     });
   }
   if (req.body.german) {
     !fs.existsSync(germanFolder) &&
       fs.mkdirSync(germanFolder, { recursive: true });
-    fs.copyFile(req.body.german, germanFolder + germanName, (err) => {
+    fs.copyFile(req.body.german, germanPath, (err) => {
       err &&
         res.status(500).send({
           message:
@@ -534,28 +558,33 @@ const updateEpisodeFiles = async (req, res) => {
         isGermanReady &&
         isEnglishReady &&
         //
-        updateFileData(
-          req,
-          posterName,
-          themeName,
-          germanName,
-          englishName
-        ).then(
-          res.status(200).send({
-            message:
-              "files of '" +
-              req.body.series +
-              "', episode '" +
-              num +
-              "' were updated.",
-          })
-        );
+        updateFileData(req, posterName, themeName, germanName, englishName)
+          .then(
+            res.status(200).send({
+              message:
+                "files of '" +
+                req.body.series +
+                "', episode '" +
+                num +
+                "' were updated.",
+            })
+          )
+          .then(
+            deleteFiles(
+              req,
+              true,
+              posterPath,
+              themePath,
+              germanPath,
+              englishPath
+            )
+          );
     });
   }
   if (req.body.english) {
     !fs.existsSync(englishFolder) &&
       fs.mkdirSync(englishFolder, { recursive: true });
-    fs.copyFile(req.body.english, englishFolder + englishName, (err) => {
+    fs.copyFile(req.body.english, englishPath, (err) => {
       err &&
         res.status(500).send({
           message:
@@ -572,22 +601,27 @@ const updateEpisodeFiles = async (req, res) => {
         isGermanReady &&
         isEnglishReady &&
         //
-        updateFileData(
-          req,
-          posterName,
-          themeName,
-          germanName,
-          englishName
-        ).then(
-          res.status(200).send({
-            message:
-              "files of '" +
-              req.body.series +
-              "', episode '" +
-              num +
-              "' were updated.",
-          })
-        );
+        updateFileData(req, posterName, themeName, germanName, englishName)
+          .then(
+            res.status(200).send({
+              message:
+                "files of '" +
+                req.body.series +
+                "', episode '" +
+                num +
+                "' were updated.",
+            })
+          )
+          .then(
+            deleteFiles(
+              req,
+              true,
+              posterPath,
+              themePath,
+              germanPath,
+              englishPath
+            )
+          );
     });
   }
 };
@@ -596,7 +630,14 @@ const updateEpisodeFiles = async (req, res) => {
  * @param req
  * @param isEpisode
  */
-const deleteFiles = async (req, isEpisode) => {
+const deleteFiles = async (
+  req,
+  isEpisode,
+  posterPath,
+  themePath,
+  germanPath,
+  englishPath
+) => {
   //
   const deleteOneFile = (fileLocation) => {
     fs.existsSync(fileLocation) &&
@@ -604,6 +645,10 @@ const deleteFiles = async (req, isEpisode) => {
         err && console.log(err);
       });
   };
+  //
+  let n = req.body.episode < 10 ? "0" : "";
+  let s = req.body.season < 10 ? "00" : "0";
+  let num = "" + req.body.season + n + req.body.episode;
   //delete previous files to clean up
   if (isEpisode) {
     let previousChange = req.body.changes - 1;
@@ -619,292 +664,28 @@ const deleteFiles = async (req, isEpisode) => {
           previousChange +
           ".jpg"
       );
-    req.body.theme &&
-      deleteOneFile(
-        dir + "//" + req.body.series + "//" + previousChange + ".mp3"
-      );
   }
-  //delete file if
+  // delete file if
   //-> entry is empty and movie exist
   //-> or if movie not exist
-  (req.body.poster === "" || !isEpisode) &&
-    deleteOneFile(
-      dir + "//poster//" + req.body.id + "_" + req.body.changes + ".jpg"
-    );
-  (req.body.theme === "" || !isEpisode) &&
-    deleteOneFile(
-      dir + "//theme//" + req.body.id + "_" + req.body.changes + ".mp3"
-    );
-  (req.body.german === "" || !isEpisode) &&
-    deleteOneFile(
-      dir + "//de//" + req.body.id + "_" + req.body.changes + "._de.mp4"
-    );
-  (req.body.poster === "" || !isEpisode) &&
-    deleteOneFile(
-      dir + "//en//" + req.body.id + "_" + req.body.changes + "._en.mp4"
-    );
-};
-
-/**
- * @req episode
- */
-const createNewEpisode = async (req, res) => {
-  let series = req.body.series;
-  let sh = req.body.series
-    .match(/(\b\S)?/g)
-    .join("")
-    .toUpperCase();
-  let s = req.body.season;
-  let e = req.body.episode;
-  let n = e < 10 ? 0 : "";
-  let num = "" + s + n + e;
-  //
-  let posterPath = path + "//" + series + "//" + sh + "_" + s + ".jpg";
-  let themePath = path + "//" + series + "//" + sh + "_" + s + ".mp3";
-  let germanPath = path + "//" + series + "//de//" + sh + num + "_de.mp4";
-  let englishPath = path + "//" + series + "//en//" + sh + num + "_en.mp4";
-
-  await Episodes.create({
-    series: series,
-    title: req.body.title,
-    director: req.body.director,
-    genre: req.body.genre,
-    //
-    year: req.body.year,
-    season: s,
-    episode: e,
-    awards: req.body.awards,
-    runtime: req.body.runtime,
-    //
-    actors: req.body.actors,
-    plot: req.body.plot,
-    //
-    poster: req.body.poster && posterPath,
-    theme: req.body.theme && themePath,
-    german: req.body.german && germanPath,
-    english: req.body.english && englishPath,
-  })
-    .catch((err) => {
-      res.status(500).send({
-        message: "error inserting ep " + s + n + e + " of '" + series + "'.",
-      });
-      res.send(err);
-    })
-    .then(() => {
-      res.status(200).send({
-        message: "ep " + s + n + e + " of '" + series + "' has been inserted.",
-      });
-    });
-};
-
-/**
- * @req episodes
- */
-const updateEpisode = async (req, res) => {
-  let series = req.body.series;
-  console.log("update: " + series);
-  let sh = series
-    .match(/(\b\S)?/g)
-    .join("")
-    .toUpperCase();
-  let s = req.body.season;
-  let e = req.body.episode;
-  let n = e < 10 ? 0 : "";
-  let num = "" + s + n + e;
-  //
-  let posterPath = path + "//" + series + "//" + sh + "_" + s + ".jpg";
-  let themePath = path + "//" + series + "//" + sh + "_" + s + ".mp3";
-  let germanPath = path + "//" + series + "//de//" + sh + num + "_de.mp4";
-  let englishPath = path + "//" + series + "//en//" + sh + num + "_en.mp4";
-  //
-  await Episodes.update(
-    {
-      ...(req.body.series ? { series: series } : {}),
-      ...(req.body.title ? { title: req.body.title } : {}),
-      ...(req.body.director ? { director: req.body.director } : {}),
-      ...(req.body.genre ? { genre: req.body.genre } : {}),
-      ...(req.body.actors ? { director: req.body.actors } : {}),
-      ...(req.body.plot ? { plot: req.body.plot } : {}),
-      //
-      ...(req.body.year ? { year: req.body.year } : {}),
-      ...(req.body.season ? { season: s } : {}),
-      ...(req.body.episode ? { episode: e } : {}),
-      ...(req.body.runtime ? { runtime: req.body.runtime } : {}),
-      //
-      ...(req.body.poster ? { poster: posterPath } : {}),
-      ...(req.body.theme ? { theme: themePath } : {}),
-      ...(req.body.german ? { german: germanPath } : {}),
-      ...(req.body.english ? { english: englishPath } : {}),
-      //
-      ...(req.body.elapsed_time ? { elapsed_time: req.body.elapsed_time } : {}),
-      ...(req.body.last_viewed ? { last_viewed: req.body.last_viewed } : {}),
-    },
-    {
-      where: { id: req.body.id },
-    }
-  )
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          "error while updating ep " + s + n + e + " of '" + series + "'",
-      });
-      console.log(err);
-    })
-    .then(() => {
-      res.status(200).send({
-        message: "ep " + s + n + e + " of '" + series + "' has been updated.",
-      });
-    });
-};
-
-/**
- * @req id
- */
-const deleteEpisode = async (req, res) => {
-  let series = req.body.series;
-  let sh = series
-    .match(/(\b\S)?/g)
-    .join("")
-    .toUpperCase();
-  let s = req.body.season;
-  let e = req.body.episode;
-  let n = e < 10 ? 0 : "";
-  let num = "" + s + n + e;
-  //
-  let posterDir = dir + "//" + series + "//" + sh + "_" + s + ".jpg";
-  let themeDir = dir + "//" + series + "//" + sh + "_" + s + ".mp3";
-  let germanDir = dir + "//" + series + "//de//" + sh + num + "_de.mp4";
-  let englishDir = dir + "//" + series + "//en//" + sh + num + "_en.mp4";
-  //
-  await Episodes.destroy({ where: { id: req.params.id } }).catch((err) => {
-    res.send(err);
-  });
-  //delete files if exist
-  fs.existsSync(posterDir) && fs.unlinkSync(posterDir);
-  fs.existsSync(themeDir) && fs.unlinkSync(themeDir);
-  fs.existsSync(germanDir) && fs.unlinkSync(germanDir);
-  fs.existsSync(englishDir) && fs.unlinkSync(englishDir);
-  //
-  res.status(200).send({
-    message: "ep " + s + n + e + " of '" + series + "' was removed.",
-  });
-};
-
-/**
- * @req episode
- * @res copy files to directory
- */
-const copyEpisodeFiles = async (req, res) => {
-  let series = req.body.series;
-  let sh = req.body.series
-    .match(/(\b\S)?/g)
-    .join("")
-    .toUpperCase();
-  let s = req.body.season;
-  let e = req.body.episode;
-  let n = e < 10 ? 0 : "";
-  let num = "" + s + n + e;
-  //
-  let isPosterReady = req.body.poster ? false : true;
-  let isThemeReady = req.body.theme ? false : true;
-  let isGermanReady = req.body.german ? false : true;
-  let isEnglishReady = req.body.english ? false : true;
-  //
-  let posterDir = dir + "//" + series + "//";
-  let themeDir = dir + "//" + series + "//";
-  let germanDir = dir + "//" + series + "//de//";
-  let englishDir = dir + "//" + series + "//en//";
-  //
-  if (req.body.poster) {
-    !fs.existsSync(posterDir) && fs.mkdirSync(posterDir, { recursive: true });
-    //download and rename poster from omdb api
-    if (req.body.poster.includes("http")) {
-      let file = fs.createWriteStream(posterDir + sh + "_" + s + ".jpg");
-      https.get(req.body.poster, function (response) {
-        response.pipe(file);
-        file.on("finish", function () {
-          file.close();
-        });
-        isPosterReady = true;
-        console.log("poster ready");
-        if (isPosterReady && isThemeReady && isGermanReady && isEnglishReady) {
-          res.status(200).send({
-            message: "copy files finished",
-          });
-        }
-      });
-    } else {
-      !fs.existsSync(posterDir) && fs.mkdirSync(posterDir, { recursive: true });
-      //copy and rename poster to directory
-      fs.copyFile(req.body.poster, posterDir + sh + "_" + s + ".jpg", (err) => {
-        if (err) throw err;
-        isPosterReady = true;
-        console.log("poster ready");
-        if (isPosterReady && isThemeReady && isGermanReady && isEnglishReady) {
-          res.status(200).send({
-            message: "copy files finished",
-          });
-        }
-      });
-    }
-  }
-  if (req.body.theme) {
-    !fs.existsSync(themeDir) && fs.mkdirSync(themeDir, { recursive: true });
-    //copy and rename theme to directory
-    fs.copyFile(req.body.theme, themeDir + sh + "_" + s + ".mp3", (err) => {
-      if (err) throw err;
-      isGermanReady = true;
-      console.log("themes ready");
-      if (isPosterReady && isThemeReady && isGermanReady && isEnglishReady) {
-        res.status(200).send({
-          message: "copy files finished",
-        });
-      }
-    });
-  }
-  if (req.body.german) {
-    !fs.existsSync(germanDir) && fs.mkdirSync(germanDir, { recursive: true });
-    //copy and rename german video to directory
-    fs.copyFile(req.body.german, germanPath + sh + num + "_de.mp4", (err) => {
-      if (err) throw err;
-      isGermanReady = true;
-      console.log("german ready");
-      if (isPosterReady && isThemeReady && isGermanReady && isEnglishReady) {
-        res.status(200).send({
-          message: "copy files finished",
-        });
-      }
-    });
-  }
-  if (req.body.english) {
-    !fs.existsSync(englishDir) && fs.mkdirSync(englishDir, { recursive: true });
-    //copy and rename german video to directory
-    fs.copyFile(req.body.english, englishDir + sh + num + "_en.mp4", (err) => {
-      if (err) throw err;
-      isEnglishReady = true;
-      console.log("english ready");
-      if (isPosterReady && isThemeReady && isGermanReady && isEnglishReady) {
-        res.status(200).send({
-          message: "copy files finished",
-        });
-      }
-    });
-  }
+  (req.body.poster === "" || !isEpisode) && deleteOneFile(posterPath);
+  (req.body.theme === "" || !isEpisode) && deleteOneFile(themePath);
+  (req.body.german === "" || !isEpisode) && deleteOneFile(germanPath);
+  (req.body.english === "" || !isEpisode) && deleteOneFile(englishPath);
 };
 
 module.exports = {
-  getAllGenres,
-  //
   getAllSeasons,
   getSeasonsBySeries,
-  getAllEpisodes,
+  getOneEpisodeById,
+  getAllGenres,
   getEpisodesBySeason,
-  getRecent,
+  getRecentEpisode,
   getSeasonsByGenre,
   //
-  createNewEpisode,
+  createEpisode,
   updateEpisode,
   deleteEpisode,
   //
-  copyEpisodeFiles,
+  updateEpisodeFiles,
 };

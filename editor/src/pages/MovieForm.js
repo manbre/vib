@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useReducer } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import { setEvent } from "../features/view";
 import useOmdb from "../hooks/useOmdb";
@@ -109,9 +109,7 @@ const MovieForm = (props) => {
   const updateVideo = () => {
     updateMovie({
       id: props.selected.id,
-      ...(state.title !== props.selected.title
-        ? { title: state.title }
-        : { title: props.selected.title }),
+      ...(state.title !== props.selected.title && { title: state.title }),
       ...(state.series !== props.selected.series && {
         series: state.series,
       }),
@@ -120,6 +118,9 @@ const MovieForm = (props) => {
       }),
       ...(state.genre !== props.selected.genre && { genre: state.genre }),
       ...(state.year !== props.selected.year && { year: state.year }),
+      ...(state.fsk !== props.selected.fsk && {
+        fsk: state.fsk,
+      }),
       ...(state.awards !== props.selected.awards && {
         awards: state.awards,
       }),
@@ -141,7 +142,6 @@ const MovieForm = (props) => {
     //
     updateFiles({
       id: props.selected.id,
-      title: props.selected.title,
       changes: props.selected.changes + 1,
       //
       ...(state.poster !== props.selected.poster && {
@@ -171,7 +171,7 @@ const MovieForm = (props) => {
       .then(resetInput());
   };
 
-  const resetInput = () => {
+  const resetInput = async () => {
     updateState({
       id: "",
       title: "",

@@ -9,6 +9,9 @@ export const backend = createApi({
     getMovieById: builder.query({
       query: (id) => `movies/id/${id}`,
     }),
+    getEpisodeById: builder.query({
+      query: (id) => `episodes/id/${id}`,
+    }),
     //------------------------------------------------------------------------------------
     //MUTATIONS
     //
@@ -62,6 +65,13 @@ export const backend = createApi({
         url: "/movies/files",
         method: "PUT",
         body: movie,
+      }),
+    }),
+    updateEpisodeFiles: builder.mutation({
+      query: (episode) => ({
+        url: "/episodes/files",
+        method: "PUT",
+        body: episode,
       }),
     }),
   }),

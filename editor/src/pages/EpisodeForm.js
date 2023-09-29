@@ -1,162 +1,196 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useReducer } from "react";
+import { useDispatch } from "react-redux";
 import styles from "./Form.module.css";
-import MessageBox from "../components/messageBox/MessageBox";
+import { setEvent } from "../features/view";
+import useOmdb from "../hooks/useOmdb";
 
 import {
   useCreateNewEpisodeMutation,
   useUpdateEpisodeMutation,
   useDeleteEpisodeMutation,
-  useCopyEpisodeFilesMutation,
+  useUpdateEpisodeFilesMutation,
 } from "../features/backend";
 
 const EpisodeForm = (props) => {
+  const dispatch = useDispatch();
   //
-  const [title, setTitle] = useState("");
-  const [series, setSeries] = useState("");
-  const [director, setDirector] = useState("");
-  const [genre, setGenre] = useState("");
-  //
-  const [year, setYear] = useState("");
-  const [episode, setEpisode] = useState("");
-  const [season, setSeason] = useState("");
-  const [awards, setAwards] = useState("");
-  const [runtime, setRuntime] = useState("");
-  //
-  const [actors, setActors] = useState("");
-  const [plot, setPlot] = useState("");
-  //
-  const [poster, setPoster] = useState("");
-  const [theme, setTheme] = useState("");
-  const [german, setGerman] = useState("");
-  const [english, setEnglish] = useState("");
+  const initialState = {
+    series: "",
+    title: "",
+    director: "",
+    genre: "",
+    year: "",
+    fsk: "",
+    season: "",
+    episode: "",
+    actors: "",
+    plot: "",
+    poster: "",
+    theme: "",
+    german: "",
+    english: "",
+    changes: 0,
+  };
+
+  const [state, updateState] = useReducer(
+    (state, updates) => ({ ...state, ...updates }),
+    initialState
+  );
 
   const [createEpisode] = useCreateNewEpisodeMutation();
-  const [updateEpisode] = useUpdateEpisodeMutation();
-  const [deleteEpisode] = useDeleteEpisodeMutation();
-  const [copyEpisode] = useCopyEpisodeFilesMutation();
+  const [
+    updateEpisode,
+    { isSuccess: isDataUpdated },
+  ] = useUpdateEpisodeMutation();
+  const [
+    deleteEpisode,
+    { isSuccess: isEpisodeDeleted },
+  ] = useDeleteEpisodeMutation();
+  const [
+    updateFiles,
+    { isSuccess: areFilesUpdated },
+  ] = useUpdateEpisodeFilesMutation();
+
+  useEffect(() => {
+    isDataUpdated && dispatch(setEvent({ name: "done", type: 2, value: null }));
+    areFilesUpdated &&
+      dispatch(setEvent({ name: "done", type: 2, value: null }));
+  }, [isDataUpdated, areFilesUpdated]);
+
+  useEffect(() => {
+    isEpisodeDeleted &&
+      dispatch(setEvent({ name: "done", type: 2, value: null }));
+  }, [isEpisodeDeleted]);
+
+  useEffect(() => {
+    resetInput();
+    props.selected && updateState(props.selected);
+  }, [props.selected]);
 
   const { data: OMDBData, isSuccess: isOMDB } = useGetOMDBDataQuery({
     title: series,
     year: year,
   });
 
-  useEffect(() => {
-    isOMDB && setPoster(OMDBData.Poster);
-  }, [OMDBData]);
+  const { omdbData, fetchOmdb } = useOmdb();
 
-  const loadOMDBData = () => {
-    let data = OMDBData;
-    setSeries(data.Title.replace(":", " - "));
-    setDirector(data.Director);
-    setGenre(data.Genre);
-    setActors(data.Actors);
-    setPlot(data.Plot);
-    setYear(data.Year);
-    setAwards(
-      data.Awards.includes("Emmys") ? data.Awards.substring(3, 6) : "0"
-    );
-    setRuntime(data.Runtime.slice(0, 3));
-    setPoster(data.Poster);
-  };
+  useEffect(() => {
+    omdbData &&
+      updateState({
+        poster: omdbData.Poster && omdbData.Poster,
+        series: omdbData.Title && omdbData.Title.replace(":", " - "),
+        director: omdbData.Director && omdbData.Director,
+        genre: omdbData.Genre && omdbData.Genre,
+        actors: omdbData.Actors && omdbData.Actors,
+        plot: omdbData.Plot && omdbData.Plot,
+        year: omdbData.Year && omdbData.Year,
+        runtime: omdbData.Runtime && omdbData.Runtime.slice(0, 3),
+      });
+  }, [omdbData]);
 
   const createVideo = () => {
-    title !== "" &&
-      createEpisode({
-        series: series,
-        title: title,
-        director: director,
-        genre: genre,
-        actors: actors,
-        plot: plot,
-        //
-        year: year,
-        episode: episode,
-        season: season,
-        awards: awards,
-        runtime: runtime,
-        //
-        poster: poster,
-        theme: theme,
-        german: german,
-        english: english,
-      })
+    if (state.series !== "" && state.title !== "") {
+      let episode = state;
+      createEpisode(state)
         .unwrap()
-        .then((payload) => props.changeMessage(payload.message))
         .catch((error) => props.changeMessage(error.message))
-        .then(copyFiles());
-    resetInput();
+        .then((result) => {
+          episode.id = result.id;
+          updateFiles(episode)
+            .unwrap()
+            .then((payload) => props.changeMessage(payload.message))
+            .catch((error) => props.changeMessage(error.message))
+            .then(resetInput());
+        });
+    }
   };
 
   const updateVideo = () => {
-    copyFiles();
     updateEpisode({
-      id: selectedVideo.id,
+      id: props.selected.id,
+      ...(state.title !== props.selected.title && { title: state.title }),
+      ...(state.series !== props.selected.series && {
+        series: state.series,
+      }),
+      ...(state.director !== props.selected.director && {
+        director: state.director,
+      }),
+      ...(state.genre !== props.selected.genre && { genre: state.genre }),
+      ...(state.year !== props.selected.year && { year: state.year }),
+      ...(state.fsk !== props.selected.fsk && {
+        fsk: state.fsk,
+      }),
+      ...(state.season !== props.selected.season && {
+        season: state.season,
+      }),
+      ...(state.episode !== props.selected.episode && {
+        episode: state.episode,
+      }),
+      ...(state.runtime !== props.selected.runtime && {
+        runtime: state.runtime,
+      }),
       //
-      ...(title !== selectedVideo.title ? { title: title } : {}),
-      ...(series !== selectedVideo.series ? { series: series } : {}),
-      ...(director !== selectedVideo.director ? { director: director } : {}),
-      ...(genre !== selectedVideo.genre ? { genre: genre } : {}),
+      ...(state.actors !== props.selected.actors && {
+        actors: state.actors,
+      }),
+      ...(state.plot !== props.selected.plot && { plot: state.plot }),
+      changes: props.selected.changes + 1,
+    })
+      .unwrap()
+      .catch((error) => props.changeMessage(error.message));
+    //
+    updateFiles({
+      id: props.selected.id,
+      changes: props.selected.changes + 1,
       //
-      ...(year !== selectedVideo.year ? { year: year } : {}),
-      ...(episode !== selectedVideo.episode ? { episode: episode } : {}),
-      ...(season !== selectedVideo.season ? { season: season } : {}),
-      ...(awards !== selectedVideo.awards ? { awards: awards } : {}),
-      ...(runtime !== selectedVideo.runtime ? { runtime: runtime } : {}),
-      //
-      ...(actors !== selectedVideo.actors ? { actors: actors } : {}),
-      ...(plot !== selectedVideo.plot ? { plot: plot } : {}),
-      //
-      ...(poster !== selectedVideo.poster ? { poster: poster } : {}),
-      ...(theme !== selectedVideo.theme ? { theme: theme } : {}),
-      ...(german != selectedVideo.german ? { german: german } : {}),
-      ...(english !== selectedVideo.english ? { english: english } : {}),
+      ...(state.poster !== props.selected.poster && {
+        poster: state.poster,
+      }),
+      ...(state.trailer !== props.selected.trailer && {
+        trailer: state.trailer,
+      }),
+      ...(state.german !== props.selected.german && {
+        german: state.german,
+      }),
+      ...(state.english !== props.selected.english && {
+        english: state.english,
+      }),
     })
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message));
-    resetInput();
+      .catch((error) => props.changeMessage(error.message))
+      .then(resetInput());
   };
 
   const deleteVideo = () => {
-    deleteEpisode(selectedVideo.id)
+    deleteEpisode(props.selected)
       .unwrap()
       .then((payload) => props.changeMessage(payload.message))
-      .catch((error) => props.changeMessage(error.message));
+      .catch((error) => props.changeMessage(error.message))
+      .then(resetInput());
   };
 
-  const copyFiles = () => {
-    if (poster != null || theme != null || german != null || english != null) {
-    }
-    copyEpisode({
-      series: series,
-      season: season,
-      episode: episode,
-      poster: poster,
-      theme: theme,
-      german: german,
-      english: english,
+  const resetInput = async () => {
+    updateState({
+      id: "",
+      series: "",
+      title: "",
+      director: "",
+      genre: "",
+      year: "",
+      fsk: "",
+      season: "",
+      episode: "",
+      runtime: "",
+      actors: "",
+      plot: "",
+      poster: "",
+      theme: "",
+      german: "",
+      english: "",
+      changes: 0,
     });
-  };
-
-  const resetInput = () => {
-    setSeries("");
-    setTitle("");
-    setDirector("");
-    setGenre("");
-    setActors("");
-    setPlot("");
-    //
-    setYear("");
-    setEpisode("");
-    setSeason("");
-    setAwards("");
-    setRuntime("");
-    //
-    setPoster("");
-    setTheme("");
-    setGerman("");
-    setEnglish("");
     //
     let fields = document
       .getElementById("episode_form")
@@ -165,23 +199,6 @@ const EpisodeForm = (props) => {
       fields[i].value = "";
     }
     document.getElementsByTagName("textarea").value = "";
-  };
-
-  const handleFileChange = (e) => {
-    switch (e.target.id) {
-      case "poster":
-        setPoster(e.target.files[0].path);
-        break;
-      case "theme":
-        setTheme(e.target.files[0].path);
-        break;
-      case "german":
-        setGerman(e.target.files[0].path);
-        break;
-      case "english":
-        setEnglish(e.target.files[0].path);
-        break;
-    }
   };
 
   props.childRef.current = {
@@ -193,49 +210,14 @@ const EpisodeForm = (props) => {
   return (
     <div className={styles.container}>
       <div id="episode_form" className={styles.form}>
-        <label className={styles.poster}>
-          <img src={poster} />
-        </label>
-        <div className={styles.row}>
-          <div className={styles.longBox}>
-            <label>Poster</label>
-            <input
-              id="poster"
-              type="file"
-              hidden
-              onChange={(e) => handleFileChange(e)}
-            ></input>
-            <input
-              className={styles.fileInput}
-              type="text"
-              value={poster}
-              readOnly
-            ></input>
-          </div>
-          {poster !== "" && poster !== null ? (
-            <label
-              className={styles.sourceDeleteBtn}
-              onClick={() => setPoster("")}
-            ></label>
-          ) : (
-            <>
-              <label className={styles.sourceBtn} htmlFor="poster"></label>
-
-              <label
-                className={styles.undoneBtn}
-                onClick={() => setPoster(selectedVideo.poster)}
-              ></label>
-            </>
-          )}
-        </div>
         <div className={styles.omdbRow}>
           <div className={styles.longBox}>
-            <label>Title of series</label>
+            <label>Series</label>
             <input
               className={styles.lineInput}
               type="text"
-              value={series}
-              onChange={(e) => setSeries(e.target.value)}
+              value={state.series || ""}
+              onChange={(e) => updateState({ series: e.target.value })}
             ></input>
           </div>
           <div className={styles.shortBox}>
@@ -243,11 +225,74 @@ const EpisodeForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
+              value={state.year || ""}
+              onChange={(e) => updateState({ year: e.target.value })}
             ></input>
           </div>
-          <button className={styles.omdbBtn} onClick={loadOMDBData}></button>
+          {!props.selected ? (
+            <button
+              className={styles.omdbBtn}
+              onClick={() =>
+                fetchOmdb({
+                  series: state.series,
+                  year: state.year,
+                })
+              }
+            ></button>
+          ) : (
+            <label
+              className={styles.sourceDeleteBtn}
+              onClick={() => resetInput()}
+            ></label>
+          )}
+        </div>
+
+        <div className={styles.row}>
+          <label className={styles.poster}>
+            {state.poster &&
+            !state.poster.includes("http") &&
+            !state.poster.includes(":") ? (
+              <img src={`http://localhost:9000/stream/image/${state.poster}`} />
+            ) : (
+              <img src={state.poster} />
+            )}
+          </label>
+        </div>
+        <div className={styles.row}>
+          <div className={styles.longBox}>
+            <label>Poster</label>
+            <input
+              id="poster"
+              type="file"
+              hidden
+              onChange={(e) => updateState({ poster: e.target.files[0].path })}
+            ></input>
+            <input
+              className={styles.fileInput}
+              type="text"
+              value={state.poster || ""}
+              readOnly
+            ></input>
+          </div>
+          {state.poster !== "" ? (
+            <label
+              className={styles.sourceDeleteBtn}
+              onClick={() => updateState({ poster: "" })}
+            ></label>
+          ) : (
+            <>
+              <label className={styles.sourceBtn} htmlFor="poster"></label>
+
+              <label
+                className={styles.undoneBtn}
+                onClick={() =>
+                  updateState({
+                    poster: props.selected && props.selected.poster,
+                  })
+                }
+              ></label>
+            </>
+          )}
         </div>
 
         <div className={styles.row}>
@@ -256,8 +301,8 @@ const EpisodeForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={state.title || ""}
+              onChange={(e) => updateState({ title: e.target.value })}
             ></input>
           </div>
           <div className={styles.longBox}>
@@ -265,8 +310,9 @@ const EpisodeForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={director}
-              onChange={(e) => setDirector(e.target.value)}
+              value={state.director || ""}
+              onChange={(e) => updateState({ director: e.target.value })}
+              name="director"
             ></input>
           </div>
         </div>
@@ -277,8 +323,8 @@ const EpisodeForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
+              value={state.genre || ""}
+              onChange={(e) => updateState({ genre: e.target.value })}
             ></input>
           </div>
           <div className={styles.longBox}>
@@ -286,40 +332,40 @@ const EpisodeForm = (props) => {
             <input
               className={styles.lineInput}
               type="text"
-              value={actors}
-              onChange={(e) => setActors(e.target.value)}
+              value={state.actors || ""}
+              onChange={(e) => updateState({ actors: e.target.value })}
             ></input>
           </div>
         </div>
         <div className={styles.row}>
           <div className={styles.box}>
             <div className={styles.shortBox}>
+              <label>FSK</label>
+              <input
+                className={styles.lineInput}
+                type="text"
+                value={state.fsk || ""}
+                onChange={(e) => updateState({ fsk: e.target.value })}
+              ></input>
+            </div>
+            <div className={styles.shortBox}>
               <label>Season</label>
               <input
                 className={styles.lineInput}
                 type="text"
-                value={season}
-                onChange={(e) => setSeason(e.target.value)}
-              ></input>
-            </div>
-            <div className={styles.shortBox}>
-              <label>Episode</label>
-              <input
-                className={styles.lineInput}
-                type="text"
-                value={episode}
-                onChange={(e) => setEpisode(e.target.value)}
+                value={state.season || ""}
+                onChange={(e) => updateState({ season: e.target.value })}
               ></input>
             </div>
           </div>
           <div className={styles.box}>
             <div className={styles.shortBox}>
-              <label>Awards</label>
+              <label>Episode</label>
               <input
                 className={styles.lineInput}
                 type="text"
-                value={awards}
-                onChange={(e) => setAwards(e.target.value)}
+                value={state.episode || ""}
+                onChange={(e) => updateState({ episode: e.target.value })}
               ></input>
             </div>
             <div className={styles.shortBox}>
@@ -327,8 +373,8 @@ const EpisodeForm = (props) => {
               <input
                 className={styles.lineInput}
                 type="text"
-                value={runtime}
-                onChange={(e) => setRuntime(e.target.value)}
+                value={state.runtime || ""}
+                onChange={(e) => updateState({ runtime: e.target.value })}
               ></input>
             </div>
           </div>
@@ -341,26 +387,30 @@ const EpisodeForm = (props) => {
               id="theme"
               type="file"
               hidden
-              onChange={(e) => handleFileChange(e)}
+              onChange={(e) => updateState({ theme: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={theme}
+              value={state.theme || ""}
               readOnly
             ></input>
           </div>
-          {theme !== "" && theme !== null ? (
+          {state.theme !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => setTheme("")}
+              onClick={() => updateState({ theme: "" })}
             ></label>
           ) : (
             <>
               <label className={styles.sourceBtn} htmlFor="theme"></label>
               <label
                 className={styles.undoneBtn}
-                onClick={() => setTheme(selectedVideo.theme)}
+                onClick={() =>
+                  updateState({
+                    theme: props.selected && props.selected.theme,
+                  })
+                }
               ></label>
             </>
           )}
@@ -373,26 +423,30 @@ const EpisodeForm = (props) => {
               id="german"
               type="file"
               hidden
-              onChange={(e) => handleFileChange(e)}
+              onChange={(e) => updateState({ german: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={german}
+              value={state.german || ""}
               readOnly
             ></input>
           </div>
-          {german !== "" && german !== null ? (
+          {state.german !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => setGerman("")}
+              onClick={() => updateState({ german: "" })}
             ></label>
           ) : (
             <>
               <label className={styles.sourceBtn} htmlFor="german"></label>
               <label
                 className={styles.undoneBtn}
-                onClick={() => setGerman(selectedVideo.german)}
+                onClick={() =>
+                  updateState({
+                    german: props.selected && props.selected.german,
+                  })
+                }
               ></label>
             </>
           )}
@@ -405,26 +459,30 @@ const EpisodeForm = (props) => {
               id="english"
               type="file"
               hidden
-              onChange={(e) => handleFileChange(e)}
+              onChange={(e) => updateState({ english: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={english}
+              value={state.english || ""}
               readOnly
             ></input>
           </div>
-          {english !== "" && english !== null ? (
+          {state.english !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => setEnglish("")}
+              onClick={() => updateState({ english: "" })}
             ></label>
           ) : (
             <>
               <label className={styles.sourceBtn} htmlFor="english"></label>
               <label
                 className={styles.undoneBtn}
-                onClick={() => setEnglish(selectedVideo.English)}
+                onClick={() =>
+                  updateState({
+                    english: props.selected && props.selected.english,
+                  })
+                }
               ></label>
             </>
           )}

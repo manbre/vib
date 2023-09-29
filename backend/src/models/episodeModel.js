@@ -11,18 +11,20 @@ episodeModel.init(
     genre: { type: DataTypes.TEXT },
     //
     year: { type: DataTypes.INTEGER },
+    fsk: { type: DataTypes.INTEGER }, //self regulatory
     season: { type: DataTypes.INTEGER },
     episode: { type: DataTypes.INTEGER },
-    awards: { type: DataTypes.INTEGER }, //emmys
     runtime: { type: DataTypes.INTEGER },
     //
     actors: { type: DataTypes.TEXT },
     plot: { type: DataTypes.TEXT },
     //
-    poster: { type: DataTypes.TEXT }, //path of poster .jpg file
-    theme: { type: DataTypes.TEXT }, //path of intro .mp3 file
-    german: { type: DataTypes.TEXT }, //path of german .mp4 file
-    english: { type: DataTypes.TEXT }, //path of english .mp4 file
+    poster: { type: DataTypes.TEXT }, //name of poster .jpg file
+    theme: { type: DataTypes.TEXT }, //name of intro .mp3 file
+    german: { type: DataTypes.TEXT }, //name of german .mp4 file
+    english: { type: DataTypes.TEXT }, //name of english .mp4 file
+    //
+    changes: { type: DataTypes.INTEGER, defaultValue: 0 },
     //
     elapsed_time: { type: DataTypes.INTEGER, defaultValue: 0 },
     last_watched: { type: DataTypes.DATE },

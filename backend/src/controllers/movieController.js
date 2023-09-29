@@ -267,46 +267,42 @@ const updateMovie = async (req, res) => {
 
 /**
  * @param req
- * @param posterPath
- * @param trailerPath
- * @param germanPath
- * @param englishPath
+ * @param posterName
+ * @param trailerName
+ * @param germanName
+ * @param englishName
  */
 const updateFileData = async (
   req,
-  posterPath,
-  trailerPath,
-  germanPath,
-  englishPath
+  posterName,
+  trailerName,
+  germanName,
+  englishName
 ) => {
   await Movies.update(
     {
       //no update if file is null / undefined
       ...(req.body.poster
-        ? { poster: posterPath }
+        ? { poster: posterName }
         : req.body.poster === "" && { poster: "" }),
       ...(req.body.trailer
-        ? { trailer: trailerPath }
+        ? { trailer: trailerName }
         : req.body.trailer === "" && { trailer: "" }),
       ...(req.body.german
-        ? { german: germanPath }
+        ? { german: germanName }
         : req.body.german === "" && { german: "" }),
       ...(req.body.english
-        ? { english: englishPath }
+        ? { english: englishName }
         : req.body.english === "" && { english: "" }),
     },
     { where: { id: req.body.id } }
-  )
-    .then(deleteFiles(req, true))
-    .catch((err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not update file data of movie'" +
-            req.body.title +
-            "'.",
-        });
-    });
+  ).catch((err) => {
+    err &&
+      res.status(500).send({
+        message:
+          "ERROR: Could not update file data of movie'" + req.body.title + "'.",
+      });
+  });
 };
 
 /**
@@ -354,13 +350,18 @@ const updateMovieFiles = async (req, res) => {
   let germanFolder = dir + "//de//";
   let englishFolder = dir + "//en//";
   //
+  let posterPath = posterFolder + posterName;
+  let trailerPath = trailerFolder + trailerName;
+  let germanPath = germanFolder + germanName;
+  let englishPath = englishFolder + englishName;
+  //
   if (req.body.poster) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
     !fs.existsSync(posterFolder) &&
       fs.mkdirSync(posterFolder, { recursive: true });
     //download poster from OMDB api to location
     if (req.body.poster.includes("http")) {
-      let file = fs.createWriteStream(posterFolder + posterName);
+      let file = fs.createWriteStream(posterPath);
       https.get(req.body.poster, (response) => {
         response.pipe(file);
         file.on("error", (err) => {
@@ -382,21 +383,26 @@ const updateMovieFiles = async (req, res) => {
           isGermanReady &&
           isEnglishReady &&
           //
-          updateFileData(
-            req,
-            posterName,
-            trailerName,
-            germanName,
-            englishName
-          ).then(
-            res.status(200).send({
-              message: "files of movie '" + req.body.title + "' were updated",
-            })
-          );
+          updateFileData(req, posterName, trailerName, germanName, englishName)
+            .then(
+              res.status(200).send({
+                message: "files of movie '" + req.body.title + "' were updated",
+              })
+            )
+            .then(
+              deleteFiles(
+                req,
+                true,
+                posterPath,
+                trailerPath,
+                germanPath,
+                englishPath
+              )
+            );
       });
     } else {
       //copy and rename local file to directory
-      fs.copyFile(req.body.poster, posterFolder + posterName, (err) => {
+      fs.copyFile(req.body.poster, posterPath, (err) => {
         err &&
           res.status(500).send({
             message:
@@ -409,24 +415,29 @@ const updateMovieFiles = async (req, res) => {
           isGermanReady &&
           isEnglishReady &&
           //
-          updateFileData(
-            req,
-            posterName,
-            trailerName,
-            germanName,
-            englishName
-          ).then(
-            res.status(200).send({
-              message: "files of movie '" + req.body.title + "' were updated",
-            })
-          );
+          updateFileData(req, posterName, trailerName, germanName, englishName)
+            .then(
+              res.status(200).send({
+                message: "files of movie '" + req.body.title + "' were updated",
+              })
+            )
+            .then(
+              deleteFiles(
+                req,
+                true,
+                posterPath,
+                trailerPath,
+                germanPath,
+                englishPath
+              )
+            );
       });
     }
   }
   if (req.body.trailer) {
     !fs.existsSync(trailerFolder) &&
       fs.mkdirSync(trailerFolder, { recursive: true });
-    fs.copyFile(req.body.trailer, trailerFolder + trailerName, (err) => {
+    fs.copyFile(req.body.trailer, trailerPath, (err) => {
       err &&
         res.status(500).send({
           message:
@@ -439,23 +450,28 @@ const updateMovieFiles = async (req, res) => {
         isGermanReady &&
         isEnglishReady &&
         //
-        updateFileData(
-          req,
-          posterName,
-          trailerName,
-          germanName,
-          englishName
-        ).then(
-          res.status(200).send({
-            message: "files of movie '" + req.body.title + "' were updated",
-          })
-        );
+        updateFileData(req, posterName, trailerName, germanName, englishName)
+          .then(
+            res.status(200).send({
+              message: "files of movie '" + req.body.title + "' were updated",
+            })
+          )
+          .then(
+            deleteFiles(
+              req,
+              true,
+              posterPath,
+              trailerPath,
+              germanPath,
+              englishPath
+            )
+          );
     });
   }
   if (req.body.german) {
     !fs.existsSync(germanFolder) &&
       fs.mkdirSync(germanFolder, { recursive: true });
-    fs.copyFile(req.body.german, germanFolder + germanName, (err) => {
+    fs.copyFile(req.body.german, germanPath, (err) => {
       err &&
         res.status(500).send({
           message:
@@ -468,23 +484,28 @@ const updateMovieFiles = async (req, res) => {
         isGermanReady &&
         isEnglishReady &&
         //
-        updateFileData(
-          req,
-          posterName,
-          trailerName,
-          germanName,
-          englishName
-        ).then(
-          res.status(200).send({
-            message: "files of movie '" + req.body.title + "' were updated",
-          })
-        );
+        updateFileData(req, posterName, trailerName, germanName, englishName)
+          .then(
+            res.status(200).send({
+              message: "files of movie '" + req.body.title + "' were updated",
+            })
+          )
+          .then(
+            deleteFiles(
+              req,
+              true,
+              posterPath,
+              trailerPath,
+              germanPath,
+              englishPath
+            )
+          );
     });
   }
   if (req.body.english) {
     !fs.existsSync(englishFolder) &&
       fs.mkdirSync(englishFolder, { recursive: true });
-    fs.copyFile(req.body.english, englishFolder + englishName, (err) => {
+    fs.copyFile(req.body.english, englishPath, (err) => {
       err &&
         res.status(500).send({
           message:
@@ -497,17 +518,22 @@ const updateMovieFiles = async (req, res) => {
         isGermanReady &&
         isEnglishReady &&
         //
-        updateFileData(
-          req,
-          posterName,
-          trailerName,
-          germanName,
-          englishName
-        ).then(
-          res.status(200).send({
-            message: "files of movie '" + req.body.title + "' were updated",
-          })
-        );
+        updateFileData(req, posterName, trailerName, germanName, englishName)
+          .then(
+            res.status(200).send({
+              message: "files of movie '" + req.body.title + "' were updated",
+            })
+          )
+          .then(
+            deleteFiles(
+              req,
+              true,
+              posterPath,
+              trailerPath,
+              germanPath,
+              englishPath
+            )
+          );
     });
   }
 };
@@ -516,7 +542,14 @@ const updateMovieFiles = async (req, res) => {
  * @param req
  * @param isMovie
  */
-const deleteFiles = async (req, isMovie) => {
+const deleteFiles = async (
+  req,
+  isMovie,
+  posterPath,
+  trailerPath,
+  germanPath,
+  englishPath
+) => {
   //
   const deleteOneFile = (fileLocation) => {
     fs.existsSync(fileLocation) &&
@@ -539,22 +572,10 @@ const deleteFiles = async (req, isMovie) => {
   //delete file if
   //-> entry is empty and movie exist
   //-> or if movie not exist
-  (req.body.poster === "" || !isMovie) &&
-    deleteOneFile(
-      dir + "//poster//" + req.body.id + "_" + req.body.changes + ".jpg"
-    );
-  (req.body.trailer === "" || !isMovie) &&
-    deleteOneFile(
-      dir + "//trailer//" + req.body.id + "_" + req.body.changes + ".mp4"
-    );
-  (req.body.german === "" || !isMovie) &&
-    deleteOneFile(
-      dir + "//de//" + req.body.id + "_" + req.body.changes + "._de.mp4"
-    );
-  (req.body.poster === "" || !isMovie) &&
-    deleteOneFile(
-      dir + "//en//" + req.body.id + "_" + req.body.changes + "._en.mp4"
-    );
+  (req.body.poster === "" || !isMovie) && deleteOneFile(posterPath);
+  (req.body.trailer === "" || !isMovie) && deleteOneFile(trailerPath);
+  (req.body.german === "" || !isMovie) && deleteOneFile(germanPath);
+  (req.body.english === "" || !isMovie) && deleteOneFile(englishPath);
 };
 
 module.exports = {
