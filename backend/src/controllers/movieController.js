@@ -3,6 +3,7 @@ const Movies = require("../models/movieModel");
 //
 const https = require("https");
 const fs = require("fs");
+const { response } = require("express");
 //
 const dir = "E:\\vib\\movies\\";
 
@@ -335,10 +336,6 @@ const deleteMovie = async (req, res) => {
  * @res -
  */
 const updateMovieFiles = async (req, res) => {
-  let isPosterReady = req.body.poster ? false : true;
-  let isTrailerReady = req.body.trailer ? false : true;
-  let isGermanReady = req.body.german ? false : true;
-  let isEnglishReady = req.body.english ? false : true;
   //
   let posterName = req.body.id + "_" + req.body.changes + ".jpg";
   let trailerName = req.body.id + "_" + req.body.changes + ".mp4";
@@ -359,199 +356,64 @@ const updateMovieFiles = async (req, res) => {
   let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
   let prevTrailerPath = trailerFolder + req.body.id + "_" + prevChange + ".mp4";
   //
-  if (req.body.poster) {
+  copyOneFile(req.body.poster, posterFolder, posterPath).then(
+    copyOneFile(req.body.trailer, trailerFolder, trailerPath).then(
+      copyOneFile(req.body.german, germanFolder, germanPath).then(
+        copyOneFile(req.body.english, englishFolder, englishPath).then(
+          //link new files in database
+          updateFileData(req, posterName, trailerName, germanName, englishName)
+            .then(
+              res.status(200).send({
+                message: "files of movie '" + req.body.title + "' were updated",
+              })
+            )
+            .then(
+              //remove old files
+              deleteFiles(
+                req,
+                true,
+                posterPath,
+                trailerPath,
+                germanPath,
+                englishPath,
+                prevPosterPath,
+                prevTrailerPath
+              )
+            )
+        )
+      )
+    )
+  );
+};
+/**
+ * @param fileSource
+ * @param newFolder
+ * @param newPath
+ */
+const copyOneFile = async (fileSource, newFolder, newPath) => {
+  if (fileSource) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
-    !fs.existsSync(posterFolder) &&
-      fs.mkdirSync(posterFolder, { recursive: true });
-    //download poster from OMDB api to location
-    if (req.body.poster.includes("http")) {
-      let file = fs.createWriteStream(posterPath);
-      https.get(req.body.poster, (response) => {
+    !fs.existsSync(newFolder) && fs.mkdirSync(newFolder, { recursive: true });
+    //download poster from web (e.g. OMDB api) to location
+    if (fileSource.includes("http")) {
+      https.get(fileSource, (response) => {
+        let file = fs.createWriteStream(newPath);
         response.pipe(file);
-        file.on("error", (err) => {
-          err &&
-            res.status(500).send({
-              message:
-                "ERROR: Could not download poster of movie '" +
-                req.body.title +
-                "'.",
-            });
+        file.on("error", (error) => {
+          console.log(error);
         });
         file.on("finish", () => {
           file.close();
         });
-        isPosterReady = true;
-        //
-        isPosterReady &&
-          isTrailerReady &&
-          isGermanReady &&
-          isEnglishReady &&
-          //
-          updateFileData(req, posterName, trailerName, germanName, englishName)
-            .then(
-              res.status(200).send({
-                message: "files of movie '" + req.body.title + "' were updated",
-              })
-            )
-            .then(
-              deleteFiles(
-                req,
-                true,
-                posterPath,
-                trailerPath,
-                germanPath,
-                englishPath,
-                prevPosterPath,
-                prevTrailerPath
-              )
-            );
       });
     } else {
-      //copy and rename local file to directory
-      fs.copyFile(req.body.poster, posterPath, (err) => {
-        err &&
-          res.status(500).send({
-            message:
-              "ERROR: Could not copy poster of movie '" + req.body.title + "'.",
-          });
-        isPosterReady = true;
-        //
-        isPosterReady &&
-          isTrailerReady &&
-          isGermanReady &&
-          isEnglishReady &&
-          //
-          updateFileData(req, posterName, trailerName, germanName, englishName)
-            .then(
-              res.status(200).send({
-                message: "files of movie '" + req.body.title + "' were updated",
-              })
-            )
-            .then(
-              deleteFiles(
-                req,
-                true,
-                posterPath,
-                trailerPath,
-                germanPath,
-                englishPath,
-                prevPosterPath,
-                prevTrailerPath
-              )
-            );
+      //copy local file to location
+      fs.copyFile(fileSource, newPath, (error) => {
+        console.log(error);
       });
     }
   }
-  if (req.body.trailer) {
-    !fs.existsSync(trailerFolder) &&
-      fs.mkdirSync(trailerFolder, { recursive: true });
-    fs.copyFile(req.body.trailer, trailerPath, (err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not copy trailer of movie'" + req.body.title + "'.",
-        });
-      isTrailerReady = true;
-      //
-      isPosterReady &&
-        isTrailerReady &&
-        isGermanReady &&
-        isEnglishReady &&
-        //
-        updateFileData(req, posterName, trailerName, germanName, englishName)
-          .then(
-            res.status(200).send({
-              message: "files of movie '" + req.body.title + "' were updated",
-            })
-          )
-          .then(
-            deleteFiles(
-              req,
-              true,
-              posterPath,
-              trailerPath,
-              germanPath,
-              englishPath,
-              prevPosterPath,
-              prevTrailerPath
-            )
-          );
-    });
-  }
-  if (req.body.german) {
-    !fs.existsSync(germanFolder) &&
-      fs.mkdirSync(germanFolder, { recursive: true });
-    fs.copyFile(req.body.german, germanPath, (err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not copy german of movie '" + req.body.title + "'.",
-        });
-      isGermanReady = true;
-      //
-      isPosterReady &&
-        isTrailerReady &&
-        isGermanReady &&
-        isEnglishReady &&
-        //
-        updateFileData(req, posterName, trailerName, germanName, englishName)
-          .then(
-            res.status(200).send({
-              message: "files of movie '" + req.body.title + "' were updated",
-            })
-          )
-          .then(
-            deleteFiles(
-              req,
-              true,
-              posterPath,
-              trailerPath,
-              germanPath,
-              englishPath,
-              prevPosterPath,
-              prevTrailerPath
-            )
-          );
-    });
-  }
-  if (req.body.english) {
-    !fs.existsSync(englishFolder) &&
-      fs.mkdirSync(englishFolder, { recursive: true });
-    fs.copyFile(req.body.english, englishPath, (err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not copy english of movie '" + req.body.title + "'.",
-        });
-      isEnglishReady = true;
-      //
-      isPosterReady &&
-        isTrailerReady &&
-        isGermanReady &&
-        isEnglishReady &&
-        //
-        updateFileData(req, posterName, trailerName, germanName, englishName)
-          .then(
-            res.status(200).send({
-              message: "files of movie '" + req.body.title + "' were updated",
-            })
-          )
-          .then(
-            deleteFiles(
-              req,
-              true,
-              posterPath,
-              trailerPath,
-              germanPath,
-              englishPath,
-              prevPosterPath,
-              prevTrailerPath
-            )
-          );
-    });
-  }
 };
-
 /**
  * @param req
  * @param isMovie

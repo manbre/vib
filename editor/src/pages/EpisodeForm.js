@@ -68,11 +68,6 @@ const EpisodeForm = (props) => {
     props.selected && updateState(props.selected);
   }, [props.selected]);
 
-  const { data: OMDBData, isSuccess: isOMDB } = useGetOMDBDataQuery({
-    title: series,
-    year: year,
-  });
-
   const { omdbData, fetchOmdb } = useOmdb();
 
   useEffect(() => {

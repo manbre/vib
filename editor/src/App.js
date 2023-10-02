@@ -25,12 +25,13 @@ const App = () => {
   const [id, setId] = useState(null);
 
   const event = useSelector((state) => state.view.event);
-  const { data: selectedMovie, refetchMovie } = useGetMovieByIdQuery(
+  const { data: selectedMovie, refetch: refetchMovie } = useGetMovieByIdQuery(
     id && type === 1 && id
   );
-  const { data: selectedEpisode, refetchEpisode } = useGetEpisodeByIdQuery(
-    id && type === 2 && id
-  );
+  const {
+    data: selectedEpisode,
+    refetch: refetchEpisode,
+  } = useGetEpisodeByIdQuery(id && type === 2 && id);
 
   //------------------------------------------------------------------------------------
   //WebSocket
@@ -48,15 +49,10 @@ const App = () => {
 
   //TODO
   const handleSubmit = () => {
+    isReady && send(JSON.stringify({ name: "change", value: null }));
     if (selectedMovie) {
-      type === 1 &&
-        movieEditor.current.updateVideo() &&
-        isReady &&
-        send(JSON.stringify({ name: "change", value: null }));
-      type === 2 &&
-        episodeEditor.current.updateVideo() &&
-        isReady &&
-        send(JSON.stringify({ name: "change", value: null }));
+      type === 1 && movieEditor.current.updateVideo();
+      type === 2 && episodeEditor.current.updateVideo();
     } else {
       type === 1 &&
         movieEditor.current.createVideo() &&
