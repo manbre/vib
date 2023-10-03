@@ -3,7 +3,6 @@ const Movies = require("../models/movieModel");
 //
 const https = require("https");
 const fs = require("fs");
-const { response } = require("express");
 //
 const dir = "E:\\vib\\movies\\";
 
@@ -364,7 +363,7 @@ const updateMovieFiles = async (req, res) => {
           updateFileData(req, posterName, trailerName, germanName, englishName)
             .then(
               res.status(200).send({
-                message: "files of movie '" + req.body.title + "' were updated",
+                message: "files of movie '" + req.body.title + "' were updated.",
               })
             )
             .then(
@@ -376,6 +375,7 @@ const updateMovieFiles = async (req, res) => {
                 trailerPath,
                 germanPath,
                 englishPath,
+                //
                 prevPosterPath,
                 prevTrailerPath
               )
@@ -385,6 +385,7 @@ const updateMovieFiles = async (req, res) => {
     )
   );
 };
+
 /**
  * @param fileSource
  * @param newFolder
@@ -414,6 +415,7 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
     }
   }
 };
+
 /**
  * @param req
  * @param isMovie
@@ -425,16 +427,10 @@ const deleteFiles = async (
   trailerPath,
   germanPath,
   englishPath,
+  //
   prevPosterPath,
   prevTrailerPath
 ) => {
-  //
-  const deleteOneFile = (fileLocation) => {
-    fs.existsSync(fileLocation) &&
-      fs.rm(fileLocation, (err) => {
-        err && console.log(err);
-      });
-  };
   //delete previous files to clean up
   if (isMovie) {
     req.body.poster && deleteOneFile(prevPosterPath);
@@ -447,6 +443,16 @@ const deleteFiles = async (
   (req.body.trailer === "" || !isMovie) && deleteOneFile(trailerPath);
   (req.body.german === "" || !isMovie) && deleteOneFile(germanPath);
   (req.body.english === "" || !isMovie) && deleteOneFile(englishPath);
+};
+
+/**
+ * @param fileLocation
+ */
+const deleteOneFile = (fileLocation) => {
+  fs.existsSync(fileLocation) &&
+    fs.rm(fileLocation, (err) => {
+      err && console.log(err);
+    });
 };
 
 module.exports = {

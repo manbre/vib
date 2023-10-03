@@ -6,12 +6,10 @@ import styles from "./Home.module.css";
 import VideoPlayer from "../../components/videoPlayer/VideoPlayer";
 import SearchBar from "../../components/searchBar/SearchBar";
 import ToggleBar from "../../components/toggleBar/ToggleBar";
-import PreviewHero from "../../components/previewHero/PreviewHero";
 import Preview from "../../components/preview/Preview";
 import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import SpinLoader from "../../components/spinLoader/SpinLoader";
-import { selectVideo } from "../../features/video";
 import { toggleLoaded } from "../../features/view";
 import useWebSocket from "../../hooks/useWebSocket";
 

@@ -47,21 +47,14 @@ const App = () => {
     isReady && send(JSON.stringify(event));
   }, [event, isReady]);
 
-  //TODO
   const handleSubmit = () => {
     isReady && send(JSON.stringify({ name: "change", value: null }));
     if (selectedMovie) {
       type === 1 && movieEditor.current.updateVideo();
       type === 2 && episodeEditor.current.updateVideo();
     } else {
-      type === 1 &&
-        movieEditor.current.createVideo() &&
-        isReady &&
-        send(JSON.stringify({ name: "change", value: null }));
-      type === 2 &&
-        episodeEditor.current.createVideo() &&
-        isReady &&
-        send(JSON.stringify({ name: "change", value: null }));
+      type === 1 && movieEditor.current.createVideo();
+      type === 2 && episodeEditor.current.createVideo();
     }
   };
 

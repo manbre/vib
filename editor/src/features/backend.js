@@ -91,4 +91,5 @@ export const {
   useDeleteEpisodeMutation,
   //
   useUpdateMovieFilesMutation,
+  useUpdateEpisodeFilesMutation,
 } = backend;

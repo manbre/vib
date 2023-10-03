@@ -375,18 +375,11 @@ const deleteEpisode = async (req, res) => {
  * @res -
  */
 const updateEpisodeFiles = async (req, res) => {
-  let isPosterReady = req.body.poster ? false : true;
-  let isThemeReady = req.body.theme ? false : true;
-  let isGermanReady = req.body.german ? false : true;
-  let isEnglishReady = req.body.english ? false : true;
   //
   let n = req.body.episode < 10 ? "0" : "";
-  let s = req.body.season < 10 ? "00" : "0";
   let num = "" + req.body.season + n + req.body.episode;
   //
-  //one poster per season
   let posterName = req.body.id + "_" + req.body.changes + ".jpg";
-  //one theme per series
   let themeName = "theme.mp3";
   let germanName = num + "_de.mp4";
   let englishName = num + "_en.mp4";
@@ -407,229 +400,68 @@ const updateEpisodeFiles = async (req, res) => {
   let prevChange = req.body.changes - 1;
   let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
   //
-  if (req.body.poster) {
+  copyOneFile(req.body.poster, posterFolder, posterPath).then(
+    copyOneFile(req.body.theme, themeFolder, themePath).then(
+      copyOneFile(req.body.german, germanFolder, germanPath).then(
+        copyOneFile(req.body.english, englishFolder, englishPath).then(
+          //link new files in database
+          updateFileData(req, posterName, themeName, germanName, englishName)
+            .then(
+              res.status(200).send({
+                message:
+                  "files of '" +
+                  req.body.series +
+                  "', episode '" +
+                  req.body.episode +
+                  "' were updated.",
+              })
+            )
+            .then(
+              //remove old files
+              deleteFiles(
+                req,
+                true,
+                posterPath,
+                themePath,
+                germanPath,
+                englishPath,
+                //
+                prevPosterPath
+              )
+            )
+        )
+      )
+    )
+  );
+};
+
+/**
+ * @param fileSource
+ * @param newFolder
+ * @param newPath
+ */
+const copyOneFile = async (fileSource, newFolder, newPath) => {
+  if (fileSource) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
-    !fs.existsSync(posterFolder) &&
-      fs.mkdirSync(posterFolder, { recursive: true });
-    //download poster from OMDB api to location
-    if (req.body.poster.includes("http")) {
-      let file = fs.createWriteStream(posterPath);
-      https.get(req.body.poster, (response) => {
+    !fs.existsSync(newFolder) && fs.mkdirSync(newFolder, { recursive: true });
+    //download poster from web (e.g. OMDB api) to location
+    if (fileSource.includes("http")) {
+      https.get(fileSource, (response) => {
+        let file = fs.createWriteStream(newPath);
         response.pipe(file);
-        file.on("error", (err) => {
-          err &&
-            res.status(500).send({
-              message:
-                "ERROR: Could not download poster of '" +
-                req.body.series +
-                "', season'" +
-                req.body.season +
-                "'.",
-            });
+        file.on("error", (error) => {
+          console.log(error);
         });
         file.on("finish", () => {
           file.close();
         });
-        isPosterReady = true;
-        //
-        isPosterReady &&
-          isThemeReady &&
-          isGermanReady &&
-          isEnglishReady &&
-          //
-          updateFileData(req, posterName, themeName, germanName, englishName)
-            .then(
-              res.status(200).send({
-                message:
-                  "files of '" +
-                  req.body.series +
-                  "', episode '" +
-                  num +
-                  "' were updated.",
-              })
-            )
-            .then(
-              deleteFiles(
-                req,
-                true,
-                posterPath,
-                themePath,
-                germanPath,
-                englishPath,
-                prevPosterPath
-              )
-            );
       });
     } else {
-      //copy and rename local file to directory
-      fs.copyFile(req.body.poster, posterPath, (err) => {
-        err &&
-          res.status(500).send({
-            message:
-              "ERROR: Could not copy poster of '" +
-              req.body.series +
-              "', season '" +
-              req.body.season +
-              "'.",
-          });
-        isPosterReady = true;
-        //
-        isPosterReady &&
-          isThemeReady &&
-          isGermanReady &&
-          isEnglishReady &&
-          //
-          updateFileData(req, posterName, themeName, germanName, englishName)
-            .then(
-              res.status(200).send({
-                message:
-                  "files of '" +
-                  req.body.series +
-                  "', episode '" +
-                  num +
-                  "' were updated.",
-              })
-            )
-            .then(
-              deleteFiles(
-                req,
-                true,
-                posterPath,
-                themePath,
-                germanPath,
-                englishPath,
-                prevPosterPath
-              )
-            );
+      //copy local file to location
+      fs.copyFile(fileSource, newPath, (error) => {
+        console.log(error);
       });
     }
-  }
-  if (req.body.theme) {
-    !fs.existsSync(themeFolder) &&
-      fs.mkdirSync(themeFolder, { recursive: true });
-    fs.copyFile(req.body.theme, themePath, (err) => {
-      err &&
-        res.status(500).send({
-          message: "ERROR: Could not copy theme of '" + req.body.series + "'.",
-        });
-      isThemeReady = true;
-      //
-      isPosterReady &&
-        isThemeReady &&
-        isGermanReady &&
-        isEnglishReady &&
-        //
-        updateFileData(req, posterName, themeName, germanName, englishName)
-          .then(
-            res.status(200).send({
-              message:
-                "files of '" +
-                req.body.series +
-                "', episode '" +
-                num +
-                "' were updated.",
-            })
-          )
-          .then(
-            deleteFiles(
-              req,
-              true,
-              posterPath,
-              themePath,
-              germanPath,
-              englishPath,
-              prevPosterPath
-            )
-          );
-    });
-  }
-  if (req.body.german) {
-    !fs.existsSync(germanFolder) &&
-      fs.mkdirSync(germanFolder, { recursive: true });
-    fs.copyFile(req.body.german, germanPath, (err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not copy german of '" +
-            req.body.series +
-            "', episode '" +
-            num +
-            "'.",
-        });
-      isGermanReady = true;
-      //
-      isPosterReady &&
-        isThemeReady &&
-        isGermanReady &&
-        isEnglishReady &&
-        //
-        updateFileData(req, posterName, themeName, germanName, englishName)
-          .then(
-            res.status(200).send({
-              message:
-                "files of '" +
-                req.body.series +
-                "', episode '" +
-                num +
-                "' were updated.",
-            })
-          )
-          .then(
-            deleteFiles(
-              req,
-              true,
-              posterPath,
-              themePath,
-              germanPath,
-              englishPath,
-              prevPosterPath
-            )
-          );
-    });
-  }
-  if (req.body.english) {
-    !fs.existsSync(englishFolder) &&
-      fs.mkdirSync(englishFolder, { recursive: true });
-    fs.copyFile(req.body.english, englishPath, (err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not copy english of '" +
-            req.body.series +
-            "', episode '" +
-            num +
-            "'.",
-        });
-      isEnglishReady = true;
-      //
-      isPosterReady &&
-        isThemeReady &&
-        isGermanReady &&
-        isEnglishReady &&
-        //
-        updateFileData(req, posterName, themeName, germanName, englishName)
-          .then(
-            res.status(200).send({
-              message:
-                "files of '" +
-                req.body.series +
-                "', episode '" +
-                num +
-                "' were updated.",
-            })
-          )
-          .then(
-            deleteFiles(
-              req,
-              true,
-              posterPath,
-              themePath,
-              germanPath,
-              englishPath,
-              prevPosterPath
-            )
-          );
-    });
   }
 };
 
@@ -646,14 +478,6 @@ const deleteFiles = async (
   englishPath,
   prevPosterPath
 ) => {
-  //
-  const deleteOneFile = (fileLocation) => {
-    fs.existsSync(fileLocation) &&
-      fs.rm(fileLocation, (err) => {
-        err && console.log(err);
-      });
-  };
-  //
   //delete previous files to clean up
   isEpisode && req.body.poster && deleteOneFile(prevPosterPath);
 
@@ -664,6 +488,16 @@ const deleteFiles = async (
   (req.body.theme === "" || !isEpisode) && deleteOneFile(themePath);
   (req.body.german === "" || !isEpisode) && deleteOneFile(germanPath);
   (req.body.english === "" || !isEpisode) && deleteOneFile(englishPath);
+};
+
+/**
+ * @param fileLocation
+ */
+const deleteOneFile = (fileLocation) => {
+  fs.existsSync(fileLocation) &&
+    fs.rm(fileLocation, (err) => {
+      err && console.log(err);
+    });
 };
 
 module.exports = {

@@ -6,7 +6,7 @@ import { setEvent } from "../features/view";
 import useOmdb from "../hooks/useOmdb";
 
 import {
-  useCreateNewEpisodeMutation,
+  useCreateEpisodeMutation,
   useUpdateEpisodeMutation,
   useDeleteEpisodeMutation,
   useUpdateEpisodeFilesMutation,
@@ -38,7 +38,7 @@ const EpisodeForm = (props) => {
     initialState
   );
 
-  const [createEpisode] = useCreateNewEpisodeMutation();
+  const [createEpisode] = useCreateEpisodeMutation();
   const [
     updateEpisode,
     { isSuccess: isDataUpdated },
