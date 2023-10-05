@@ -4,7 +4,7 @@ const Episodes = require("../models/episodeModel");
 const https = require("https");
 const fs = require("fs");
 //
-const dir = "E:\\vib\\show\\";
+const dir = "G:\\vib\\show\\";
 
 //------------------------------------------------------------------------
 // QUERY episode data

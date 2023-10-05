@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const location = "E:\\";
+const location = "G:\\";
 
 const getVideoStream = (req, res) => {
   const fileName = req.params.filename;

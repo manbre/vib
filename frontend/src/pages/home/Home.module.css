@@ -20,8 +20,8 @@
 .left {
   display: flex;
   flex-direction: column;
+  width: 50%;
   overflow-y: auto;
-  width: 60%;
   height: 100vh; /*for vertical scrolling*/
   background-color: rgb(var(--back-color));
 }
@@ -35,26 +35,9 @@ header {
   background-color: rgb(var(--back-color));
 }
 
-footer {
-  position: absolute;
-  bottom: 0;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  width: 60%;
-  height: 4rem;
-  padding-top: 1rem;
-  background-color: rgb(var(--back-color));
-}
-
-.topBar {
-  display: flex;
-  background-color: aqua;
-}
-
 .right {
   display: flex;
-  width: 40%;
+  width: 50%;
   background-color: rgb(var(--menu-color));
 }
 

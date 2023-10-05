@@ -3,8 +3,9 @@ const Movies = require("../models/movieModel");
 //
 const https = require("https");
 const fs = require("fs");
+require("dotenv").config();
 //
-const dir = "E:\\vib\\movies\\";
+const dir = "G:\\vib\\movies\\";
 
 //------------------------------------------------------------------------
 // QUERY movie data
@@ -267,10 +268,10 @@ const updateMovie = async (req, res) => {
 
 /**
  * @param req
- * @param posterName
- * @param trailerName
- * @param germanName
- * @param englishName
+ * @param posterPath
+ * @param trailerPath
+ * @param germanPath
+ * @param englishPath
  */
 const updateFileData = async (
   req,
@@ -363,7 +364,8 @@ const updateMovieFiles = async (req, res) => {
           updateFileData(req, posterName, trailerName, germanName, englishName)
             .then(
               res.status(200).send({
-                message: "files of movie '" + req.body.title + "' were updated.",
+                message:
+                  "files of movie '" + req.body.title + "' were updated.",
               })
             )
             .then(

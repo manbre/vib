@@ -96,14 +96,11 @@ const Home = () => {
 
       <section className={styles.left}>
         <header>
+          <SearchBar />
           <ChipSlider />
         </header>
 
         <VideoWall filteredVideos={movies} />
-
-        <footer>
-          <SearchBar />
-        </footer>
       </section>
       <section className={styles.right}>
         <Preview />

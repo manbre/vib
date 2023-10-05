@@ -110,6 +110,7 @@
 
 .description {
   display: flex;
+  overflow-y: auto;
   flex-direction: column;
   padding: 1rem;
   gap: 0.6rem;
@@ -133,13 +134,21 @@
   color: rgb(var(--sec-text));
 }
 
+.fsk > p {
+  border: 1px solid rgb(var(--sec-text));
+  border-radius: 2px;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
 .rating,
 .runtime,
+.fsk,
 .year,
 .awards {
   display: flex;
   align-items: center;
-  margin-right: 2rem;
+  margin-right: 3.5rem;
 }
 
 .calendar,
@@ -150,7 +159,7 @@
 .oscar {
   width: 1rem;
   aspect-ratio: 1/1;
-  margin-right: 0.7rem;
+  margin-right: 0.5rem;
   background-size: 1rem;
   background-repeat: no-repeat;
 }

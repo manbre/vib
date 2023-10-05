@@ -24,6 +24,7 @@ const Preview = () => {
   const [plot, setPlot] = useState("");
   const [year, setYear] = useState("");
   const [runtime, setRuntime] = useState(0);
+  const [fsk, setFsk] = useState(0);
   const [poster, setPoster] = useState("");
   //
   const [trailer, setTrailer] = useState("");
@@ -72,6 +73,7 @@ const Preview = () => {
           setActors(selectedVideo.actors);
           setPlot(selectedVideo.plot);
           setRuntime(selectedVideo.runtime);
+          setFsk(selectedVideo.fsk);
           setPoster(selectedVideo.poster);
           //
           setTrailer(selectedVideo.trailer);
@@ -86,6 +88,7 @@ const Preview = () => {
           setActors(selectedVideo.actors);
           setPlot(selectedVideo.plot);
           setRuntime(selectedVideo.runtime);
+          setFsk(selectedVideo.fsk);
           setPoster(selectedVideo.poster);
           break;
         default:
@@ -222,6 +225,9 @@ const Preview = () => {
           <div className={styles.runtime}>
             <span className={styles.hourglass}></span>
             <p>{runtime} min</p>
+          </div>
+          <div className={styles.fsk}>
+            <p>{fsk}+</p>
           </div>
           {awards > 0 && (
             <div className={styles.awards}>
