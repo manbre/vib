@@ -17,6 +17,8 @@ import useWebSocket from "../../hooks/useWebSocket";
 import {
   useGetMoviesByGenreQuery,
   useGetMoviesBySearchQuery,
+  useGetSeasonsByGenreQuery,
+  useGetSeasonsBySearchQuery,
 } from "../../features/backend";
 
 const Home = () => {
@@ -56,9 +58,13 @@ const Home = () => {
   const title = useSelector((state) => state.video.title);
 
   const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
+  const { data: seasonsByGenre } = useGetSeasonsByGenreQuery(genre);
 
-  const { data: moviesByTitle } = useGetMoviesBySearchQuery({
-    search: search,
+  const { data: moviesBySearch } = useGetMoviesBySearchQuery({
+    input: title,
+  });
+
+  const { data: seasonsBySearch } = useGetSeasonsBySearchQuery({
     input: title,
   });
 
@@ -66,16 +72,16 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-   viewType === 1 && dispatch(selectVideo(movies?.[0]))
+    viewType === 1 && dispatch(selectVideo(movies?.[0]));
   }, [movies]);
 
   useEffect(() => {
     moviesByGenre && setMovies(moviesByGenre ?? []);
-  }, [viewType, moviesByGenre]);
+  }, [moviesByGenre]);
 
   useEffect(() => {
-    moviesByTitle && setMovies(moviesByTitle ?? []);
-  }, [moviesByTitle]);
+    moviesBySearch && setMovies(moviesBySearch ?? []);
+  }, [moviesBySearch]);
 
   useEffect(() => {
     let loader = document.getElementById("loader");

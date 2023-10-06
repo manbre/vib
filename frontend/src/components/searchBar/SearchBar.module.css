@@ -3,32 +3,11 @@
   margin-left: 1rem;
 }
 
-.selectLabel {
-  display: flex;
-  align-items: center;
-  height: 2em;
-  padding-right: 0.5em;
-  color: rgb(var(--sec-text));
-  font-size: 0.8em;
-}
-
-select {
-  appearance: none;
-  width: 5em;
-  height: 2em;
-  border-style: none;
-  background-color: rgb(var(--top-color));
-  border-radius: var(--videoCard-radius);
-  text-align: center;
-  font-size: 0.8em;
-  cursor: pointer;
-}
-
 .searchInput {
-  width: 22vw;
+  width: 20vw;
   height: 2em;
   padding-left: 1.5rem;
-  border: 1px solid rgb(var(--sec-text));
+  border: 2px solid rgb(var(--menu-color));
   border-radius: 1rem;
   margin-left: 0.5em;
   background-color: rgb(var(--top-color));

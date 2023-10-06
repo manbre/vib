@@ -35,12 +35,12 @@ export const backend = createApi({
     //------------------------------------------------------------------------------------
     //SearchBar
     getMoviesBySearch: builder.query({
-      query: ({ search, input }) => `/movies/search/${search}/${input}`,
+      query: (input) => `/movies/search/${input}`,
       providesTags: ["Movie"],
     }),
-    getSeasonsBySeries: builder.query({
+    getSeasonsBySearch: builder.query({
       //returns first episode (as sample) of the season
-      query: (series) => `/episodes/series/${series}`,
+      query: (input) => `/episodes/search/${input}`,
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ export const {
   useGetRecentEpisodeQuery,
   //
   useGetMoviesBySearchQuery,
-  useGetSeasonsBySeriesQuery,
+  useGetSeasonsBySearchQuery,
   //
   useGetMoviesByGenreQuery,
   useGetSeasonsByGenreQuery,
