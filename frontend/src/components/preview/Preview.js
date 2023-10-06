@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import styles from "./Preview.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +7,7 @@ import CardSlider from "../cardSlider/CardSlider";
 import AsyncPoster from "../asyncPoster/AsnycPoster";
 import { selectVideo } from "../../features/video";
 import { selectAudio } from "../../features/video";
-import { muteTrailer } from "../../features/view";
+import { muteTeaser } from "../../features/view";
 
 const Preview = () => {
   const selectedVideo = useSelector((state) => state.video.video);
@@ -17,19 +17,25 @@ const Preview = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   //
-  const [title, setTitle] = useState("");
-  const [director, setDirector] = useState("");
-  const [genre, setGenre] = useState("");
-  const [actors, setActors] = useState("");
-  const [plot, setPlot] = useState("");
-  const [year, setYear] = useState("");
-  const [runtime, setRuntime] = useState(0);
-  const [fsk, setFsk] = useState(0);
-  const [poster, setPoster] = useState("");
-  //
-  const [trailer, setTrailer] = useState("");
-  const [rating, setRating] = useState(0);
-  const [awards, setAwards] = useState(0);
+  const initialState = {
+    title: "",
+    director: "",
+    genre: "",
+    actors: "",
+    plot: "",
+    rating: "",
+    year: "",
+    runtime: "",
+    fsk: "",
+    awards: "",
+    poster: "",
+    teaser: "",
+  };
+
+  const [state, updateState] = useReducer(
+    (state, updates) => ({ ...state, ...updates }),
+    initialState
+  );
 
   const takeAudio = (audio) => {
     let german = document.getElementsByClassName(`${styles.german}`);
@@ -52,8 +58,8 @@ const Preview = () => {
   };
 
   const toggleMute = () => {
-    if (trailer) {
-      const elements = document.getElementsByClassName(`${styles.trailer}`);
+    if (state.teaser) {
+      const elements = document.getElementsByClassName(`${styles.teaser}`);
       if (isMuted) {
         elements[0].muted = true;
       } else {
@@ -64,41 +70,13 @@ const Preview = () => {
 
   useEffect(() => {
     if (selectedVideo) {
-      switch (viewType) {
-        case 1:
-          setTitle(selectedVideo.title);
-          setYear(selectedVideo.year);
-          setDirector(selectedVideo.director);
-          setGenre(selectedVideo.genre);
-          setActors(selectedVideo.actors);
-          setPlot(selectedVideo.plot);
-          setRuntime(selectedVideo.runtime);
-          setFsk(selectedVideo.fsk);
-          setPoster(selectedVideo.poster);
-          //
-          setTrailer(selectedVideo.trailer);
-          setRating(selectedVideo.rating);
-          setAwards(selectedVideo.awards);
-          break;
-        case 2:
-          setTitle(selectedVideo.title);
-          setYear(selectedVideo.year);
-          setDirector(selectedVideo.director);
-          setGenre(selectedVideo.genre);
-          setActors(selectedVideo.actors);
-          setPlot(selectedVideo.plot);
-          setRuntime(selectedVideo.runtime);
-          setFsk(selectedVideo.fsk);
-          setPoster(selectedVideo.poster);
-          break;
-        default:
-      }
+      updateState(selectedVideo);
       selectedVideo.german
         ? takeAudio(1)
         : selectedVideo.english && takeAudio(2);
       toggleMute();
     }
-  }, [takeAudio, selectedVideo, toggleMute, viewType]);
+  }, [selectedVideo, takeAudio, toggleMute]);
 
   const getProgress = () => {
     if (selectedVideo) {
@@ -153,24 +131,24 @@ const Preview = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.trailer}>
-        {trailer ? (
+      <div className={styles.teaser}>
+        {state.teaser ? (
           <video
             autoPlay
             loop
             muted={isMuted}
             src={
               isLoaded &&
-              trailer &&
-              `http://localhost:9000/stream/video/trailer/${trailer}`
+              state.teaser &&
+              `http://localhost:9000/stream/video/trailer/${state.teaser}`
             }
           ></video>
         ) : (
           <AsyncPoster
             src={
               isLoaded &&
-              poster &&
-              `http://localhost:9000/stream/image/${poster}`
+              state.poster &&
+              `http://localhost:9000/stream/image/${state.poster}`
             }
           />
         )}
@@ -191,53 +169,50 @@ const Preview = () => {
             )}
           </div>
         </div>
-        {viewType === 1 && trailer && (
+        {viewType === 1 && state.teaser && (
           <button
             className={isMuted ? styles.volBtn : styles.muteBtn}
             onClick={() =>
-              isMuted
-                ? dispatch(muteTrailer(false))
-                : dispatch(muteTrailer(true))
+              isMuted ? dispatch(muteTeaser(false)) : dispatch(muteTeaser(true))
             }
           ></button>
         )}
       </div>
       <div className={styles.description}>
-        <p className={styles.title}>{title}</p>
+        <p className={styles.title}>{state.title}</p>
         <div className={styles.numbers}>
           {viewType === 1 && (
             <div className={styles.rating}>
-              {rating > 74 ? (
+              {state.rating > 74 ? (
                 <span className={styles.fresh}></span>
-              ) : rating > 59 ? (
+              ) : state.rating > 59 ? (
                 <span className={styles.tomatoes}></span>
               ) : (
                 <span className={styles.rotten}></span>
               )}
 
-              <p>{rating} %</p>
+              <p>{state.rating} %</p>
             </div>
           )}
           <div className={styles.year}>
             <span className={styles.calendar}></span>
-            <p>{year}</p>
+            <p>{state.year}</p>
           </div>
           <div className={styles.runtime}>
             <span className={styles.hourglass}></span>
-            <p>{runtime} min</p>
+            <p>{state.runtime} min</p>
           </div>
           <div className={styles.fsk}>
-            <p>{fsk}+</p>
+            <p>{state.fsk}+</p>
           </div>
-          {awards > 0 && (
+          {state.awards > 0 && (
             <div className={styles.awards}>
-              {viewType === 1 && <span className={styles.oscar}></span>}
-              {viewType === 2 && <span className={styles.emmy}></span>}
-              <p>{awards}</p>
+              <span className={styles.oscar}></span>
+              <p>{state.awards}</p>
             </div>
           )}
         </div>
-        <p className={styles.plot}>{plot}</p>
+        <p className={styles.plot}>{state.plot}</p>
         <div className={styles.row}>
           <div className={styles.colLeft}>
             <p>Director</p>
@@ -245,9 +220,9 @@ const Preview = () => {
             <p>Genre</p>
           </div>
           <div className={styles.colRight}>
-            <p>{director}</p>
-            <p>{actors}</p>
-            <p>{genre}</p>
+            <p>{state.director}</p>
+            <p>{state.actors}</p>
+            <p>{state.genre}</p>
           </div>
         </div>
       </div>

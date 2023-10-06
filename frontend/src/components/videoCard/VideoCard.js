@@ -10,11 +10,13 @@ const VideoCard = ({ video }) => {
   const isLoaded = useSelector((state) => state.view.isLoaded);
   const dispatch = useDispatch();
 
+  
+
   useEffect(() => {
     let elements = document.getElementsByClassName(`${styles.container}`);
     //!== null ________ !important!
     if (markedCard !== null && elements[markedCard]) {
-      elements[markedCard].style = "outline: 4px solid white;";
+      elements[markedCard].style = "outline: 4px solid white;   transform: scale(1.07);";
       //
       for (let i = 0; i < elements.length; i++) {
         if (i !== markedCard) {

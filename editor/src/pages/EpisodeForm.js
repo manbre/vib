@@ -27,7 +27,7 @@ const EpisodeForm = (props) => {
     actors: "",
     plot: "",
     poster: "",
-    theme: "",
+    teaser: "",
     german: "",
     english: "",
     changes: 0,
@@ -54,13 +54,11 @@ const EpisodeForm = (props) => {
 
   useEffect(() => {
     isDataUpdated && dispatch(setEvent({ name: "done", value: null }));
-    areFilesUpdated &&
-      dispatch(setEvent({ name: "done", value: null }));
+    areFilesUpdated && dispatch(setEvent({ name: "done", value: null }));
   }, [isDataUpdated, areFilesUpdated]);
 
   useEffect(() => {
-    isEpisodeDeleted &&
-      dispatch(setEvent({ name: "done", value: null }));
+    isEpisodeDeleted && dispatch(setEvent({ name: "done", value: null }));
   }, [isEpisodeDeleted]);
 
   useEffect(() => {
@@ -181,7 +179,7 @@ const EpisodeForm = (props) => {
       actors: "",
       plot: "",
       poster: "",
-      theme: "",
+      teaser: "",
       german: "",
       english: "",
       changes: 0,
@@ -377,33 +375,33 @@ const EpisodeForm = (props) => {
 
         <div className={styles.row}>
           <div className={styles.longBox}>
-            <label>Theme</label>
+            <label>Teaser</label>
             <input
-              id="theme"
+              id="teaser"
               type="file"
               hidden
-              onChange={(e) => updateState({ theme: e.target.files[0].path })}
+              onChange={(e) => updateState({ teaser: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={state.theme || ""}
+              value={state.teaser || ""}
               readOnly
             ></input>
           </div>
-          {state.theme !== "" ? (
+          {state.teaser !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => updateState({ theme: "" })}
+              onClick={() => updateState({ teaser: "" })}
             ></label>
           ) : (
             <>
-              <label className={styles.sourceBtn} htmlFor="theme"></label>
+              <label className={styles.sourceBtn} htmlFor="teaser"></label>
               <label
                 className={styles.undoneBtn}
                 onClick={() =>
                   updateState({
-                    theme: props.selected && props.selected.theme,
+                    teaser: props.selected && props.selected.teaser,
                   })
                 }
               ></label>

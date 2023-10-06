@@ -268,15 +268,15 @@ const updateMovie = async (req, res) => {
 
 /**
  * @param req
- * @param posterPath
- * @param trailerPath
- * @param germanPath
- * @param englishPath
+ * @param posterName
+ * @param teaserName
+ * @param germanName
+ * @param englishName
  */
 const updateFileData = async (
   req,
   posterName,
-  trailerName,
+  teaserName,
   germanName,
   englishName
 ) => {
@@ -286,9 +286,9 @@ const updateFileData = async (
       ...(req.body.poster
         ? { poster: posterName }
         : req.body.poster === "" && { poster: "" }),
-      ...(req.body.trailer
-        ? { trailer: trailerName }
-        : req.body.trailer === "" && { trailer: "" }),
+      ...(req.body.teaser
+        ? { teaser: teaserName }
+        : req.body.teaser === "" && { teaser: "" }),
       ...(req.body.german
         ? { german: germanName }
         : req.body.german === "" && { german: "" }),
@@ -338,30 +338,30 @@ const deleteMovie = async (req, res) => {
 const updateMovieFiles = async (req, res) => {
   //
   let posterName = req.body.id + "_" + req.body.changes + ".jpg";
-  let trailerName = req.body.id + "_" + req.body.changes + ".mp4";
+  let teaserName = req.body.id + "_" + req.body.changes + ".mp4";
   let germanName = req.body.id + "_de.mp4";
   let englishName = req.body.id + "_en.mp4";
   //
   let posterFolder = dir + "//poster//";
-  let trailerFolder = dir + "//trailer//";
+  let teaserFolder = dir + "//teaser//";
   let germanFolder = dir + "//de//";
   let englishFolder = dir + "//en//";
   //
   let posterPath = posterFolder + posterName;
-  let trailerPath = trailerFolder + trailerName;
+  let teaserPath = teaserFolder + teaserName;
   let germanPath = germanFolder + germanName;
   let englishPath = englishFolder + englishName;
   //
   let prevChange = req.body.changes - 1;
   let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
-  let prevTrailerPath = trailerFolder + req.body.id + "_" + prevChange + ".mp4";
+  let prevTeaserPath = teaserFolder + req.body.id + "_" + prevChange + ".mp4";
   //
   copyOneFile(req.body.poster, posterFolder, posterPath).then(
-    copyOneFile(req.body.trailer, trailerFolder, trailerPath).then(
+    copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(
       copyOneFile(req.body.german, germanFolder, germanPath).then(
         copyOneFile(req.body.english, englishFolder, englishPath).then(
           //link new files in database
-          updateFileData(req, posterName, trailerName, germanName, englishName)
+          updateFileData(req, posterName, teaserName, germanName, englishName)
             .then(
               res.status(200).send({
                 message:
@@ -374,12 +374,12 @@ const updateMovieFiles = async (req, res) => {
                 req,
                 true,
                 posterPath,
-                trailerPath,
+                teaserPath,
                 germanPath,
                 englishPath,
                 //
                 prevPosterPath,
-                prevTrailerPath
+                prevTeaserPath
               )
             )
         )
@@ -421,28 +421,32 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
 /**
  * @param req
  * @param isMovie
+ * @param posterPath
+ * @param teaserPath
+ * @param germanPath
+ * @param englishPath
  */
 const deleteFiles = async (
   req,
   isMovie,
   posterPath,
-  trailerPath,
+  teaserPath,
   germanPath,
   englishPath,
   //
   prevPosterPath,
-  prevTrailerPath
+  prevTeaserPath
 ) => {
   //delete previous files to clean up
   if (isMovie) {
     req.body.poster && deleteOneFile(prevPosterPath);
-    req.body.trailer && deleteOneFile(prevTrailerPath);
+    req.body.teaser && deleteOneFile(prevTeaserPath);
   }
   //delete file if
   //-> entry is empty and movie exist
   //-> or if movie not exist
   (req.body.poster === "" || !isMovie) && deleteOneFile(posterPath);
-  (req.body.trailer === "" || !isMovie) && deleteOneFile(trailerPath);
+  (req.body.teaser === "" || !isMovie) && deleteOneFile(teaserPath);
   (req.body.german === "" || !isMovie) && deleteOneFile(germanPath);
   (req.body.english === "" || !isMovie) && deleteOneFile(englishPath);
 };

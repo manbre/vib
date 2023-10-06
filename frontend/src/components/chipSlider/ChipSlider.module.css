@@ -37,8 +37,8 @@
   max-height: 2.2rem;
   padding: 0.5rem;
   border-style: none;
-  border-radius: var(--border-radius);
-  margin-right: 0.4rem;
+  border-radius: 0.3rem;
+  margin-right: 0.6rem;
   background-color: rgb(var(--menu-color));
   font-size: calc((var(--card-width)) * 1 / 10);
   cursor: pointer;

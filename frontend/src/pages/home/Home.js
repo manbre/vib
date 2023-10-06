@@ -11,6 +11,7 @@ import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import SpinLoader from "../../components/spinLoader/SpinLoader";
 import { toggleLoaded } from "../../features/view";
+import { selectVideo } from "../../features/video";
 import useWebSocket from "../../hooks/useWebSocket";
 
 import {
@@ -96,7 +97,10 @@ const Home = () => {
 
       <section className={styles.left}>
         <header>
-          <SearchBar />
+          <div className={styles.topBar}>
+            <SearchBar />
+            <ToggleBar />
+          </div>
           <ChipSlider />
         </header>
 

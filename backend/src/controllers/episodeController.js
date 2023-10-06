@@ -294,14 +294,14 @@ const updateEpisode = async (req, res) => {
 /**
  * @param req
  * @param posterName
- * @param themeName
+ * @param teaserName
  * @param germanName
  * @param englishName
  */
 const updateFileData = async (
   req,
   posterName,
-  themeName,
+  teaserName,
   germanName,
   englishName
 ) => {
@@ -311,9 +311,9 @@ const updateFileData = async (
       ...(req.body.poster
         ? { poster: posterName }
         : req.body.poster === "" && { poster: "" }),
-      ...(req.body.theme
-        ? { theme: themeName }
-        : req.body.theme === "" && { theme: "" }),
+      ...(req.body.teaser
+        ? { teaser: teaserName }
+        : req.body.teaser === "" && { teaser: "" }),
       ...(req.body.german
         ? { german: germanName }
         : req.body.german === "" && { german: "" }),
@@ -380,20 +380,20 @@ const updateEpisodeFiles = async (req, res) => {
   let num = "" + req.body.season + n + req.body.episode;
   //
   let posterName = req.body.id + "_" + req.body.changes + ".jpg";
-  let themeName = "theme.mp3";
+  let teaserName = "teaser.mp3";
   let germanName = num + "_de.mp4";
   let englishName = num + "_en.mp4";
   //
   let posterFolder =
     dir + "//" + req.body.series + "//" + req.body.season + "//";
-  let themeFolder = dir + "//" + req.body.series + "//";
+  let teaserFolder = dir + "//" + req.body.series + "//";
   let germanFolder =
     dir + "//" + req.body.series + "//" + req.body.season + "//de//";
   let englishFolder =
     dir + "//" + req.body.series + "//" + req.body.season + "//en//";
   //
   let posterPath = posterFolder + posterName;
-  let themePath = themeFolder + themeName;
+  let teaserPath = teaserFolder + teaserName;
   let germanPath = germanFolder + germanName;
   let englishPath = englishFolder + englishName;
   //
@@ -401,11 +401,11 @@ const updateEpisodeFiles = async (req, res) => {
   let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
   //
   copyOneFile(req.body.poster, posterFolder, posterPath).then(
-    copyOneFile(req.body.theme, themeFolder, themePath).then(
+    copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(
       copyOneFile(req.body.german, germanFolder, germanPath).then(
         copyOneFile(req.body.english, englishFolder, englishPath).then(
           //link new files in database
-          updateFileData(req, posterName, themeName, germanName, englishName)
+          updateFileData(req, posterName, teaserName, germanName, englishName)
             .then(
               res.status(200).send({
                 message:
@@ -422,7 +422,7 @@ const updateEpisodeFiles = async (req, res) => {
                 req,
                 true,
                 posterPath,
-                themePath,
+                teaserPath,
                 germanPath,
                 englishPath,
                 //
@@ -473,7 +473,7 @@ const deleteFiles = async (
   req,
   isEpisode,
   posterPath,
-  themePath,
+  teaserPath,
   germanPath,
   englishPath,
   prevPosterPath
@@ -485,7 +485,7 @@ const deleteFiles = async (
   //-> entry is empty and movie exist
   //-> or if movie not exist
   (req.body.poster === "" || !isEpisode) && deleteOneFile(posterPath);
-  (req.body.theme === "" || !isEpisode) && deleteOneFile(themePath);
+  (req.body.teaser === "" || !isEpisode) && deleteOneFile(teaserPath);
   (req.body.german === "" || !isEpisode) && deleteOneFile(germanPath);
   (req.body.english === "" || !isEpisode) && deleteOneFile(englishPath);
 };

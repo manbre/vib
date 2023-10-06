@@ -111,7 +111,7 @@ const ChipSlider = () => {
           onMouseOver={(e) => styleOverChip(e)}
           onMouseOut={(e) => styleOutChip(e)}
         >
-          Recent
+          Continue
         </button>
         <button
           id="all"

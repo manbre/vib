@@ -8,7 +8,7 @@ const getVideoStream = (req, res) => {
   let path;
   switch (type) {
     case "trailer":
-      path = "vib\\movies\\trailer\\";
+      path = "vib\\movies\\teaser\\";
       break;
     case "german":
       path = "vib\\movies\\de\\";

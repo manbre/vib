@@ -11,7 +11,7 @@ movieModel.init(
     genre: { type: DataTypes.TEXT },
     //
     year: { type: DataTypes.INTEGER },
-    fsk: { type: DataTypes.INTEGER }, //self regulatory
+    fsk: { type: DataTypes.INTEGER, defaultValue: 0 }, //self regulatory
     awards: { type: DataTypes.INTEGER }, //oscars
     rating: { type: DataTypes.INTEGER }, //rotten tomatoes
     runtime: { type: DataTypes.INTEGER },
@@ -20,7 +20,7 @@ movieModel.init(
     plot: { type: DataTypes.TEXT },
     //
     poster: { type: DataTypes.TEXT }, //name of poster .jpg file
-    trailer: { type: DataTypes.TEXT }, //name of trailer .mp4 file
+    teaser: { type: DataTypes.TEXT }, //name of trailer .mp4 file
     german: { type: DataTypes.TEXT }, //name of german .mp4 file
     english: { type: DataTypes.TEXT }, //name of english .mp4 file
     //

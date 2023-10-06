@@ -4,24 +4,25 @@
   overflow: hidden;
   width: var(--card-width);
   aspect-ratio: 1/1.5;
-  margin: 0.7rem;
+  margin: 1rem;
   cursor: pointer;
-  border-radius: var(--border-radius);
-  outline: 2px solid rgb(var(--menu-color));
+  outline: 3px solid rgb(var(--menu-color));
+  border-radius: 0.5rem;
 }
 
 .container:hover {
   outline: 4px solid white;
+  transform: scale(1.07);
 }
 
 .poster {
   position: absolute;
-  z-index: 2;
+  z-index: 2; 
 }
 
 .poster > img {
   width: 100%;
-  aspect-ratio: 1/1.5;
+  aspect-ratio: 1/1.45;
 }
 
 .info {
@@ -34,20 +35,13 @@
   width: 100%;
   height: 2rem;
   padding: 0.5rem;
-  background: linear-gradient(
-    0deg,
-    rgba(var(--menu-color), 1) 90%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background: rgba(var(--menu-color), 0.2);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(15px);
+  background: rgba(var(--back-color));
 }
 
 .year p,
 .runtime p {
   color: rgb(var(--prim-text));
-  font-size: calc((var(--card-width)) * 1 / 13);
+  font-size: 0.7rem;
 }
 
 .languages {

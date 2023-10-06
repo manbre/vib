@@ -11,7 +11,7 @@ episodeModel.init(
     genre: { type: DataTypes.TEXT },
     //
     year: { type: DataTypes.INTEGER },
-    fsk: { type: DataTypes.INTEGER }, //self regulatory
+    fsk: { type: DataTypes.INTEGER, defaultValue: 0 }, //self regulatory
     season: { type: DataTypes.INTEGER },
     episode: { type: DataTypes.INTEGER },
     runtime: { type: DataTypes.INTEGER },
@@ -20,7 +20,7 @@ episodeModel.init(
     plot: { type: DataTypes.TEXT },
     //
     poster: { type: DataTypes.TEXT }, //name of poster .jpg file
-    theme: { type: DataTypes.TEXT }, //name of intro .mp3 file
+    teaser: { type: DataTypes.TEXT }, //name of intro .mp3 file
     german: { type: DataTypes.TEXT }, //name of german .mp4 file
     english: { type: DataTypes.TEXT }, //name of english .mp4 file
     //

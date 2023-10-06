@@ -6,7 +6,7 @@
   background-color: rgb(var(--menu-color));
 }
 
-.trailer {
+.teaser {
   position: sticky;
   top: 0;
   display: flex;
@@ -20,12 +20,12 @@
   background-color: black;
 }
 
-.trailer > video {
+.teaser > video {
   width: 100%;
   object-fit: fill;
 }
 
-.trailer > img {
+.teaser > img {
   border: 1.5px solid rgb(var(--hover-color));
 }
 
@@ -136,9 +136,9 @@
 
 .fsk > p {
   border: 1px solid rgb(var(--sec-text));
-  border-radius: 2px;
-  padding-left: 1px;
-  padding-right: 1px;
+  border-radius: 0.2rem;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .rating,

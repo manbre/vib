@@ -18,7 +18,7 @@ export const viewSlice = createSlice({
     markCard: (state, action) => {
       state.card = action.payload;
     },
-    muteTrailer: (state, action) => {
+    muteTeaser: (state, action) => {
       state.muted = action.payload;
     },
     toggleLoaded: (state, action) => {
@@ -31,7 +31,7 @@ export const {
   toggleEditor,
   toggleType,
   markCard,
-  muteTrailer,
+  muteTeaser,
   toggleLoaded,
 } = viewSlice.actions;
 export default viewSlice.reducer;

@@ -21,14 +21,14 @@ const MovieForm = (props) => {
     director: "",
     genre: "",
     year: "",
-    fsk: "",
+    fsk: 0,
     awards: "",
     rating: "",
     runtime: "",
     actors: "",
     plot: "",
     poster: "",
-    trailer: "",
+    teaser: "",
     german: "",
     english: "",
     changes: 0,
@@ -147,8 +147,8 @@ const MovieForm = (props) => {
       ...(state.poster !== props.selected.poster && {
         poster: state.poster,
       }),
-      ...(state.trailer !== props.selected.trailer && {
-        trailer: state.trailer,
+      ...(state.teaser !== props.selected.teaser && {
+        teaser: state.teaser,
       }),
       ...(state.german !== props.selected.german && {
         german: state.german,
@@ -179,14 +179,14 @@ const MovieForm = (props) => {
       director: "",
       genre: "",
       year: "",
-      fsk: "",
+      fsk: 0,
       awards: "",
       rating: "",
       runtime: "",
       actors: "",
       plot: "",
       poster: "",
-      trailer: "",
+      teaser: "",
       german: "",
       english: "",
       changes: 0,
@@ -382,33 +382,33 @@ const MovieForm = (props) => {
 
         <div className={styles.row}>
           <div className={styles.longBox}>
-            <label>Trailer</label>
+            <label>Teaser</label>
             <input
-              id="trailer"
+              id="teaser"
               type="file"
               hidden
-              onChange={(e) => updateState({ trailer: e.target.files[0].path })}
+              onChange={(e) => updateState({ teaser: e.target.files[0].path })}
             ></input>
             <input
               className={styles.fileInput}
               type="text"
-              value={state.trailer || ""}
+              value={state.teaser || ""}
               readOnly
             ></input>
           </div>
-          {state.trailer !== "" ? (
+          {state.teaser !== "" ? (
             <label
               className={styles.sourceDeleteBtn}
-              onClick={() => updateState({ trailer: "" })}
+              onClick={() => updateState({ teaser: "" })}
             ></label>
           ) : (
             <>
-              <label className={styles.sourceBtn} htmlFor="trailer"></label>
+              <label className={styles.sourceBtn} htmlFor="teaser"></label>
               <label
                 className={styles.undoneBtn}
                 onClick={() =>
                   updateState({
-                    trailer: props.selected && props.selected.trailer,
+                    teaser: props.selected && props.selected.teaser,
                   })
                 }
               ></label>
