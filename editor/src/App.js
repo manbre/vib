@@ -75,7 +75,7 @@ const App = () => {
     <div className={styles.container}>
       <MessageBox message={box} />
       <TopBar />
-      <TabBar />
+      <TabBar changeType={(type) => setType(type)} />
       {type === 1 ? (
         <MovieForm
           selected={selectedMovie}

@@ -13,10 +13,10 @@ const ToggleBar = () => {
   const genre = useSelector((state) => state.video.genre);
   const viewType = useSelector((state) => state.view.viewType);
 
-  useEffect(() => {
+/*   useEffect(() => {
     dispatch(selectVideo(null));
     genre === "All" ? dispatch(selectGenre("0")) : dispatch(selectGenre("All"));
-  }, [viewType, dispatch, genre]);
+  }, [viewType, dispatch, genre]); */
 
 /*   const changeToScreen = (type) => {
     switch (type) {

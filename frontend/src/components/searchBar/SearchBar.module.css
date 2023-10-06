@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  margin-right: 1rem;
+  margin-left: 1rem;
 }
 
 .selectLabel {
@@ -27,9 +27,9 @@ select {
 .searchInput {
   width: 22vw;
   height: 2em;
-  padding-left: 0.6em;
-  border-style: none;
-  border-radius: var(--videoCard-radius);
+  padding-left: 1.5rem;
+  border: 1px solid rgb(var(--sec-text));
+  border-radius: 1rem;
   margin-left: 0.5em;
   background-color: rgb(var(--top-color));
 }

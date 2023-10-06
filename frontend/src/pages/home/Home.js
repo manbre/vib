@@ -66,6 +66,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+   viewType === 1 && dispatch(selectVideo(movies?.[0]))
+  }, [movies]);
+
+  useEffect(() => {
     moviesByGenre && setMovies(moviesByGenre ?? []);
   }, [viewType, moviesByGenre]);
 

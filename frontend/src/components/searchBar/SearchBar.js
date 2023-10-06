@@ -29,7 +29,7 @@ const SearchBar = () => {
         className={styles.searchInput}
         id="myInput"
         type="text"
-        placeholder="search"
+        placeholder="search..."
         onKeyUp={(e) => setInput(e.target.value)}
         onClick={() => dispatch(selectGenre("All"))}
       ></input>

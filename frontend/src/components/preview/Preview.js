@@ -97,7 +97,7 @@ const Preview = () => {
   };
 
   const getPlayButtons = () => {
-    if (selectedVideo && selectedVideo.elapsed_time > 60) {
+    if (selectedVideo?.elapsed_time > 60) {
       return (
         <div className={styles.btns}>
           <button className={styles.play1Btn} onClick={() => playVideo(0)}>
@@ -153,15 +153,16 @@ const Preview = () => {
           />
         )}
         <div className={styles.btns}>
-          {getPlayButtons()}
+          {(selectedVideo?.german || selectedVideo?.english) &&
+            getPlayButtons()}
           <div className={styles.audios}>
-            {selectedVideo && selectedVideo.german && (
+            {selectedVideo?.german && (
               <label
                 className={styles.german}
                 onClick={() => takeAudio(1)}
               ></label>
             )}
-            {selectedVideo && selectedVideo.english && (
+            {selectedVideo?.english && (
               <label
                 className={styles.english}
                 onClick={() => takeAudio(2)}
@@ -178,54 +179,56 @@ const Preview = () => {
           ></button>
         )}
       </div>
-      <div className={styles.description}>
-        <p className={styles.title}>{state.title}</p>
-        <div className={styles.numbers}>
-          {viewType === 1 && (
-            <div className={styles.rating}>
-              {state.rating > 74 ? (
-                <span className={styles.fresh}></span>
-              ) : state.rating > 59 ? (
-                <span className={styles.tomatoes}></span>
-              ) : (
-                <span className={styles.rotten}></span>
-              )}
+      {selectedVideo && (
+        <div className={styles.description}>
+          <p className={styles.title}>{state.title}</p>
+          <div className={styles.numbers}>
+            {viewType === 1 && (
+              <div className={styles.rating}>
+                {state.rating > 74 ? (
+                  <span className={styles.fresh}></span>
+                ) : state.rating > 59 ? (
+                  <span className={styles.tomatoes}></span>
+                ) : (
+                  <span className={styles.rotten}></span>
+                )}
 
-              <p>{state.rating} %</p>
+                <p>{state.rating} %</p>
+              </div>
+            )}
+            <div className={styles.year}>
+              <span className={styles.calendar}></span>
+              <p>{state.year}</p>
             </div>
-          )}
-          <div className={styles.year}>
-            <span className={styles.calendar}></span>
-            <p>{state.year}</p>
-          </div>
-          <div className={styles.runtime}>
-            <span className={styles.hourglass}></span>
-            <p>{state.runtime} min</p>
-          </div>
-          <div className={styles.fsk}>
-            <p>{state.fsk}+</p>
-          </div>
-          {state.awards > 0 && (
-            <div className={styles.awards}>
-              <span className={styles.oscar}></span>
-              <p>{state.awards}</p>
+            <div className={styles.runtime}>
+              <span className={styles.hourglass}></span>
+              <p>{state.runtime} min</p>
             </div>
-          )}
-        </div>
-        <p className={styles.plot}>{state.plot}</p>
-        <div className={styles.row}>
-          <div className={styles.colLeft}>
-            <p>Director</p>
-            <p>Actors</p>
-            <p>Genre</p>
+            <div className={styles.fsk}>
+              <p>{state.fsk}+</p>
+            </div>
+            {state.awards > 0 && (
+              <div className={styles.awards}>
+                <span className={styles.oscar}></span>
+                <p>{state.awards}</p>
+              </div>
+            )}
           </div>
-          <div className={styles.colRight}>
-            <p>{state.director}</p>
-            <p>{state.actors}</p>
-            <p>{state.genre}</p>
+          <p className={styles.plot}>{state.plot}</p>
+          <div className={styles.row}>
+            <div className={styles.colLeft}>
+              <p>Director</p>
+              <p>Actors</p>
+              <p>Genre</p>
+            </div>
+            <div className={styles.colRight}>
+              <p>{state.director}</p>
+              <p>{state.actors}</p>
+              <p>{state.genre}</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
