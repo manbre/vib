@@ -7,18 +7,18 @@ import styles from "./ToggleBar.module.css";
 import { selectVideo } from "../../features/video";
 import { selectGenre } from "../../features/video";
 
-const ToggleBar = () => {
+const ToggleBar = (props) => {
   const dispatch = useDispatch();
-/*   const navigate = useNavigate(); */
+  /*   const navigate = useNavigate(); */
   const genre = useSelector((state) => state.video.genre);
   const viewType = useSelector((state) => state.view.viewType);
 
-/*   useEffect(() => {
+  /*   useEffect(() => {
     dispatch(selectVideo(null));
     genre === "All" ? dispatch(selectGenre("0")) : dispatch(selectGenre("All"));
   }, [viewType, dispatch, genre]); */
 
-/*   const changeToScreen = (type) => {
+  /*   const changeToScreen = (type) => {
     switch (type) {
       case 1:
         navigate("/");
@@ -43,7 +43,7 @@ const ToggleBar = () => {
       <label
         htmlFor="toggleOn"
         className={styles.btn}
-/*         onClick={() => changeToScreen(1)} */
+        onClick={() => props.changeType(1)}
       >
         Movies
       </label>
@@ -56,7 +56,7 @@ const ToggleBar = () => {
       <label
         htmlFor="toggleOff"
         className={styles.btn}
-/*         onClick={() => changeToScreen(2)} */
+        onClick={() => props.changeType(2)}
       >
         TV Shows
       </label>

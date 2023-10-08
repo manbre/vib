@@ -46,7 +46,7 @@
 
 .list > .recent {
   border: 1px solid rgb(var(--sec-text));
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .prev,

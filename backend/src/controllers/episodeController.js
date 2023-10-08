@@ -27,28 +27,72 @@ const getAllSeasons = async (req, res) => {
 };
 
 /**
- * @req series
- * @res seasons (sample episode) by series
+ * @req search, input
+ * @res movies by search
  */
-const getSeasonsBySeries = async (req, res) => {
-  let seasons = await Episodes.findAll({
-    //get first episode per season
-    group: ["season"],
+const getSeasonsBySearch = async (req, res) => {
+  let seasons = [];
+  //
+  let series = await Episodes.findAll({
     where: {
       series: sequelize.where(
         sequelize.col("series"),
         "LIKE",
-        "%" + req.params.series + "%"
+        "%" + req.params.input + "%"
       ),
     },
-    order: [[sequelize.literal("season"), "ASC"]],
+    group: ["series", "season"],
+    order: [[sequelize.literal("series", "season"), "ASC"]],
   }).catch((err) => {
     err &&
-      res.status(500).send({
-        message:
-          "ERROR: Could not get seasons of series '" + req.params.series + "'.",
-      });
+      res
+        .status(500)
+        .send({ message: "ERROR: Could not filter seasons by title." });
   });
+  //
+  let directors = await Episodes.findAll({
+    where: {
+      director: sequelize.where(
+        sequelize.col("director"),
+        "LIKE",
+        "%" + req.params.input + "%"
+      ),
+    },
+    group: ["series", "season"],
+    order: [[sequelize.literal("series", "season"), "ASC"]],
+  }).catch((err) => {
+    err &&
+      res
+        .status(500)
+        .send({ message: "ERROR: Could not filter seasons by director." });
+  });
+  //
+  let actors = await Episodes.findAll({
+    where: {
+      actors: sequelize.where(
+        sequelize.col("actors"),
+        "LIKE",
+        "%" + req.params.input + "%"
+      ),
+    },
+    group: ["series", "season"],
+    order: [[sequelize.literal("series", "season"), "ASC"]],
+  }).catch((err) => {
+    err &&
+      res
+        .status(500)
+        .send({ message: "ERROR: Could not filter seasons by actor." });
+  });
+  //
+  //conclude results
+  let arr = series.concat(directors).concat(actors);
+  //get distinct seasons by series
+  seasons = [...new Map(arr.map((item) => [item["series"], item])).values()];
+  //sort movies by title
+  seasons.sort((a, b) =>
+    a.series.toLowerCase().localeCompare(b.title.toLowerCase())
+  );
+  //
   res.status(200).send(seasons);
 };
 
@@ -502,7 +546,7 @@ const deleteOneFile = (fileLocation) => {
 
 module.exports = {
   getAllSeasons,
-  getSeasonsBySeries,
+  getSeasonsBySearch,
   getOneEpisodeById,
   getAllGenres,
   getEpisodesBySeason,

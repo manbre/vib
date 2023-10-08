@@ -10,13 +10,12 @@ const VideoCard = ({ video }) => {
   const isLoaded = useSelector((state) => state.view.isLoaded);
   const dispatch = useDispatch();
 
-  
-
   useEffect(() => {
     let elements = document.getElementsByClassName(`${styles.container}`);
     //!== null ________ !important!
     if (markedCard !== null && elements[markedCard]) {
-      elements[markedCard].style = "outline: 4px solid white;   transform: scale(1.07);";
+      elements[markedCard].style =
+        "outline: 4px solid white; transform: scale(1.07);";
       //
       for (let i = 0; i < elements.length; i++) {
         if (i !== markedCard) {
@@ -31,6 +30,15 @@ const VideoCard = ({ video }) => {
       }
     }
   }, [markedCard]);
+
+  const convertRuntime = (runtime) => {
+    if (runtime < 60) {
+      return runtime + " min";
+    }
+    let hours = Math.floor(runtime / 60);
+    let minutes = runtime % 60;
+    return minutes > 0 ? hours + " h " + minutes + " min" : hours + " h";
+  };
 
   return (
     <div
@@ -56,7 +64,7 @@ const VideoCard = ({ video }) => {
           {video.english && <span className={styles.english}></span>}
         </div>
         <div className={styles.runtime}>
-          <p>{video.runtime} min</p>
+          <p>{convertRuntime(video.runtime)}</p>
         </div>
       </div>
     </div>

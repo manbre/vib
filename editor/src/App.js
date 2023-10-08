@@ -45,7 +45,7 @@ const App = () => {
 
   useEffect(() => {
     isReady && send(JSON.stringify(event));
-  }, [event, isReady]);
+  }, [event]);
 
   const handleSubmit = () => {
     isReady && send(JSON.stringify({ name: "change", value: null }));

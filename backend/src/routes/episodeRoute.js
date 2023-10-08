@@ -4,10 +4,10 @@ const episodeController = require("../controllers/episodeController");
 
 
 router.get("/", episodeController.getAllSeasons);
-router.get("/series/:series", episodeController.getSeasonsBySeries);
 router.get("/id/:id", episodeController.getOneEpisodeById);
 router.get("/genres", episodeController.getAllGenres);
 router.get("/genre/:genre", episodeController.getSeasonsByGenre);
+router.get("/search/:input", episodeController.getSeasonsBySearch);
 router.get("/:series/:season", episodeController.getEpisodesBySeason);
 router.get("/recent/:series/:season/", episodeController.getRecentEpisode);
 //

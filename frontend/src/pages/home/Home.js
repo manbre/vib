@@ -11,12 +11,12 @@ import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import SpinLoader from "../../components/spinLoader/SpinLoader";
 import { toggleLoaded } from "../../features/view";
-import { selectVideo } from "../../features/video";
 import useWebSocket from "../../hooks/useWebSocket";
 
 import {
   useGetMoviesByGenreQuery,
   useGetMoviesBySearchQuery,
+  //
   useGetSeasonsByGenreQuery,
   useGetSeasonsBySearchQuery,
 } from "../../features/backend";
@@ -26,6 +26,7 @@ const Home = () => {
   const selectedVideo = useSelector((state) => state.video.video);
   const isLoaded = useSelector((state) => state.view.isLoaded);
   const [isReady, val, send] = useWebSocket();
+  const [type, setType] = useState(1);
 
   //val: receiving messages
   useEffect(() => {
@@ -41,47 +42,62 @@ const Home = () => {
   }, [val]);
 
   useEffect(() => {
-    selectedVideo &&
-      isReady &&
+    isReady &&
       send(
         JSON.stringify({
-          type: 1,
-          id: selectedVideo.id,
+          name: null,
+          type: type,
+          id: selectedVideo ? selectedVideo.id : null,
         })
       );
-  }, [isReady, selectedVideo]);
-
-  const viewType = useSelector((state) => state.view.viewType);
-  const search = useSelector((state) => state.video.search);
+  }, [type, selectedVideo]);
 
   const genre = useSelector((state) => state.video.genre);
-  const title = useSelector((state) => state.video.title);
+  const input = useSelector((state) => state.video.title);
 
-  const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
-  const { data: seasonsByGenre } = useGetSeasonsByGenreQuery(genre);
-
-  const { data: moviesBySearch } = useGetMoviesBySearchQuery({
-    input: title,
+  const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre, {
+    skip: type === 2,
+  });
+  const { data: seasonsByGenre } = useGetSeasonsByGenreQuery(genre, {
+    skip: type === 1,
   });
 
-  const { data: seasonsBySearch } = useGetSeasonsBySearchQuery({
-    input: title,
+  const { data: moviesBySearch } = useGetMoviesBySearchQuery(input, {
+    skip: type === 2,
   });
 
-  const [movies, setMovies] = useState([]);
+  const { data: seasonsBySearch } = useGetSeasonsBySearchQuery(input, {
+    skip: type === 2,
+  });
+
+  const [videos, setVideos] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    viewType === 1 && dispatch(selectVideo(movies?.[0]));
-  }, [movies]);
+    switch (type) {
+      case 1:
+        moviesByGenre && setVideos(moviesByGenre ?? []);
+        break;
+      case 2:
+        seasonsByGenre && setVideos(seasonsByGenre ?? []);
+        break;
+      default:
+        moviesByGenre && setVideos(moviesByGenre ?? []);
+    }
+  }, [type, genre]);
 
   useEffect(() => {
-    moviesByGenre && setMovies(moviesByGenre ?? []);
-  }, [moviesByGenre]);
-
-  useEffect(() => {
-    moviesBySearch && setMovies(moviesBySearch ?? []);
-  }, [moviesBySearch]);
+    switch (type) {
+      case 1:
+        moviesBySearch && setVideos(moviesBySearch ?? []);
+        break;
+      case 2:
+        seasonsBySearch && setVideos(seasonsBySearch ?? []);
+        break;
+      default:
+        moviesBySearch && setVideos(moviesBySearch ?? []);
+    }
+  }, [input]);
 
   useEffect(() => {
     let loader = document.getElementById("loader");
@@ -109,13 +125,15 @@ const Home = () => {
         <header>
           <div className={styles.topBar}>
             <SearchBar />
-            <ToggleBar />
+            <ToggleBar changeType={(type) => setType(type)} />
           </div>
+
           <ChipSlider />
         </header>
 
-        <VideoWall filteredVideos={movies} />
+        <VideoWall filteredVideos={videos} />
       </section>
+
       <section className={styles.right}>
         <Preview />
       </section>

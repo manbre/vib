@@ -68,7 +68,7 @@ const Preview = () => {
     }
   };
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (selectedVideo) {
       updateState(selectedVideo);
       selectedVideo.german
@@ -76,7 +76,7 @@ const Preview = () => {
         : selectedVideo.english && takeAudio(2);
       toggleMute();
     }
-  }, [selectedVideo, takeAudio, toggleMute]);
+  }, [selectedVideo, takeAudio, toggleMute]); */
 
   const getProgress = () => {
     if (selectedVideo) {
@@ -94,6 +94,15 @@ const Preview = () => {
 
   const playVideo = (isContinue) => {
     navigate(`/watch/${isContinue}`);
+  };
+
+  const convertRuntime = (runtime) => {
+    if (runtime < 60) {
+      return runtime + " min";
+    }
+    let hours = Math.floor(runtime / 60);
+    let minutes = runtime % 60;
+    return minutes > 0 ? hours + " h " + minutes + " min" : hours + " h";
   };
 
   const getPlayButtons = () => {
@@ -179,52 +188,53 @@ const Preview = () => {
           ></button>
         )}
       </div>
+
       {selectedVideo && (
         <div className={styles.description}>
           <p className={styles.title}>{state.title}</p>
-          <div className={styles.numbers}>
-            {viewType === 1 && (
-              <div className={styles.rating}>
-                {state.rating > 74 ? (
+          <div className={styles.content}>
+            <div className={styles.numbers}>
+              {viewType === 1 && (
+                <div className={styles.rating}>
+                  {/*   {state.rating > 74 ? (
                   <span className={styles.fresh}></span>
                 ) : state.rating > 59 ? (
                   <span className={styles.tomatoes}></span>
                 ) : (
                   <span className={styles.rotten}></span>
-                )}
+                )} */}
 
-                <p>{state.rating} %</p>
+                  <p>{state.rating / 10}</p>
+                </div>
+              )}
+              <div className={styles.year}>
+                <p>{state.year}</p>
               </div>
-            )}
-            <div className={styles.year}>
-              <span className={styles.calendar}></span>
-              <p>{state.year}</p>
-            </div>
-            <div className={styles.runtime}>
-              <span className={styles.hourglass}></span>
-              <p>{state.runtime} min</p>
-            </div>
-            <div className={styles.fsk}>
-              <p>{state.fsk}+</p>
-            </div>
-            {state.awards > 0 && (
-              <div className={styles.awards}>
-                <span className={styles.oscar}></span>
-                <p>{state.awards}</p>
+              <div className={styles.runtime}>
+                <p>{convertRuntime(state.runtime)}</p>
               </div>
-            )}
-          </div>
-          <p className={styles.plot}>{state.plot}</p>
-          <div className={styles.row}>
-            <div className={styles.colLeft}>
-              <p>Director</p>
-              <p>Actors</p>
-              <p>Genre</p>
+              <div className={styles.fsk}>
+                <p>{state.fsk}+</p>
+              </div>
+              {state.awards > 0 && (
+                <div className={styles.awards}>
+                  <span className={styles.oscar}></span>
+                  <p>{state.awards}</p>
+                </div>
+              )}
             </div>
-            <div className={styles.colRight}>
-              <p>{state.director}</p>
-              <p>{state.actors}</p>
-              <p>{state.genre}</p>
+            <p className={styles.plot}>{state.plot}</p>
+            <div className={styles.row}>
+              <div className={styles.colLeft}>
+                <p>Director</p>
+                <p>Actors</p>
+                <p>Genre</p>
+              </div>
+              <div className={styles.colRight}>
+                <p>{state.director}</p>
+                <p>{state.actors}</p>
+                <p>{state.genre}</p>
+              </div>
             </div>
           </div>
         </div>

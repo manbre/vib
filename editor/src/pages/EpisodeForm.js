@@ -227,7 +227,7 @@ const EpisodeForm = (props) => {
               className={styles.omdbBtn}
               onClick={() =>
                 fetchOmdb({
-                  series: state.series,
+                  title: state.series,
                   year: state.year,
                 })
               }
