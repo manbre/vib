@@ -254,17 +254,18 @@ const createEpisode = async (req, res) => {
   await Episodes.create({
     series: req.body.series,
     title: req.body.title,
-    fsk: req.body.fsk,
     director: req.body.director,
     genre: req.body.genre,
+    //
     year: req.body.year,
+    fsk: req.body.fsk,
     season: req.body.season,
     episode: req.body.episode,
-    awards: req.body.awards,
-    rating: req.body.rating,
     runtime: req.body.runtime,
+    //
     actors: req.body.actors,
     plot: req.body.plot,
+    //
     changes: req.body.changes,
   })
     //=====================================================
@@ -293,20 +294,22 @@ const updateEpisode = async (req, res) => {
     {
       ...(req.body.series && { series: req.body.series }),
       ...(req.body.title && { title: req.body.title }),
-      ...(req.body.fsk && { fsk: req.body.fsk }),
       ...(req.body.director && { director: req.body.director }),
       ...(req.body.genre && { genre: req.body.genre }),
+      //
       ...(req.body.year && { year: req.body.year }),
+      ...(req.body.fsk && { fsk: req.body.fsk }),
       ...(req.body.season && { season: req.body.season }),
       ...(req.body.episode && { episode: req.body.episode }),
-      ...(req.body.awards && { awards: req.body.awards }),
-      ...(req.body.rating && { rating: req.body.rating }),
       ...(req.body.runtime && { runtime: req.body.runtime }),
+      //
       ...(req.body.actors && { director: req.body.actors }),
       ...(req.body.plot && { plot: req.body.plot }),
+      //
+      changes: req.body.changes,
+      //
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
       ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
-      changes: req.body.changes,
     },
     {
       where: { id: req.body.id },

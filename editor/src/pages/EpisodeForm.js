@@ -2,7 +2,6 @@ import React from "react";
 import { useEffect, useReducer } from "react";
 import { useDispatch } from "react-redux";
 import styles from "./Form.module.css";
-import { setEvent } from "../features/view";
 import useOmdb from "../hooks/useOmdb";
 
 import {
@@ -20,16 +19,21 @@ const EpisodeForm = (props) => {
     title: "",
     director: "",
     genre: "",
+    //
     year: "",
-    fsk: "",
+    fsk: 0,
     season: "",
     episode: "",
+    runtime: "",
+    //
     actors: "",
     plot: "",
+    //
     poster: "",
     teaser: "",
     german: "",
     english: "",
+    //
     changes: 0,
   };
 
@@ -53,12 +57,12 @@ const EpisodeForm = (props) => {
   ] = useUpdateEpisodeFilesMutation();
 
   useEffect(() => {
-    isDataUpdated && dispatch(setEvent({ name: "done", value: null }));
-    areFilesUpdated && dispatch(setEvent({ name: "done", value: null }));
+    isDataUpdated && props.toggleChange(false);
+    areFilesUpdated && props.toggleChange(false);
   }, [isDataUpdated, areFilesUpdated]);
 
   useEffect(() => {
-    isEpisodeDeleted && dispatch(setEvent({ name: "done", value: null }));
+    isEpisodeDeleted && props.toggleChange(false);
   }, [isEpisodeDeleted]);
 
   useEffect(() => {
@@ -71,14 +75,17 @@ const EpisodeForm = (props) => {
   useEffect(() => {
     omdbData &&
       updateState({
-        poster: omdbData.Poster && omdbData.Poster,
         series: omdbData.Title && omdbData.Title.replace(":", " - "),
         director: omdbData.Director && omdbData.Director,
         genre: omdbData.Genre && omdbData.Genre,
+        //
         actors: omdbData.Actors && omdbData.Actors,
         plot: omdbData.Plot && omdbData.Plot,
+        //
         year: omdbData.Year && omdbData.Year,
         runtime: omdbData.Runtime && omdbData.Runtime.slice(0, 3),
+        //
+        poster: omdbData.Poster && omdbData.Poster,
       });
   }, [omdbData]);
 
@@ -110,6 +117,7 @@ const EpisodeForm = (props) => {
         director: state.director,
       }),
       ...(state.genre !== props.selected.genre && { genre: state.genre }),
+      //
       ...(state.year !== props.selected.year && { year: state.year }),
       ...(state.fsk !== props.selected.fsk && {
         fsk: state.fsk,
@@ -128,6 +136,7 @@ const EpisodeForm = (props) => {
         actors: state.actors,
       }),
       ...(state.plot !== props.selected.plot && { plot: state.plot }),
+      //
       changes: props.selected.changes + 1,
     })
       .unwrap()
@@ -171,17 +180,21 @@ const EpisodeForm = (props) => {
       title: "",
       director: "",
       genre: "",
+      //
       year: "",
-      fsk: "",
+      fsk: 0,
       season: "",
       episode: "",
       runtime: "",
+      //
       actors: "",
       plot: "",
+      //
       poster: "",
       teaser: "",
       german: "",
       english: "",
+      //
       changes: 0,
     });
     //

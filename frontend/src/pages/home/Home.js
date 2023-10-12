@@ -10,7 +10,6 @@ import Preview from "../../components/preview/Preview";
 import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
 import SpinLoader from "../../components/spinLoader/SpinLoader";
-import { toggleLoaded } from "../../features/view";
 import useWebSocket from "../../hooks/useWebSocket";
 
 import {
@@ -22,35 +21,10 @@ import {
 } from "../../features/backend";
 
 const Home = () => {
-  const dispatch = useDispatch();
   const selectedVideo = useSelector((state) => state.video.video);
-  const isLoaded = useSelector((state) => state.view.isLoaded);
   const [isReady, val, send] = useWebSocket();
   const [type, setType] = useState(1);
-
-  //val: receiving messages
-  useEffect(() => {
-    console.log(val?.name);
-    if (val?.name === "done") {
-      clearCache();
-      navigate(0);
-      dispatch(toggleLoaded(true));
-    }
-    if (val?.name === "change") {
-      dispatch(toggleLoaded(false));
-    }
-  }, [val]);
-
-  useEffect(() => {
-    isReady &&
-      send(
-        JSON.stringify({
-          name: null,
-          type: type,
-          id: selectedVideo ? selectedVideo.id : null,
-        })
-      );
-  }, [type, selectedVideo]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const genre = useSelector((state) => state.video.genre);
   const input = useSelector((state) => state.video.title);
@@ -73,47 +47,53 @@ const Home = () => {
   const [videos, setVideos] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    switch (type) {
-      case 1:
-        moviesByGenre && setVideos(moviesByGenre ?? []);
-        break;
-      case 2:
-        seasonsByGenre && setVideos(seasonsByGenre ?? []);
-        break;
-      default:
-        moviesByGenre && setVideos(moviesByGenre ?? []);
-    }
-  }, [type, genre]);
-
-  useEffect(() => {
-    switch (type) {
-      case 1:
-        moviesBySearch && setVideos(moviesBySearch ?? []);
-        break;
-      case 2:
-        seasonsBySearch && setVideos(seasonsBySearch ?? []);
-        break;
-      default:
-        moviesBySearch && setVideos(moviesBySearch ?? []);
-    }
-  }, [input]);
-
+  //reset loader
   useEffect(() => {
     let loader = document.getElementById("loader");
-    !isLoaded
-      ? (loader.style = "display: block;")
-      : (loader.style = "display: none;");
-  }, [isLoaded]);
+    loader.style = "display: none;";
+  }, []);
 
+  //clear complete cache data
   const clearCache = () => {
-    //clears complete cache data
     caches.keys().then((names) => {
       names.forEach((name) => {
         caches.delete(name);
       });
     });
   };
+
+  //val: receiving messages
+  useEffect(() => {
+    let loader = document.getElementById("loader");
+    if (val?.name === "data" && val?.value === true) {
+      loader.style = "display: block;";
+      setIsLoaded(false);
+    }
+    if (val?.name === "data" && val?.value === false) {
+      clearCache();
+      navigate(0);
+      setIsLoaded(true);
+      loader.style = "display: none;";
+    }
+  }, [val]);
+
+  useEffect(() => {
+    isReady &&
+      send(JSON.stringify({ name: "select", value: selectedVideo?.id }));
+  }, [selectedVideo]);
+
+  useEffect(() => {
+    type === 1 && moviesByGenre && setVideos(moviesByGenre ?? []);
+  }, [type, moviesByGenre]);
+
+  useEffect(() => {
+    type === 2 && seasonsByGenre && setVideos(seasonsByGenre ?? []);
+  }, [type, seasonsByGenre]);
+
+  useEffect(() => {
+    type === 1 && moviesBySearch && setVideos(moviesBySearch ?? []);
+    type === 2 && seasonsBySearch && setVideos(seasonsBySearch ?? []);
+  }, [input]);
 
   return (
     <div className={styles.container}>
@@ -131,11 +111,11 @@ const Home = () => {
           <ChipSlider />
         </header>
 
-        <VideoWall filteredVideos={videos} />
+        <VideoWall filteredVideos={videos} isLoaded={isLoaded} />
       </section>
 
       <section className={styles.right}>
-        <Preview />
+        <Preview isLoaded={isLoaded} />
       </section>
     </div>
   );

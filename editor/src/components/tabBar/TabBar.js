@@ -1,12 +1,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import styles from "./TabBar.module.css";
-import { setType } from "../../features/view";
 
 const TabBar = (props) => {
   const [type, setType] = useState(1);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     let movieTab = document.getElementById("movieTab");
@@ -42,16 +39,16 @@ const TabBar = (props) => {
 
   return (
     <div className={styles.container}>
-      <button id="movieTab" onClick={() => dispatch(setType(1))}>
+      <button id="movieTab" onClick={() => setType(1)}>
         Movie
       </button>
-      <button id="tvShowTab" onClick={() => dispatch(setType(2))}>
+      <button id="tvShowTab" onClick={() => setType(2)}>
         TV Show
       </button>
       <button
         id="sourceTab"
         className={styles.sourceTab}
-        onClick={() => dispatch(setType("source"))}
+        onClick={() => setType(3)}
       >
         Source
       </button>

@@ -9,11 +9,10 @@ import { selectVideo } from "../../features/video";
 import { selectAudio } from "../../features/video";
 import { muteTeaser } from "../../features/view";
 
-const Preview = () => {
+const Preview = (props) => {
   const selectedVideo = useSelector((state) => state.video.video);
   const viewType = useSelector((state) => state.view.viewType);
   const isMuted = useSelector((state) => state.view.muted);
-  const isLoaded = useSelector((state) => state.view.isLoaded);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   //
@@ -68,7 +67,7 @@ const Preview = () => {
     }
   };
 
-/*   useEffect(() => {
+  /*   useEffect(() => {
     if (selectedVideo) {
       updateState(selectedVideo);
       selectedVideo.german
@@ -147,7 +146,7 @@ const Preview = () => {
             loop
             muted={isMuted}
             src={
-              isLoaded &&
+              props.isLoaded &&
               state.teaser &&
               `http://localhost:9000/stream/video/trailer/${state.teaser}`
             }
@@ -155,7 +154,7 @@ const Preview = () => {
         ) : (
           <AsyncPoster
             src={
-              isLoaded &&
+              props.isLoaded &&
               state.poster &&
               `http://localhost:9000/stream/image/${state.poster}`
             }

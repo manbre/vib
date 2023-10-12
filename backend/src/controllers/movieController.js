@@ -202,15 +202,18 @@ const createMovie = async (req, res) => {
   await Movies.create({
     title: req.body.title,
     series: req.body.series ? req.body.series : req.body.title,
-    fsk: req.body.fsk,
     director: req.body.director,
     genre: req.body.genre,
+    //
     year: req.body.year,
+    fsk: req.body.fsk,
     awards: req.body.awards,
     rating: req.body.rating,
     runtime: req.body.runtime,
+    //
     actors: req.body.actors,
     plot: req.body.plot,
+    //
     changes: req.body.changes,
   })
     //=====================================================
@@ -235,18 +238,22 @@ const updateMovie = async (req, res) => {
     {
       ...(req.body.title && { title: req.body.title }),
       ...(req.body.series && { series: req.body.series }),
-      ...(req.body.fsk && { fsk: req.body.fsk }),
       ...(req.body.director && { director: req.body.director }),
       ...(req.body.genre && { genre: req.body.genre }),
+      //
       ...(req.body.year && { year: req.body.year }),
+      ...(req.body.fsk && { fsk: req.body.fsk }),
       ...(req.body.awards && { awards: req.body.awards }),
       ...(req.body.rating && { rating: req.body.rating }),
       ...(req.body.runtime && { runtime: req.body.runtime }),
+      //
       ...(req.body.actors && { director: req.body.actors }),
       ...(req.body.plot && { plot: req.body.plot }),
+      //
+      changes: req.body.changes,
+      //
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
       ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
-      changes: req.body.changes,
     },
     {
       where: { id: req.body.id },

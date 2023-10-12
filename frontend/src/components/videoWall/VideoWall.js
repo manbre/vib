@@ -13,7 +13,7 @@ import {
   useGetSeasonsByGenreQuery,
 } from "../../features/backend";
 
-const VideoWall = ({ filteredVideos }) => {
+const VideoWall = (props) => {
   const viewType = useSelector((state) => state.view.viewType);
   const selectedVideo = useSelector((state) => state.video.video);
 
@@ -43,15 +43,20 @@ const VideoWall = ({ filteredVideos }) => {
     dispatch(selectNext(allVideos[globalIndex + 1]));
     let localIndex =
       selectedVideo &&
-      filteredVideos.findIndex((video) => video.id === selectedVideo.id);
+      props.filteredVideos.findIndex((video) => video.id === selectedVideo.id);
     dispatch(markCard(localIndex));
-  }, [selectedVideo, allVideos, dispatch, filteredVideos]);
+  }, [selectedVideo, allVideos, dispatch, props.filteredVideos]);
 
   return (
     <div className={styles.container}>
-      {Array.isArray(filteredVideos) &&
-        filteredVideos.map((video, index) => (
-          <VideoCard video={video} key={video.id} index={index} />
+      {Array.isArray(props.filteredVideos) &&
+        props.filteredVideos.map((video, index) => (
+          <VideoCard
+            video={video}
+            key={video.id}
+            index={index}
+            isLoaded={props.isLoaded}
+          />
         ))}
     </div>
   );

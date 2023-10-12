@@ -7,7 +7,6 @@ import AsyncPoster from "../asyncPoster/AsnycPoster";
 
 const VideoCard = ({ video }) => {
   const markedCard = useSelector((state) => state.view.card);
-  const isLoaded = useSelector((state) => state.view.isLoaded);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -48,7 +47,6 @@ const VideoCard = ({ video }) => {
       <div className={styles.poster}>
         <AsyncPoster
           src={
-            isLoaded &&
             video.poster &&
             `http://localhost:9000/stream/image/${video.poster}`
           }

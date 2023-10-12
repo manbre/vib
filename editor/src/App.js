@@ -1,6 +1,5 @@
 import React from "react";
 import { useRef, useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import styles from "./App.module.css";
 import TopBar from "./components/topBar/TopBar";
 import TabBar from "./components/tabBar/TabBar";
@@ -13,60 +12,52 @@ import {
   useGetMovieByIdQuery,
   useGetEpisodeByIdQuery,
 } from "./features/backend";
-import { setEvent } from "./features/view";
 
 const App = () => {
-  const dispatch = useDispatch();
   const movieEditor = useRef();
   const episodeEditor = useRef();
 
   const [box, setBox] = useState("");
   const [type, setType] = useState(1);
   const [id, setId] = useState(null);
+  const [isDataChanged, setisDataChanged] = useState(false);
 
-  const event = useSelector((state) => state.view.event);
-  const { data: selectedMovie, refetch: refetchMovie } = useGetMovieByIdQuery(
-    id && type === 1 && id
-  );
+  const {
+    data: selectedMovie,
+    refetch: refetchMovie,
+  } = useGetMovieByIdQuery(id, { skip: type === 2 });
   const {
     data: selectedEpisode,
     refetch: refetchEpisode,
-  } = useGetEpisodeByIdQuery(id && type === 2 && id);
+  } = useGetEpisodeByIdQuery(id, { skip: type === 1 });
 
   //------------------------------------------------------------------------------------
   //WebSocket
   const [isReady, val, send] = useWebSocket();
 
   useEffect(() => {
-    val?.id && setId(val.id);
-    val?.type && setType(val.type);
-    refetchMovie();
+    val?.name === "select" && setId(val?.value);
+    val?.name === "type" && setType(val?.value);
+    type === 1 && refetchMovie();
+    type === 2 && refetchEpisode();
   }, [val]);
 
   useEffect(() => {
-    isReady && send(JSON.stringify(event));
-  }, [event]);
+    isReady && send(JSON.stringify({ name: "data", value: isDataChanged }));
+  }, [isDataChanged]);
 
   const handleSubmit = () => {
-    isReady && send(JSON.stringify({ name: "change", value: null }));
-    if (selectedMovie) {
-      type === 1 && movieEditor.current.updateVideo();
-      type === 2 && episodeEditor.current.updateVideo();
-    } else {
-      type === 1 && movieEditor.current.createVideo();
-      type === 2 && episodeEditor.current.createVideo();
-    }
+    setisDataChanged(true);
+    selectedMovie && type === 1 && movieEditor.current.updateVideo();
+    selectedEpisode && type === 2 && episodeEditor.current.updateVideo();
+    !selectedMovie && type === 1 && movieEditor.current.createVideo();
+    !selectedEpisode && type === 2 && episodeEditor.current.createVideo();
   };
 
   const handleDelete = () => {
-    selectedMovie &&
-      type === 1 &&
-      movieEditor.current.deleteVideo() &&
-      dispatch(setEvent({ name: "change", value: null }));
-    selectedEpisode &&
-      type === 2 &&
-      episodeEditor.current.deleteVideo() &&
-      dispatch(setEvent({ name: "change", value: null }));
+    setisDataChanged(true);
+    selectedMovie && type === 1 && movieEditor.current.deleteVideo();
+    selectedEpisode && type === 2 && episodeEditor.current.deleteVideo();
   };
 
   //------------------------------------------------------------------------------------
@@ -80,12 +71,14 @@ const App = () => {
         <MovieForm
           selected={selectedMovie}
           changeMessage={(message) => setBox(message)}
+          toggleChange={(isChange) => setisDataChanged(isChange)}
           childRef={movieEditor}
         />
       ) : type === 2 ? (
         <EpisodeForm
-          selected={selectedMovie}
+          selected={selectedEpisode}
           changeMessage={(message) => setBox(message)}
+          toggleChange={(isChange) => setisDataChanged(isChange)}
           childRef={episodeEditor}
         />
       ) : (

@@ -7,14 +7,12 @@ import { Provider } from "react-redux";
 import { backend } from "./features/backend";
 import videoReducer from "./features/video";
 import viewReducer from "./features/view";
-import eventReducer from "./features/event";
 import reportWebVitals from "./reportWebVitals";
 
 const store = configureStore({
   reducer: {
     video: videoReducer,
     view: viewReducer,
-    event: eventReducer,
     //
     [backend.reducerPath]: backend.reducer,
   },

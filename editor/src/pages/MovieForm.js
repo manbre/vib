@@ -1,8 +1,6 @@
 import React from "react";
 import { useEffect, useReducer } from "react";
-import { useDispatch } from "react-redux";
 import styles from "./Form.module.css";
-import { setEvent } from "../features/view";
 import useOmdb from "../hooks/useOmdb";
 
 import {
@@ -13,24 +11,27 @@ import {
 } from "../features/backend";
 
 const MovieForm = (props) => {
-  const dispatch = useDispatch();
 
   const initialState = {
     title: "",
     series: "",
     director: "",
     genre: "",
+    //
     year: "",
     fsk: 0,
     awards: "",
     rating: "",
     runtime: "",
+    //
     actors: "",
     plot: "",
+    //
     poster: "",
     teaser: "",
     german: "",
     english: "",
+    //
     changes: 0,
   };
 
@@ -48,14 +49,12 @@ const MovieForm = (props) => {
   ] = useUpdateMovieFilesMutation();
 
   useEffect(() => {
-    isDataUpdated && dispatch(setEvent({ name: "done", value: null }));
-    areFilesUpdated &&
-      dispatch(setEvent({ name: "done", value: null }));
+    isDataUpdated && props.toggleChange(false);
+    areFilesUpdated && props.toggleChange(false);
   }, [isDataUpdated, areFilesUpdated]);
 
   useEffect(() => {
-    isMovieDeleted &&
-      dispatch(setEvent({ name: "done", value: null }));
+    isMovieDeleted && props.toggleChange(false);
   }, [isMovieDeleted]);
 
   useEffect(() => {
@@ -68,12 +67,10 @@ const MovieForm = (props) => {
   useEffect(() => {
     omdbData &&
       updateState({
-        poster: omdbData.Poster && omdbData.Poster,
         title: omdbData.Title && omdbData.Title.replace(":", " - "),
         director: omdbData.Director && omdbData.Director,
         genre: omdbData.Genre && omdbData.Genre,
-        actors: omdbData.Actors && omdbData.Actors,
-        plot: omdbData.Plot && omdbData.Plot,
+        //
         year: omdbData.Year && omdbData.Year,
         awards:
           omdbData.Awards &&
@@ -81,11 +78,17 @@ const MovieForm = (props) => {
           !omdbData.Awards.includes("Nominated")
             ? omdbData.Awards.substring(3, 6)
             : "0",
+        //
         rating:
           omdbData.Ratings &&
           omdbData.Ratings[1] &&
           omdbData.Ratings[1].Value.substring(0, 2),
         runtime: omdbData.Runtime && omdbData.Runtime.slice(0, 3),
+        //
+        actors: omdbData.Actors && omdbData.Actors,
+        plot: omdbData.Plot && omdbData.Plot,
+        //
+        poster: omdbData.Poster && omdbData.Poster,
       });
   }, [omdbData]);
 
@@ -117,6 +120,7 @@ const MovieForm = (props) => {
         director: state.director,
       }),
       ...(state.genre !== props.selected.genre && { genre: state.genre }),
+      //
       ...(state.year !== props.selected.year && { year: state.year }),
       ...(state.fsk !== props.selected.fsk && {
         fsk: state.fsk,
@@ -135,6 +139,7 @@ const MovieForm = (props) => {
         actors: state.actors,
       }),
       ...(state.plot !== props.selected.plot && { plot: state.plot }),
+      //
       changes: props.selected.changes + 1,
     })
       .unwrap()
@@ -178,13 +183,16 @@ const MovieForm = (props) => {
       series: "",
       director: "",
       genre: "",
+      //
       year: "",
       fsk: 0,
       awards: "",
       rating: "",
       runtime: "",
+      //
       actors: "",
       plot: "",
+      //
       poster: "",
       teaser: "",
       german: "",
