@@ -14,7 +14,7 @@ const VideoPlayer = ({ type, videoId }) => {
   return (
     <video ref={videoRef} autoPlay loop muted>
       <source
-        src={`http://localhost:9000/stream/${videoId}/${type}`}
+        src={`http://localhost:9000/stream/video/1/${type}/${videoId}`}
         type="video/mp4"
       ></source>
       Your browser does not support the video tag

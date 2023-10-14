@@ -48,7 +48,7 @@ const VideoCard = ({ video }) => {
         <AsyncPoster
           src={
             video.poster &&
-            `http://localhost:9000/stream/image/${video.poster}`
+            `http://localhost:9000/stream/image/1/${video.poster}`
           }
         />
       </div>

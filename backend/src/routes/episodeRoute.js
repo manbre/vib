@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const episodeController = require("../controllers/episodeController");
 
-
 router.get("/", episodeController.getAllSeasons);
 router.get("/id/:id", episodeController.getOneEpisodeById);
 router.get("/genres", episodeController.getAllGenres);

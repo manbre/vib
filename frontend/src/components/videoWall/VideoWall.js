@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoWall.module.css";
 

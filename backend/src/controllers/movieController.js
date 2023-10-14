@@ -318,9 +318,9 @@ const updateFileData = async (
  * @res -
  */
 const deleteMovie = async (req, res) => {
-  //=====================================================
+  //
   deleteFiles(req, false);
-  //=====================================================
+  //
   await Movies.destroy({ where: { id: req.body.id } })
     .then(
       res

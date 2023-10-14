@@ -115,7 +115,7 @@ const Home = () => {
       </section>
 
       <section className={styles.right}>
-        <Preview isLoaded={isLoaded} />
+        <Preview isLoaded={isLoaded} type={type} />
       </section>
     </div>
   );

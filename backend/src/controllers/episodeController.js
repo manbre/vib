@@ -418,26 +418,27 @@ const deleteEpisode = async (req, res) => {
 // UPDATE / DELETE episode files
 //------------------------------------------------------------------------
 /**
- * @req episode including new id
+ * @req episode
  * @res -
  */
 const updateEpisodeFiles = async (req, res) => {
   //
   let n = req.body.episode < 10 ? "0" : "";
   let num = "" + req.body.season + n + req.body.episode;
+  let initials = req.params.series
+    .match(/(\b\S)?/g)
+    .join("")
+    .toUpperCase();
   //
-  let posterName = req.body.id + "_" + req.body.changes + ".jpg";
-  let teaserName = "teaser.mp3";
-  let germanName = num + "_de.mp4";
-  let englishName = num + "_en.mp4";
+  let posterName = initials + "_" + num + "_" + req.body.changes + ".jpg";
+  let teaserName = initials + "_teaser.mp3";
+  let germanName = "//" + initials + "//" + initials + "_" + num + "_de.mp4";
+  let englishName = "//" + initials + "//" + initials + "_" + num + "_en.mp4";
   //
-  let posterFolder =
-    dir + "//" + req.body.series + "//" + req.body.season + "//";
-  let teaserFolder = dir + "//" + req.body.series + "//";
-  let germanFolder =
-    dir + "//" + req.body.series + "//" + req.body.season + "//de//";
-  let englishFolder =
-    dir + "//" + req.body.series + "//" + req.body.season + "//en//";
+  let posterFolder = dir + "//poster//";
+  let teaserFolder = dir + "//teaser//";
+  let germanFolder = dir + "//de//";
+  let englishFolder = dir + "//en//";
   //
   let posterPath = posterFolder + posterName;
   let teaserPath = teaserFolder + teaserName;
@@ -445,7 +446,8 @@ const updateEpisodeFiles = async (req, res) => {
   let englishPath = englishFolder + englishName;
   //
   let prevChange = req.body.changes - 1;
-  let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
+  let prevPosterPath =
+    posterFolder + initials + "_" + num + "_" + prevChange + ".jpg";
   //
   copyOneFile(req.body.poster, posterFolder, posterPath).then(
     copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(

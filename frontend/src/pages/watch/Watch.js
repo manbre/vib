@@ -120,12 +120,12 @@ const Watch = () => {
           selectedVideo
             ? selectedAudio === 1
               ? selectedVideo.german
-                ? `http://localhost:9000/stream/video/german/${selectedVideo.german}`
-                : `http://localhost:9000/stream/video/german/${selectedVideo.english}`
+                ? `http://localhost:9000/movies/video/german/${selectedVideo.german}`
+                : `http://localhost:9000/movies/video/english/${selectedVideo.english}`
               : selectedAudio === 2
               ? selectedVideo.english
-                ? `http://localhost:9000/stream/video/german/${selectedVideo.english}`
-                : `http://localhost:9000/stream/video/german/${selectedVideo.german}`
+                ? `http://localhost:9000/movies/video/english/${selectedVideo.english}`
+                : `http://localhost:9000/movies/video/german/${selectedVideo.german}`
               : ""
             : ""
         }

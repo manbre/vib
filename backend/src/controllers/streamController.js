@@ -1,27 +1,40 @@
 const fs = require("fs");
 
-const location = "G:\\";
+const moviesDir = "G:\\vib\\movies\\";
+const episodesDir = "G:\\vib\\show\\";
 
+/**
+ * @req type, media (teaser / german / english), filename
+ * @res -
+ */
 const getVideoStream = (req, res) => {
-  const fileName = req.params.filename;
-  const type = req.params.type;
-  let path;
-  switch (type) {
-    case "trailer":
-      path = "vib\\movies\\teaser\\";
+  let dir;
+  switch (req.params.type) {
+    case 1:
+      dir = moviesDir;
       break;
-    case "german":
-      path = "vib\\movies\\de\\";
+    case 2:
+      dir = episodesDir;
       break;
-    case "english":
-      path = "vib\\movies\\en\\";
-      break;
-
     default:
   }
-  const filePath = location + path + fileName;
+  //
+  let path;
+  switch (req.params.media) {
+    case "teaser":
+      path = "\\teaser\\";
+      break;
+    case "german":
+      path = "\\de\\";
+      break;
+    case "english":
+      path = "\\en\\";
+      break;
+    default:
+  }
+  const filePath = dir + path + req.params.filename;
   if (!filePath) {
-    return res.status(404).send("File not found");
+    res.status(404).send("File not found");
   }
   const stat = fs.statSync(filePath);
   const fileSize = stat.size;
@@ -58,11 +71,25 @@ const getVideoStream = (req, res) => {
   }
 };
 
+/**
+ * @req type, filename
+ * @res -
+ */
 const getImageStream = (req, res) => {
-  const fileName = req.params.filename;
-  const filePath = location + "vib\\movies\\poster\\" + fileName;
+  let dir;
+  switch (req.params.type) {
+    case 1:
+      dir = moviesDir;
+      break;
+    case 2:
+      dir = episodesDir;
+      break;
+    default:
+  }
+  //
+  const filePath = dir + "\\poster\\" + req.params.filename;
   if (!filePath) {
-    return res.status(404).send("File not found");
+    res.status(404).send("File not found");
   }
   const head = {
     "Content-Type": "image/jpeg",
@@ -77,12 +104,14 @@ const getImageStream = (req, res) => {
   });
 };
 
+/**
+ * @req filename
+ * @res -
+ */
 const getAudioStream = (req, res) => {
-  const fileName = req.params.filename;
-  let path = "vib\\shows\\";
-  const filePath = location + path + fileName;
+  const filePath = episodesDir + "//teaser//" + req.params.filename;
   if (!filePath) {
-    return res.status(404).send("File not found");
+    res.status(404).send("File not found");
   }
   const stat = fs.statSync(filePath);
   const fileSize = stat.size;
