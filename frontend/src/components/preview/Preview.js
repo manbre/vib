@@ -172,12 +172,12 @@ const Preview = (props) => {
             loop
             muted={isMuted}
             src={
-              teaser && `http://localhost:9000/stream/track/teaser/${teaser}`
+              teaser && `http://localhost:9000/stream/media/teaser/${teaser}`
             }
           ></video>
         ) : (
           <AsyncPoster
-            src={poster && `http://localhost:9000/stream/poster/${poster}`}
+            src={poster && `http://localhost:9000/stream/image/${poster}`}
           />
         )}
 

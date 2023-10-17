@@ -5,7 +5,7 @@ const dir = "G:\\vib\\";
  * @req type (teaser / german / english), filename
  * @res -
  */
-const getTrackStream = (req, res) => {
+const getMediaStream = (req, res) => {
   let path;
   switch (req.params.type) {
     case "teaser":
@@ -62,7 +62,7 @@ const getTrackStream = (req, res) => {
  * @req filename
  * @res -
  */
-const getPosterStream = (req, res) => {
+const getImageStream = (req, res) => {
   const filePath = dir + "\\poster\\" + req.params.filename;
   if (!filePath) {
     res.status(404).send("File not found");
@@ -81,6 +81,6 @@ const getPosterStream = (req, res) => {
 };
 
 module.exports = {
-  getTrackStream,
-  getPosterStream,
+  getMediaStream,
+  getImageStream,
 };

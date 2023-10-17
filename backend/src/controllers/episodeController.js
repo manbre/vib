@@ -14,16 +14,15 @@ const dir = "G:\\vib\\";
  * @res all seasons
  */
 const getAllSeasons = async (req, res) => {
-  let seasons = await Episodes.findAll({
-    group: ["series", "season"],
-    order: [[sequelize.literal("series", "season"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res.status(500).send({
-        message: "ERROR: Could not get all seasons.",
-      });
-  });
-  res.status(200).send(seasons);
+  try {
+    let seasons = await Episodes.findAll({
+      group: ["series", "season"],
+      order: [[sequelize.literal("series", "season"), "ASC"]],
+    });
+    res.status(200).send(seasons);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -33,67 +32,56 @@ const getAllSeasons = async (req, res) => {
 const getSeasonsBySearch = async (req, res) => {
   let seasons = [];
   //
-  let series = await Episodes.findAll({
-    where: {
-      series: sequelize.where(
-        sequelize.col("series"),
-        "LIKE",
-        "%" + req.params.input + "%"
-      ),
-    },
-    group: ["series", "season"],
-    order: [[sequelize.literal("series", "season"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not filter seasons by title." });
-  });
-  //
-  let directors = await Episodes.findAll({
-    where: {
-      director: sequelize.where(
-        sequelize.col("director"),
-        "LIKE",
-        "%" + req.params.input + "%"
-      ),
-    },
-    group: ["series", "season"],
-    order: [[sequelize.literal("series", "season"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not filter seasons by director." });
-  });
-  //
-  let actors = await Episodes.findAll({
-    where: {
-      actors: sequelize.where(
-        sequelize.col("actors"),
-        "LIKE",
-        "%" + req.params.input + "%"
-      ),
-    },
-    group: ["series", "season"],
-    order: [[sequelize.literal("series", "season"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not filter seasons by actor." });
-  });
-  //
-  //conclude results
-  let arr = series.concat(directors).concat(actors);
-  //get distinct seasons by series
-  seasons = [...new Map(arr.map((item) => [item["series"], item])).values()];
-  //sort movies by title
-  seasons.sort((a, b) =>
-    a.series.toLowerCase().localeCompare(b.title.toLowerCase())
-  );
-  //
-  res.status(200).send(seasons);
+  try {
+    let series = await Episodes.findAll({
+      where: {
+        series: sequelize.where(
+          sequelize.col("series"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      group: ["series", "season"],
+      order: [[sequelize.literal("series", "season"), "ASC"]],
+    });
+    //
+    let directors = await Episodes.findAll({
+      where: {
+        director: sequelize.where(
+          sequelize.col("director"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      group: ["series", "season"],
+      order: [[sequelize.literal("series", "season"), "ASC"]],
+    });
+    //
+    let actors = await Episodes.findAll({
+      where: {
+        actors: sequelize.where(
+          sequelize.col("actors"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      group: ["series", "season"],
+      order: [[sequelize.literal("series", "season"), "ASC"]],
+    });
+    //
+    //conclude results
+    let arr = series.concat(directors).concat(actors);
+    //get distinct seasons by series
+    seasons = [...new Map(arr.map((item) => [item["series"], item])).values()];
+    //sort movies by title
+    seasons.sort((a, b) =>
+      a.series.toLowerCase().localeCompare(b.title.toLowerCase())
+    );
+    //
+    res.status(200).send(seasons);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -101,15 +89,14 @@ const getSeasonsBySearch = async (req, res) => {
  * @res one episode by id
  */
 const getOneEpisodeById = async (req, res) => {
-  let episode = await Episodes.findOne({
-    where: { id: req.params.id },
-  }).catch((err) => {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not get episode by 'id'." });
-  });
-  res.status(200).send(episode);
+  try {
+    let episode = await Episodes.findOne({
+      where: { id: req.params.id },
+    });
+    res.status(200).send(episode);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -117,12 +104,9 @@ const getOneEpisodeById = async (req, res) => {
  * @res all genres
  */
 const getAllGenres = async (req, res) => {
-  let genres = await Episodes.findAll({}).catch((err) => {
-    err &&
-      res.status(500).send({ message: "ERROR: Could not get all genres." });
-  });
-  //
   try {
+    let genres = await Episodes.findAll();
+    //
     let all = [];
     //get data out of json
     for (let i = 0; i < genres.length; i++) {
@@ -144,10 +128,7 @@ const getAllGenres = async (req, res) => {
     distinct.sort();
     res.status(200).send(distinct);
   } catch (err) {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not get distinct genres." });
+    res.status(500).send({ error: err });
   }
 };
 
@@ -156,24 +137,18 @@ const getAllGenres = async (req, res) => {
  * @res all episodes by season
  */
 const getEpisodesBySeason = async (req, res) => {
-  let episodes = await Episodes.findAll({
-    where: {
-      series: sequelize.where(sequelize.col("series"), req.params.series),
-      season: sequelize.where(sequelize.col("season"), req.params.season),
-    },
-    order: [[sequelize.literal("episode"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res.status(500).send({
-        message:
-          "ERROR: Could not get episodes of '" +
-          req.params.serie +
-          "' season '" +
-          req.params.season +
-          "'.",
-      });
-  });
-  res.status(200).send(episodes);
+  try {
+    let episodes = await Episodes.findAll({
+      where: {
+        series: sequelize.where(sequelize.col("series"), req.params.series),
+        season: sequelize.where(sequelize.col("season"), req.params.season),
+      },
+      order: [[sequelize.literal("episode"), "ASC"]],
+    });
+    res.status(200).send(episodes);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -181,18 +156,19 @@ const getEpisodesBySeason = async (req, res) => {
  * @res recent episodes by season
  */
 const getRecentEpisode = async (req, res) => {
-  let episode = await Episodes.findAll({
-    limit: 1,
-    where: {
-      series: sequelize.where(sequelize.col("series"), req.params.series),
-      season: sequelize.where(sequelize.col("season"), req.params.season),
-    },
-    order: [[sequelize.literal("last_watched"), "DESC"]],
-  }).catch((err) => {
-    err &&
-      res.status(500).send({ message: "ERROR: Could not get recent episode." });
-  });
-  res.status(200).send(episode);
+  try {
+    let episode = await Episodes.findAll({
+      limit: 1,
+      where: {
+        series: sequelize.where(sequelize.col("series"), req.params.series),
+        season: sequelize.where(sequelize.col("season"), req.params.season),
+      },
+      order: [[sequelize.literal("last_watched"), "DESC"]],
+    });
+    res.status(200).send(episode);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -201,46 +177,39 @@ const getRecentEpisode = async (req, res) => {
  */
 const getSeasonsByGenre = async (req, res) => {
   let seasons;
-  if (req.params.genre === "All" || req.params.genre === "0") {
-    seasons = await Episodes.findAll({
-      group: ["series", "season"],
-      order: [[sequelize.literal("series", "season"), "ASC"]],
-    }).catch((err) => {
-      err &&
-        res
-          .status(500)
-          .send({ message: "ERROR: Could not filter seasons by 'All'." });
-    });
-  } else if (req.params.genre == "Recent") {
-    seasons = await Episodes.findAll({
-      limit: 3,
-      group: ["series", "season"],
-      order: [[sequelize.literal("last_watched"), "DESC"]],
-    }).catch((err) => {
-      err &&
-        res
-          .status(500)
-          .send({ message: "ERROR: Could not filter seasons by 'Recent'." });
-    });
-  } else {
-    seasons = await Episodes.findAll({
-      where: {
-        genre: sequelize.where(
-          sequelize.col("genre"),
-          "LIKE",
-          "%" + req.params.genre + "%"
-        ),
-      },
-      group: ["series", "season"],
-      order: [[sequelize.literal("series, season"), "ASC"]],
-    }).catch((err) => {
-      err &&
-        res
-          .status(500)
-          .send({ message: "ERROR: Could not filter seasons by genre." });
-    });
+  try {
+    switch (req.params.genre) {
+      case "All":
+      case "0":
+        seasons = await Episodes.findAll({
+          group: ["series", "season"],
+          order: [[sequelize.literal("series", "season"), "ASC"]],
+        });
+        break;
+      case "Recent":
+        seasons = await Episodes.findAll({
+          limit: 3,
+          group: ["series", "season"],
+          order: [[sequelize.literal("last_watched"), "DESC"]],
+        });
+        break;
+      default:
+        seasons = await Episodes.findAll({
+          where: {
+            genre: sequelize.where(
+              sequelize.col("genre"),
+              "LIKE",
+              "%" + req.params.genre + "%"
+            ),
+          },
+          group: ["series", "season"],
+          order: [[sequelize.literal("series, season"), "ASC"]],
+        });
+    }
+    res.status(200).send(seasons);
+  } catch (err) {
+    res.status(500).send({ error: err });
   }
-  res.status(200).send(seasons);
 };
 
 //------------------------------------------------------------------------
@@ -273,15 +242,9 @@ const createEpisode = async (req, res) => {
       res.status(200).send(result);
     })
     .catch((err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not create data of '" +
-            req.body.series +
-            "', episode '" +
-            req.body.episode +
-            "'.",
-        });
+      res.status(500).send({
+        error: err,
+      });
     });
 };
 
@@ -326,15 +289,9 @@ const updateEpisode = async (req, res) => {
       })
     )
     .catch((err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not update data of'" +
-            req.body.series +
-            "', episode '" +
-            req.body.episode +
-            "'.",
-        });
+      res.status(500).send({
+        error: err,
+      });
     });
 };
 
@@ -370,15 +327,7 @@ const updateFileData = async (
     },
     { where: { id: req.body.id } }
   ).catch((err) => {
-    err &&
-      res.status(500).send({
-        message:
-          "ERROR: Could not update file data of '" +
-          req.body.series +
-          "', episode '" +
-          req.body.episode +
-          "'.",
-      });
+    console.log(err);
   });
 };
 
@@ -402,15 +351,9 @@ const deleteEpisode = async (req, res) => {
       })
     )
     .catch((err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "Could not delete '" +
-            req.body.series +
-            "', episode '" +
-            req.body.episode +
-            "'.",
-        });
+      res.status(500).send({
+        error: err,
+      });
     });
 };
 
@@ -423,65 +366,69 @@ const deleteEpisode = async (req, res) => {
  */
 const updateEpisodeFiles = async (req, res) => {
   //
-  let n = req.body.episode < 10 ? "0" : "";
-  let num = "" + req.body.season + n + req.body.episode;
-  let initials = req.body.series
-    .match(/(\b\S)?/g)
-    .join("")
-    .toUpperCase();
-  //
-  let posterName = initials + "_" + num + "_" + req.body.changes + ".jpg";
-  let teaserName = initials + "_teaser.mp3";
-  let germanName = "//" + initials + "//" + initials + "_" + num + "_de.mp4";
-  let englishName = "//" + initials + "//" + initials + "_" + num + "_en.mp4";
-  //
-  let posterFolder = dir + "//poster//";
-  let teaserFolder = dir + "//teaser//";
-  let germanFolder = dir + "//de//";
-  let englishFolder = dir + "//en//";
-  //
-  let posterPath = posterFolder + posterName;
-  let teaserPath = teaserFolder + teaserName;
-  let germanPath = germanFolder + germanName;
-  let englishPath = englishFolder + englishName;
-  //
-  let prevChange = req.body.changes - 1;
-  let prevPosterPath =
-    posterFolder + initials + "_" + num + "_" + prevChange + ".jpg";
-  //
-  copyOneFile(req.body.poster, posterFolder, posterPath).then(
-    copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(
-      copyOneFile(req.body.german, germanFolder, germanPath).then(
-        copyOneFile(req.body.english, englishFolder, englishPath).then(
-          //link new files in database
-          updateFileData(req, posterName, teaserName, germanName, englishName)
-            .then(
-              res.status(200).send({
-                message:
-                  "files of '" +
-                  req.body.series +
-                  "', episode '" +
-                  req.body.episode +
-                  "' were updated.",
-              })
-            )
-            .then(
-              //remove old files
-              deleteFiles(
-                req,
-                true,
-                posterPath,
-                teaserPath,
-                germanPath,
-                englishPath,
-                //
-                prevPosterPath
+  try {
+    let n = req.body.episode < 10 ? "0" : "";
+    let num = "" + req.body.season + n + req.body.episode;
+    let initials = req.body.series
+      .match(/(\b\S)?/g)
+      .join("")
+      .toUpperCase();
+    //
+    let posterName = initials + "_" + num + "_" + req.body.changes + ".jpg";
+    let teaserName = initials + "_teaser.mp3";
+    let germanName = "//" + initials + "//" + initials + "_" + num + "_de.mp4";
+    let englishName = "//" + initials + "//" + initials + "_" + num + "_en.mp4";
+    //
+    let posterFolder = dir + "//poster//";
+    let teaserFolder = dir + "//teaser//";
+    let germanFolder = dir + "//de//";
+    let englishFolder = dir + "//en//";
+    //
+    let posterPath = posterFolder + posterName;
+    let teaserPath = teaserFolder + teaserName;
+    let germanPath = germanFolder + germanName;
+    let englishPath = englishFolder + englishName;
+    //
+    let prevChange = req.body.changes - 1;
+    let prevPosterPath =
+      posterFolder + initials + "_" + num + "_" + prevChange + ".jpg";
+    //
+    copyOneFile(req.body.poster, posterFolder, posterPath).then(
+      copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(
+        copyOneFile(req.body.german, germanFolder, germanPath).then(
+          copyOneFile(req.body.english, englishFolder, englishPath).then(
+            //link new files in database
+            updateFileData(req, posterName, teaserName, germanName, englishName)
+              .then(
+                res.status(200).send({
+                  message:
+                    "files of '" +
+                    req.body.series +
+                    "', episode '" +
+                    req.body.episode +
+                    "' were updated.",
+                })
               )
-            )
+              .then(
+                //remove old files
+                deleteFiles(
+                  req,
+                  true,
+                  posterPath,
+                  teaserPath,
+                  germanPath,
+                  englishPath,
+                  //
+                  prevPosterPath
+                )
+              )
+          )
         )
       )
-    )
-  );
+    );
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -498,8 +445,8 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
       https.get(fileSource, (response) => {
         let file = fs.createWriteStream(newPath);
         response.pipe(file);
-        file.on("error", (error) => {
-          console.log(error);
+        file.on("error", (err) => {
+          console.log(err);
         });
         file.on("finish", () => {
           file.close();
@@ -507,8 +454,8 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
       });
     } else {
       //copy local file to location
-      fs.copyFile(fileSource, newPath, (error) => {
-        console.log(error);
+      fs.copyFile(fileSource, newPath, (err) => {
+        console.log(err);
       });
     }
   }
@@ -545,7 +492,7 @@ const deleteFiles = async (
 const deleteOneFile = (fileLocation) => {
   fs.existsSync(fileLocation) &&
     fs.rm(fileLocation, (err) => {
-      err && console.log(err);
+      console.log(err);
     });
 };
 

@@ -46,7 +46,7 @@ const VideoCard = ({ video }) => {
     >
       <div className={styles.poster}>
         <AsyncPoster
-          src={video.poster && `http://localhost:9000/stream/poster/${video.poster}`}
+          src={video.poster && `http://localhost:9000/stream/image/${video.poster}`}
         ></AsyncPoster>
       </div>
 

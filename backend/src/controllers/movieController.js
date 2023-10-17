@@ -16,15 +16,14 @@ const dir = "G:\\vib\\";
  * @res all movies
  */
 const getAllMovies = async (req, res) => {
-  let movies = await Movies.findAll({
-    order: [[sequelize.literal("series, year"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res.status(500).send({
-        message: "ERROR: Could not get all movies.",
-      });
-  });
-  res.status(200).send(movies);
+  try {
+    let movies = await Movies.findAll({
+      order: [[sequelize.literal("series, year"), "ASC"]],
+    });
+    res.status(200).send(movies);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -32,13 +31,14 @@ const getAllMovies = async (req, res) => {
  * @res one movie by id
  */
 const getOneMovieById = async (req, res) => {
-  let movie = await Movies.findOne({
-    where: { id: req.params.id },
-  }).catch((err) => {
-    err &&
-      res.status(500).send({ message: "ERROR: Could not get movie by 'id'." });
-  });
-  res.status(200).send(movie);
+  try {
+    let movie = await Movies.findOne({
+      where: { id: req.params.id },
+    });
+    res.status(200).send(movie);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -46,12 +46,9 @@ const getOneMovieById = async (req, res) => {
  * @res all genres
  */
 const getAllGenres = async (req, res) => {
-  let genres = await Movies.findAll().catch((err) => {
-    err &&
-      res.status(500).send({ message: "ERROR: Could not get all genres." });
-  });
-  //
   try {
+    let genres = await Movies.findAll();
+    //
     let all = [];
     //get data out of json
     for (let i = 0; i < genres.length; i++) {
@@ -73,10 +70,7 @@ const getAllGenres = async (req, res) => {
     distinct.sort();
     res.status(200).send(distinct);
   } catch (err) {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not get distinct genres." });
+    res.status(500).send({ error: err });
   }
 };
 
@@ -86,43 +80,36 @@ const getAllGenres = async (req, res) => {
  */
 const getMoviesByGenre = async (req, res) => {
   let movies;
-  if (req.params.genre === "All" || req.params.genre === "0") {
-    movies = await Movies.findAll({
-      order: [[sequelize.literal("series, year"), "ASC"]],
-    }).catch((err) => {
-      err &&
-        res
-          .status(500)
-          .send({ message: "ERROR: Could not filter movies by 'All'." });
-    });
-  } else if (req.params.genre === "Recent") {
-    movies = await Movies.findAll({
-      limit: 3,
-      order: [[sequelize.literal("last_watched"), "DESC"]],
-    }).catch((err) => {
-      err &&
-        res
-          .status(500)
-          .send({ message: "ERROR: Could not filter movies by 'Recent'." });
-    });
-  } else {
-    movies = await Movies.findAll({
-      where: {
-        genre: sequelize.where(
-          sequelize.col("genre"),
-          "LIKE",
-          "%" + req.params.genre + "%"
-        ),
-      },
-      order: [[sequelize.literal("series, year"), "ASC"]],
-    }).catch((err) => {
-      err &&
-        res
-          .status(500)
-          .send({ message: "ERROR: Could not filter movies by genre." });
-    });
+  try {
+    switch (req.params.genre) {
+      case "All":
+      case "0":
+        movies = await Movies.findAll({
+          order: [[sequelize.literal("series", "year"), "ASC"]],
+        });
+        break;
+      case "Recent":
+        movies = await Movies.findAll({
+          limit: 3,
+          order: [[sequelize.literal("last_watched"), "DESC"]],
+        });
+        break;
+      default:
+        movies = await Movies.findAll({
+          where: {
+            genre: sequelize.where(
+              sequelize.col("genre"),
+              "LIKE",
+              "%" + req.params.genre + "%"
+            ),
+          },
+          order: [[sequelize.literal("series, year"), "ASC"]],
+        });
+    }
+    res.status(200).send(movies);
+  } catch (err) {
+    res.status(500).send({ error: err });
   }
-  res.status(200).send(movies);
 };
 
 /**
@@ -132,64 +119,53 @@ const getMoviesByGenre = async (req, res) => {
 const getMoviesBySearch = async (req, res) => {
   let movies = [];
   //
-  let titles = await Movies.findAll({
-    where: {
-      title: sequelize.where(
-        sequelize.col("title"),
-        "LIKE",
-        "%" + req.params.input + "%"
-      ),
-    },
-    order: [[sequelize.literal("series, year"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not filter movies by title." });
-  });
-  //
-  let directors = await Movies.findAll({
-    where: {
-      director: sequelize.where(
-        sequelize.col("director"),
-        "LIKE",
-        "%" + req.params.input + "%"
-      ),
-    },
-    order: [[sequelize.literal("series, year"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not filter movies by director." });
-  });
-  //
-  let actors = await Movies.findAll({
-    where: {
-      actors: sequelize.where(
-        sequelize.col("actors"),
-        "LIKE",
-        "%" + req.params.input + "%"
-      ),
-    },
-    order: [[sequelize.literal("series, year"), "ASC"]],
-  }).catch((err) => {
-    err &&
-      res
-        .status(500)
-        .send({ message: "ERROR: Could not filter movies by actor." });
-  });
-  //
-  //conclude results
-  let arr = titles.concat(directors).concat(actors);
-  //get distinct movies by title
-  movies = [...new Map(arr.map((item) => [item["title"], item])).values()];
-  //sort movies by title
-  movies.sort((a, b) =>
-    a.title.toLowerCase().localeCompare(b.title.toLowerCase())
-  );
-  //
-  res.status(200).send(movies);
+  try {
+    let titles = await Movies.findAll({
+      where: {
+        title: sequelize.where(
+          sequelize.col("title"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      order: [[sequelize.literal("series, year"), "ASC"]],
+    });
+    //
+    let directors = await Movies.findAll({
+      where: {
+        director: sequelize.where(
+          sequelize.col("director"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      order: [[sequelize.literal("series, year"), "ASC"]],
+    });
+    //
+    let actors = await Movies.findAll({
+      where: {
+        actors: sequelize.where(
+          sequelize.col("actors"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      order: [[sequelize.literal("series, year"), "ASC"]],
+    });
+    //
+    //conclude results
+    let arr = titles.concat(directors).concat(actors);
+    //get distinct movies by title
+    movies = [...new Map(arr.map((item) => [item["title"], item])).values()];
+    //sort movies by title
+    movies.sort((a, b) =>
+      a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+    );
+    //
+    res.status(200).send(movies);
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 //------------------------------------------------------------------------
@@ -222,11 +198,9 @@ const createMovie = async (req, res) => {
       res.status(200).send(result);
     })
     .catch((err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not create data of movie'" + req.body.title + "'.",
-        });
+      res.status(500).send({
+        error: err,
+      });
     });
 };
 
@@ -266,11 +240,9 @@ const updateMovie = async (req, res) => {
         .send({ message: "movie data of'" + req.body.title + "' was updated" })
     )
     .catch((err) => {
-      err &&
-        res.status(500).send({
-          message:
-            "ERROR: Could not update data of movie'" + req.body.title + "'.",
-        });
+      res.status(500).send({
+        error: err,
+      });
     });
 };
 
@@ -306,11 +278,7 @@ const updateFileData = async (
     },
     { where: { id: req.body.id } }
   ).catch((err) => {
-    err &&
-      res.status(500).send({
-        message:
-          "ERROR: Could not update file data of movie'" + req.body.title + "'.",
-      });
+    console.log(err);
   });
 };
 
@@ -319,9 +287,9 @@ const updateFileData = async (
  * @res -
  */
 const deleteMovie = async (req, res) => {
-  //
+  //=====================================================
   deleteFiles(req, false);
-  //
+  //=====================================================
   await Movies.destroy({ where: { id: req.body.id } })
     .then(
       res
@@ -329,10 +297,9 @@ const deleteMovie = async (req, res) => {
         .send({ message: "movie '" + req.body.title + "' was deleted" })
     )
     .catch((err) => {
-      err &&
-        res.status(500).send({
-          message: "ERROR: Could not delete movie '" + req.body.title + "'.",
-        });
+      res.status(500).send({
+        error: err,
+      });
     });
 };
 
@@ -344,56 +311,61 @@ const deleteMovie = async (req, res) => {
  * @res -
  */
 const updateMovieFiles = async (req, res) => {
-  let posterName = req.body.id + "_" + req.body.changes + ".jpg";
-  let teaserName = req.body.id + "_" + req.body.changes + ".mp4";
-  //"path.extname" gets the file type (e.g. .mp4 or .mpeg)
-  let germanName = req.body.id + "_de" + path.extname(req.body.german + "");
-  let englishName = req.body.id + "_en" + path.extname(req.body.english + "");
   //
-  let posterFolder = dir + "//poster//";
-  let teaserFolder = dir + "//teaser//";
-  let germanFolder = dir + "//de//";
-  let englishFolder = dir + "//en//";
-  //
-  let posterPath = posterFolder + posterName;
-  let teaserPath = teaserFolder + teaserName;
-  let germanPath = germanFolder + germanName;
-  let englishPath = englishFolder + englishName;
-  //
-  let prevChange = req.body.changes - 1;
-  let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
-  let prevTeaserPath = teaserFolder + req.body.id + "_" + prevChange + ".mp4";
-  //
-  copyOneFile(req.body.poster, posterFolder, posterPath).then(
-    copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(
-      copyOneFile(req.body.german, germanFolder, germanPath).then(
-        copyOneFile(req.body.english, englishFolder, englishPath).then(
-          //link new files in database
-          updateFileData(req, posterName, teaserName, germanName, englishName)
-            .then(
-              res.status(200).send({
-                message:
-                  "files of movie '" + req.body.title + "' were updated.",
-              })
-            )
-            .then(
-              //remove old files
-              deleteFiles(
-                req,
-                true,
-                posterPath,
-                teaserPath,
-                germanPath,
-                englishPath,
-                //
-                prevPosterPath,
-                prevTeaserPath
+  try {
+    let posterName = req.body.id + "_" + req.body.changes + ".jpg";
+    let teaserName = req.body.id + "_" + req.body.changes + ".mp4";
+    //"path.extname" gets the file type (e.g. .mp4 or .mpeg)
+    let germanName = req.body.id + "_de" + path.extname(req.body.german + "");
+    let englishName = req.body.id + "_en" + path.extname(req.body.english + "");
+    //
+    let posterFolder = dir + "//poster//";
+    let teaserFolder = dir + "//teaser//";
+    let germanFolder = dir + "//de//";
+    let englishFolder = dir + "//en//";
+    //
+    let posterPath = posterFolder + posterName;
+    let teaserPath = teaserFolder + teaserName;
+    let germanPath = germanFolder + germanName;
+    let englishPath = englishFolder + englishName;
+    //
+    let prevChange = req.body.changes - 1;
+    let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
+    let prevTeaserPath = teaserFolder + req.body.id + "_" + prevChange + ".mp4";
+    //
+    copyOneFile(req.body.poster, posterFolder, posterPath).then(
+      copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(
+        copyOneFile(req.body.german, germanFolder, germanPath).then(
+          copyOneFile(req.body.english, englishFolder, englishPath).then(
+            //link new files in database
+            updateFileData(req, posterName, teaserName, germanName, englishName)
+              .then(
+                res.status(200).send({
+                  message:
+                    "files of movie '" + req.body.title + "' were updated.",
+                })
               )
-            )
+              .then(
+                //remove old files
+                deleteFiles(
+                  req,
+                  true,
+                  posterPath,
+                  teaserPath,
+                  germanPath,
+                  englishPath,
+                  //
+                  prevPosterPath,
+                  prevTeaserPath
+                )
+              )
+          )
         )
       )
-    )
-  );
+    );
+  } catch (err) {
+    res.status(500).send({ error: err });
+  }
 };
 
 /**
@@ -410,8 +382,8 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
       https.get(fileSource, (response) => {
         let file = fs.createWriteStream(newPath);
         response.pipe(file);
-        file.on("error", (error) => {
-          console.log(error);
+        file.on("error", (err) => {
+          console.log(err);
         });
         file.on("finish", () => {
           file.close();
@@ -419,8 +391,8 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
       });
     } else {
       //copy local file to location
-      fs.copyFile(fileSource, newPath, (error) => {
-        console.log(error);
+      fs.copyFile(fileSource, newPath, (err) => {
+        console.log(err);
       });
     }
   }
@@ -465,7 +437,7 @@ const deleteFiles = async (
 const deleteOneFile = (fileLocation) => {
   fs.existsSync(fileLocation) &&
     fs.rm(fileLocation, (err) => {
-      err && console.log(err);
+      console.log(err);
     });
 };
 

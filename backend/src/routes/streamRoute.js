@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const streamController = require("../controllers/streamController");
 
-router.get("/track/:type/:filename", streamController.getTrackStream);
-router.get("/poster/:filename", streamController.getPosterStream);
+router.get("/media/:type/:filename", streamController.getMediaStream);
+router.get("/image/:filename", streamController.getImageStream);
 
 module.exports = router;

@@ -62,7 +62,7 @@ const CardSlider = () => {
       <div className={styles.card}>
         <div className={styles.poster}>
           <img
-            src={`http://localhost:9000/stream/image/1/${episodes[index]?.poster}`}
+            src={`http://localhost:9000/stream/image/${episodes[index]?.poster}`}
             onError={(event) =>
               (event.target.src = require("../../assets/images/placeholder.jpg").default)
             }
