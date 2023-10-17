@@ -13,7 +13,12 @@ const SearchBar = () => {
 
   useEffect(() => {
     document.getElementById("myInput").value = "";
-  }, [viewType, genre]);
+  }, [genre]);
+
+  useEffect(() => {
+    document.getElementById("myInput").value = "";
+    dispatch(selectTitle(""));
+  }, [viewType]);
 
   useEffect(() => {
     input === ""

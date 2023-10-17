@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { HashRouter as Router } from "react-router-dom";
 import { Routes, Route } from "react-router-loading";
 import { useSelector, useDispatch } from "react-redux";
-import useUnload from "./hooks/useUnload";
 
 
 import Home from "./pages/home/Home";

@@ -11,11 +11,10 @@ import {
 const CardSlider = () => {
   const [episodes, setEpisodes] = useState([]);
   const [index, setIndex] = useState(0);
-  
+
   const dispatch = useDispatch();
   const selectedVideo = useSelector((state) => state.video.video);
   const genre = useSelector((state) => state.video.genre);
-  const source = useSelector((state) => state.source.source);
 
   const { data: episodesBySeason } = useGetEpisodesBySeasonQuery({
     series: selectedVideo.series,
@@ -63,9 +62,7 @@ const CardSlider = () => {
       <div className={styles.card}>
         <div className={styles.poster}>
           <img
-            src={`file:///${source}/${
-              episodes[index] && episodes[index].poster
-            }`}
+            src={`http://localhost:9000/stream/image/1/${episodes[index]?.poster}`}
             onError={(event) =>
               (event.target.src = require("../../assets/images/placeholder.jpg").default)
             }

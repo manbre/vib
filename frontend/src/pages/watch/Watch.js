@@ -60,7 +60,7 @@ const Watch = () => {
   };
 
   const handleVolumeChange = (e) => {
-    setVolume(e.target.value / 100), setVolumeBar(e.target.value);
+   /*  setVolume(e.target.value / 100), setVolumeBar(e.target.value); */
   };
 
   const handleForward = (sec) => {

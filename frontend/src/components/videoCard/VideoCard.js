@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoCard.module.css";
 import { selectVideo } from "../../features/video";
@@ -46,11 +46,8 @@ const VideoCard = ({ video }) => {
     >
       <div className={styles.poster}>
         <AsyncPoster
-          src={
-            video.poster &&
-            `http://localhost:9000/stream/image/1/${video.poster}`
-          }
-        />
+          src={video.poster && `http://localhost:9000/stream/poster/${video.poster}`}
+        ></AsyncPoster>
       </div>
 
       <div className={styles.info}>

@@ -4,7 +4,7 @@ const Episodes = require("../models/episodeModel");
 const https = require("https");
 const fs = require("fs");
 //
-const dir = "G:\\vib\\show\\";
+const dir = "G:\\vib\\";
 
 //------------------------------------------------------------------------
 // QUERY episode data
@@ -425,7 +425,7 @@ const updateEpisodeFiles = async (req, res) => {
   //
   let n = req.body.episode < 10 ? "0" : "";
   let num = "" + req.body.season + n + req.body.episode;
-  let initials = req.params.series
+  let initials = req.body.series
     .match(/(\b\S)?/g)
     .join("")
     .toUpperCase();

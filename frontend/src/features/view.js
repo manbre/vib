@@ -3,14 +3,10 @@ import { createSlice } from "@reduxjs/toolkit";
 export const viewSlice = createSlice({
   name: "view",
   initialState: {
-    isEditor: false /* false: closed*/,
-    viewType: 1 /* 1: Movies, 2: TVShows */,
+    viewType: 1 /* 1: Movies, 2: Shows */,
     card: null,
   },
   reducers: {
-    toggleEditor: (state, action) => {
-      state.isEditor = action.payload;
-    },
     toggleType: (state, action) => {
       state.viewType = action.payload;
     },
@@ -23,10 +19,5 @@ export const viewSlice = createSlice({
   },
 });
 
-export const {
-  toggleEditor,
-  toggleType,
-  markCard,
-  muteTeaser,
-} = viewSlice.actions;
+export const { toggleType, markCard, muteTeaser } = viewSlice.actions;
 export default viewSlice.reducer;

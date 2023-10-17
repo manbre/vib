@@ -6,6 +6,7 @@ export const backend = createApi({
   endpoints: (builder) => ({
     //------------------------------------------------------------------------------------
     //QUERIES
+    //
     getMovieById: builder.query({
       query: (id) => `movies/id/${id}`,
     }),
@@ -29,7 +30,7 @@ export const backend = createApi({
         body: episode,
       }),
     }),
-    //
+    //_________________________________________
     updateMovie: builder.mutation({
       query: (movie) => ({
         url: "/movies",
@@ -44,7 +45,7 @@ export const backend = createApi({
         body: episode,
       }),
     }),
-    //
+    //_________________________________________
     deleteMovie: builder.mutation({
       query: (movie) => ({
         url: "/movies",
@@ -59,7 +60,7 @@ export const backend = createApi({
         body: episode,
       }),
     }),
-    //
+    //_________________________________________
     updateMovieFiles: builder.mutation({
       query: (movie) => ({
         url: "/movies/files",

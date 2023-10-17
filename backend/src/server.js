@@ -16,11 +16,13 @@ app.use(express.urlencoded({ extended: false }));
 //routes
 const movieRoute = require("./routes/movieRoute");
 const episodeRoute = require("./routes/episodeRoute");
+//
 const omdbRoute = require("./routes/omdbRoute");
 const streamRoute = require("./routes/streamRoute");
 
 app.use("/movies", movieRoute);
 app.use("/episodes", episodeRoute);
+//
 app.use("/omdb", omdbRoute);
 app.use("/stream", streamRoute);
 

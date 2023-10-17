@@ -3,9 +3,10 @@ const Movies = require("../models/movieModel");
 //
 const https = require("https");
 const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 //
-const dir = "G:\\vib\\movies\\";
+const dir = "G:\\vib\\";
 
 //------------------------------------------------------------------------
 // QUERY movie data
@@ -343,11 +344,11 @@ const deleteMovie = async (req, res) => {
  * @res -
  */
 const updateMovieFiles = async (req, res) => {
-  //
   let posterName = req.body.id + "_" + req.body.changes + ".jpg";
   let teaserName = req.body.id + "_" + req.body.changes + ".mp4";
-  let germanName = req.body.id + "_de.mp4";
-  let englishName = req.body.id + "_en.mp4";
+  //"path.extname" gets the file type (e.g. .mp4 or .mpeg)
+  let germanName = req.body.id + "_de" + path.extname(req.body.german + "");
+  let englishName = req.body.id + "_en" + path.extname(req.body.english + "");
   //
   let posterFolder = dir + "//poster//";
   let teaserFolder = dir + "//teaser//";

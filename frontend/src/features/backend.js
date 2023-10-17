@@ -25,7 +25,7 @@ export const backend = createApi({
     //------------------------------------------------------------------------------------
     //Preview
     getEpisodesBySeason: builder.query({
-      query: ({ series, season }) => `/episodes/${series}/${season}`,
+      query: ({ series, season }) => `/episodes/season/${series}/${season}`,
       providesTags: ["Episode"],
     }),
     getRecentEpisode: builder.query({
@@ -56,7 +56,7 @@ export const backend = createApi({
     }),
     //------------------------------------------------------------------------------------
     //MUTATIONS
-    //
+    //------------------------------------------------------------------------------------
     updateMovie: builder.mutation({
       query: (movie) => ({
         url: "/movies",
@@ -71,7 +71,6 @@ export const backend = createApi({
         body: episode,
       }),
     }),
-    //
   }),
 });
 

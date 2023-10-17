@@ -6,7 +6,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(var(--secondary-text), 0.6);
+  background-color: rgba(var(--sec-text), 0.6);
   backdrop-filter: blur(2px);
 }
 

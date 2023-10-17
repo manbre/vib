@@ -12,6 +12,7 @@ server.on("connection", (socket) => {
     console.log("client has sent message!");
     server.clients.forEach((client) => client.send(JSON.stringify(data)));
   });
+  
 
   socket.on("close", () => {
     console.log("client has disconnected!");

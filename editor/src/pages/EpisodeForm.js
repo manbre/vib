@@ -109,10 +109,8 @@ const EpisodeForm = (props) => {
   const updateVideo = () => {
     updateEpisode({
       id: props.selected.id,
+      series: state.series,
       ...(state.title !== props.selected.title && { title: state.title }),
-      ...(state.series !== props.selected.series && {
-        series: state.series,
-      }),
       ...(state.director !== props.selected.director && {
         director: state.director,
       }),
@@ -144,6 +142,7 @@ const EpisodeForm = (props) => {
     //
     updateFiles({
       id: props.selected.id,
+      series: state.series,
       changes: props.selected.changes + 1,
       //
       ...(state.poster !== props.selected.poster && {

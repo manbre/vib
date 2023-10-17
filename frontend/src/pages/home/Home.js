@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import VideoPlayer from "../../components/videoPlayer/VideoPlayer";
 import SearchBar from "../../components/searchBar/SearchBar";
-import ToggleBar from "../../components/toggleBar/ToggleBar";
+import SwitchBar from "../../components/toggleBar/ToggleBar";
 import Preview from "../../components/preview/Preview";
 import ChipSlider from "../../components/chipSlider/ChipSlider";
 import VideoWall from "../../components/videoWall/VideoWall";
@@ -22,27 +22,17 @@ import {
 
 const Home = () => {
   const selectedVideo = useSelector((state) => state.video.video);
+  const viewType = useSelector((state) => state.view.viewType);
   const [isReady, val, send] = useWebSocket();
-  const [type, setType] = useState(1);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const genre = useSelector((state) => state.video.genre);
   const input = useSelector((state) => state.video.title);
 
-  const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre, {
-    skip: type === 2,
-  });
-  const { data: seasonsByGenre } = useGetSeasonsByGenreQuery(genre, {
-    skip: type === 1,
-  });
-
-  const { data: moviesBySearch } = useGetMoviesBySearchQuery(input, {
-    skip: type === 2,
-  });
-
-  const { data: seasonsBySearch } = useGetSeasonsBySearchQuery(input, {
-    skip: type === 2,
-  });
+  const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
+  const { data: seasonsByGenre } = useGetSeasonsByGenreQuery(genre);
+  const { data: moviesBySearch } = useGetMoviesBySearchQuery(input);
+  const { data: seasonsBySearch } = useGetSeasonsBySearchQuery(input);
 
   const [videos, setVideos] = useState([]);
   const navigate = useNavigate();
@@ -83,16 +73,16 @@ const Home = () => {
   }, [selectedVideo]);
 
   useEffect(() => {
-    type === 1 && moviesByGenre && setVideos(moviesByGenre ?? []);
-  }, [type, moviesByGenre]);
+    viewType === 1 && moviesByGenre && setVideos(moviesByGenre ?? []);
+  }, [viewType, moviesByGenre]);
 
   useEffect(() => {
-    type === 2 && seasonsByGenre && setVideos(seasonsByGenre ?? []);
-  }, [type, seasonsByGenre]);
+    viewType === 2 && seasonsByGenre && setVideos(seasonsByGenre ?? []);
+  }, [viewType]);
 
   useEffect(() => {
-    type === 1 && moviesBySearch && setVideos(moviesBySearch ?? []);
-    type === 2 && seasonsBySearch && setVideos(seasonsBySearch ?? []);
+    viewType === 1 && moviesBySearch && setVideos(moviesBySearch ?? []);
+    viewType === 2 && seasonsBySearch && setVideos(seasonsBySearch ?? []);
   }, [input]);
 
   return (
@@ -105,7 +95,7 @@ const Home = () => {
         <header>
           <div className={styles.topBar}>
             <SearchBar />
-            <ToggleBar changeType={(type) => setType(type)} />
+            <SwitchBar />
           </div>
 
           <ChipSlider />
@@ -115,7 +105,7 @@ const Home = () => {
       </section>
 
       <section className={styles.right}>
-        <Preview isLoaded={isLoaded} type={type} />
+        <Preview isLoaded={isLoaded} />
       </section>
     </div>
   );

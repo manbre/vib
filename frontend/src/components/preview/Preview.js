@@ -16,48 +16,64 @@ const Preview = (props) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   //
-  const initialState = {
-    title: "",
-    director: "",
-    genre: "",
-    actors: "",
-    plot: "",
-    rating: "",
-    year: "",
-    runtime: "",
-    fsk: "",
-    awards: "",
-    poster: "",
-    teaser: "",
-  };
+  const [title, setTitle] = useState("");
+  const [director, setDirector] = useState("");
+  const [genre, setGenre] = useState("");
+  const [actors, setActors] = useState("");
+  const [plot, setPlot] = useState("");
+  const [year, setYear] = useState("");
+  const [fsk, setFsk] = useState();
+  const [runtime, setRuntime] = useState(0);
+  const [poster, setPoster] = useState("");
+  //
+  const [teaser, setTeaser] = useState("");
+  const [rating, setRating] = useState(0);
+  const [awards, setAwards] = useState(0);
 
-  const [state, updateState] = useReducer(
-    (state, updates) => ({ ...state, ...updates }),
-    initialState
-  );
-
-  const takeAudio = (audio) => {
-    let german = document.getElementsByClassName(`${styles.german}`);
-    let english = document.getElementsByClassName(`${styles.english}`);
-    switch (audio) {
-      case 1:
-        german[0].style =
-          "border-bottom: 2px solid white; transform: scale(1.4)";
-        selectedVideo.english && (english[0].style = "border: none;");
-        dispatch(selectAudio(1));
-        break;
-      case 2:
-        english[0].style =
-          "border-bottom: 2px solid white; transform: scale(1.4)";
-        selectedVideo.german && (german[0].style = "border: none;");
-        dispatch(selectAudio(2));
-        break;
-      default:
+  useEffect(() => {
+    if (selectedVideo) {
+      switch (viewType) {
+        case 1:
+          setTitle(selectedVideo.title);
+          setYear(selectedVideo.year);
+          setFsk(selectedVideo.fsk);
+          setDirector(selectedVideo.director);
+          setGenre(selectedVideo.genre);
+          setActors(selectedVideo.actors);
+          setPlot(selectedVideo.plot);
+          setRuntime(selectedVideo.runtime);
+          setPoster(selectedVideo.poster);
+          //
+          setTeaser(selectedVideo.teaser);
+          setRating(selectedVideo.rating);
+          setAwards(selectedVideo.awards);
+          break;
+        case 2:
+          setTitle(selectedVideo.title);
+          setYear(selectedVideo.year);
+          setDirector(selectedVideo.director);
+          setGenre(selectedVideo.genre);
+          setActors(selectedVideo.actors);
+          setPlot(selectedVideo.plot);
+          setRuntime(selectedVideo.runtime);
+          setPoster(selectedVideo.poster);
+          //
+          setTeaser(selectedVideo.teaser);
+          break;
+      }
+      selectedVideo.german
+        ? takeAudio(1)
+        : selectedVideo.english && takeAudio(2);
+      toggleMute();
     }
-  };
+  }, [selectedVideo]);
+
+  useEffect(() => {
+    toggleMute();
+  }, [isMuted]);
 
   const toggleMute = () => {
-    if (state.teaser) {
+    if (teaser) {
       const elements = document.getElementsByClassName(`${styles.teaser}`);
       if (isMuted) {
         elements[0].muted = true;
@@ -66,16 +82,6 @@ const Preview = (props) => {
       }
     }
   };
-
-  /*   useEffect(() => {
-    if (selectedVideo) {
-      updateState(selectedVideo);
-      selectedVideo.german
-        ? takeAudio(1)
-        : selectedVideo.english && takeAudio(2);
-      toggleMute();
-    }
-  }, [selectedVideo, takeAudio, toggleMute]); */
 
   const getProgress = () => {
     if (selectedVideo) {
@@ -93,15 +99,6 @@ const Preview = (props) => {
 
   const playVideo = (isContinue) => {
     navigate(`/watch/${isContinue}`);
-  };
-
-  const convertRuntime = (runtime) => {
-    if (runtime < 60) {
-      return runtime + " min";
-    }
-    let hours = Math.floor(runtime / 60);
-    let minutes = runtime % 60;
-    return minutes > 0 ? hours + " h " + minutes + " min" : hours + " h";
   };
 
   const getPlayButtons = () => {
@@ -137,29 +134,53 @@ const Preview = (props) => {
     }
   };
 
+  const takeAudio = (audio) => {
+    let german = document.getElementsByClassName(`${styles.german}`);
+    let english = document.getElementsByClassName(`${styles.english}`);
+    switch (audio) {
+      case 1:
+        german[0].style =
+          "border-bottom: 2px solid white; transform: scale(1.4)";
+        selectedVideo?.english && (english[0].style = "border: none;");
+        dispatch(selectAudio(1));
+        break;
+      case 2:
+        english[0].style =
+          "border-bottom: 2px solid white; transform: scale(1.4)";
+        selectedVideo?.german && (german[0].style = "border: none;");
+        dispatch(selectAudio(2));
+        break;
+      default:
+    }
+  };
+
+  const convertRuntime = (runtime) => {
+    if (runtime < 60) {
+      return runtime + " min";
+    }
+    let hours = Math.floor(runtime / 60);
+    let minutes = runtime % 60;
+    return minutes > 0 ? hours + " h " + minutes + " min" : hours + " h";
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.teaser}>
-        {state.teaser ? (
+        {teaser ? (
           <video
             autoPlay
             loop
             muted={isMuted}
             src={
-              props.isLoaded &&
-              state.teaser &&
-              `http://localhost:9000/stream/video/trailer/${state.teaser}`
+              teaser && `http://localhost:9000/stream/track/teaser/${teaser}`
             }
           ></video>
         ) : (
           <AsyncPoster
-            src={
-              props.isLoaded &&
-              state.poster &&
-              `http://localhost:9000/stream/image/${state.poster}`
-            }
+            src={poster && `http://localhost:9000/stream/poster/${poster}`}
           />
         )}
+
         <div className={styles.btns}>
           {(selectedVideo?.german || selectedVideo?.english) &&
             getPlayButtons()}
@@ -178,7 +199,8 @@ const Preview = (props) => {
             )}
           </div>
         </div>
-        {viewType === 1 && state.teaser && (
+
+        {teaser && (
           <button
             className={isMuted ? styles.volBtn : styles.muteBtn}
             onClick={() =>
@@ -190,7 +212,8 @@ const Preview = (props) => {
 
       {selectedVideo && (
         <div className={styles.description}>
-          <p className={styles.title}>{state.title}</p>
+          {/*           <p className={styles.title}>{series}</p> */}
+          <p className={styles.title}>{title}</p>
           <div className={styles.content}>
             <div className={styles.numbers}>
               {viewType === 1 && (
@@ -203,26 +226,26 @@ const Preview = (props) => {
                   <span className={styles.rotten}></span>
                 )} */}
 
-                  <p>{state.rating / 10}</p>
+                  <p>{rating / 10}</p>
                 </div>
               )}
               <div className={styles.year}>
-                <p>{state.year}</p>
+                <p>{year}</p>
               </div>
               <div className={styles.runtime}>
-                <p>{convertRuntime(state.runtime)}</p>
+                <p>{convertRuntime(runtime)}</p>
               </div>
               <div className={styles.fsk}>
-                <p>{state.fsk}+</p>
+                <p>{fsk}+</p>
               </div>
-              {state.awards > 0 && (
+              {awards > 0 && viewType === 1 && (
                 <div className={styles.awards}>
                   <span className={styles.oscar}></span>
-                  <p>{state.awards}</p>
+                  <p>{awards}</p>
                 </div>
               )}
             </div>
-            <p className={styles.plot}>{state.plot}</p>
+            <p className={styles.plot}>{plot}</p>
             <div className={styles.row}>
               <div className={styles.colLeft}>
                 <p>Director</p>
@@ -230,9 +253,9 @@ const Preview = (props) => {
                 <p>Genre</p>
               </div>
               <div className={styles.colRight}>
-                <p>{state.director}</p>
-                <p>{state.actors}</p>
-                <p>{state.genre}</p>
+                <p>{director}</p>
+                <p>{actors}</p>
+                <p>{genre}</p>
               </div>
             </div>
           </div>
