@@ -40,7 +40,7 @@ const ChipSlider = () => {
         break;
       default:
     }
-  }, [viewType, movieGenres, episodeGenres]);
+  }, [viewType, episodeGenres]);
 
   const slide = (width) => {
     scroll.current.scrollLeft += width;

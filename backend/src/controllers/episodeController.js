@@ -3,6 +3,7 @@ const Episodes = require("../models/episodeModel");
 //
 const https = require("https");
 const fs = require("fs");
+const path = require("path");
 //
 const dir = "G:\\vib\\";
 
@@ -21,7 +22,7 @@ const getAllSeasons = async (req, res) => {
     });
     res.status(200).send(seasons);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -80,7 +81,7 @@ const getSeasonsBySearch = async (req, res) => {
     //
     res.status(200).send(seasons);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -95,7 +96,7 @@ const getOneEpisodeById = async (req, res) => {
     });
     res.status(200).send(episode);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -114,7 +115,7 @@ const getAllGenres = async (req, res) => {
       all.push(str);
     }
     //eliminates ","
-    let withoutBlank = a.toString().split(", ");
+    let withoutBlank = all.toString().split(", ");
     let withoutComma = withoutBlank.toString().split(",");
     //eliminates duplicates and spaces
     let distinct = [];
@@ -128,7 +129,7 @@ const getAllGenres = async (req, res) => {
     distinct.sort();
     res.status(200).send(distinct);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -147,7 +148,7 @@ const getEpisodesBySeason = async (req, res) => {
     });
     res.status(200).send(episodes);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -167,7 +168,7 @@ const getRecentEpisode = async (req, res) => {
     });
     res.status(200).send(episode);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -208,7 +209,7 @@ const getSeasonsByGenre = async (req, res) => {
     }
     res.status(200).send(seasons);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -243,7 +244,7 @@ const createEpisode = async (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        error: err,
+        error: err.message,
       });
     });
 };
@@ -255,7 +256,7 @@ const createEpisode = async (req, res) => {
 const updateEpisode = async (req, res) => {
   await Episodes.update(
     {
-      ...(req.body.series && { series: req.body.series }),
+      series: req.body.series,
       ...(req.body.title && { title: req.body.title }),
       ...(req.body.director && { director: req.body.director }),
       ...(req.body.genre && { genre: req.body.genre }),
@@ -290,7 +291,7 @@ const updateEpisode = async (req, res) => {
     )
     .catch((err) => {
       res.status(500).send({
-        error: err,
+        error: err.message,
       });
     });
 };
@@ -327,7 +328,7 @@ const updateFileData = async (
     },
     { where: { id: req.body.id } }
   ).catch((err) => {
-    console.log(err);
+    console.log({ error: err.message });
   });
 };
 
@@ -352,7 +353,7 @@ const deleteEpisode = async (req, res) => {
     )
     .catch((err) => {
       res.status(500).send({
-        error: err,
+        error: err.message,
       });
     });
 };
@@ -375,7 +376,8 @@ const updateEpisodeFiles = async (req, res) => {
       .toUpperCase();
     //
     let posterName = initials + "_" + num + "_" + req.body.changes + ".jpg";
-    let teaserName = initials + "_teaser.mp3";
+    //"path.extname" gets the file type (e.g. .mp3 or .mp4)
+    let teaserName = initials + "_teaser" + path.extname(req.body.teaser + "");
     let germanName = "//" + initials + "//" + initials + "_" + num + "_de.mp4";
     let englishName = "//" + initials + "//" + initials + "_" + num + "_en.mp4";
     //
@@ -427,7 +429,7 @@ const updateEpisodeFiles = async (req, res) => {
       )
     );
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -455,7 +457,7 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
     } else {
       //copy local file to location
       fs.copyFile(fileSource, newPath, (err) => {
-        console.log(err);
+        console.log({ error: err.message });
       });
     }
   }
@@ -492,7 +494,7 @@ const deleteFiles = async (
 const deleteOneFile = (fileLocation) => {
   fs.existsSync(fileLocation) &&
     fs.rm(fileLocation, (err) => {
-      console.log(err);
+      console.log({ error: err.message });
     });
 };
 

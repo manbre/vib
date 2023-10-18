@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./VideoCard.module.css";
 import { selectVideo } from "../../features/video";
-import AsyncPoster from "../asyncPoster/AsnycPoster";
+import AsyncPoster from "../asyncPoster/AsyncPoster";
 
 const VideoCard = ({ video }) => {
   const markedCard = useSelector((state) => state.view.card);

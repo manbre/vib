@@ -4,14 +4,14 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 50%;
+  width: 100%;
 }
 
 .card {
   position: relative;
   display: flex;
   overflow: hidden;
-  width: 40%;
+  width: 90%;
   max-width: 9em;
   aspect-ratio: 2/3;
   border-radius: 5px;

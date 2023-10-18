@@ -7,6 +7,7 @@ import {
   useGetEpisodesBySeasonQuery,
   useGetRecentEpisodeQuery,
 } from "../../features/backend";
+import AsyncPoster from "../asyncPoster/AsyncPoster";
 
 const CardSlider = () => {
   const [episodes, setEpisodes] = useState([]);
@@ -24,6 +25,10 @@ const CardSlider = () => {
     series: selectedVideo.series,
     season: selectedVideo.season,
   });
+
+  useEffect(() => {
+    console.log(episodes.length);
+  }, [episodes]);
 
   useEffect(() => {
     episodesBySeason && setEpisodes(episodesBySeason ?? []);
@@ -61,15 +66,11 @@ const CardSlider = () => {
       </button>
       <div className={styles.card}>
         <div className={styles.poster}>
-          <img
+          <AsyncPoster
             src={`http://localhost:9000/stream/image/${episodes[index]?.poster}`}
-            onError={(event) =>
-              (event.target.src = require("../../assets/images/placeholder.jpg").default)
-            }
-            onLoad={(event) => (event.target.style.display = "inline-block")}
-          />
+          /> 
         </div>
-        <div className={styles.info}>
+{/*         <div className={styles.info}>
           <div className={styles.series}>
             {episodes[index] && episodes[index].series}
           </div>
@@ -88,7 +89,7 @@ const CardSlider = () => {
               <span className={styles.english}></span>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
       <button className={styles.next} onClick={() => nextSlide()}>
         &#10095;

@@ -143,13 +143,15 @@ const EpisodeForm = (props) => {
     updateFiles({
       id: props.selected.id,
       series: state.series,
+      season: state.season,
+      episode: state.episode,
       changes: props.selected.changes + 1,
       //
       ...(state.poster !== props.selected.poster && {
         poster: state.poster,
       }),
-      ...(state.trailer !== props.selected.trailer && {
-        trailer: state.trailer,
+      ...(state.teaser !== props.selected.teaser && {
+        teaser: state.teaser,
       }),
       ...(state.german !== props.selected.german && {
         german: state.german,

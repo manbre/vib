@@ -4,7 +4,7 @@ import styles from "./Preview.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CardSlider from "../cardSlider/CardSlider";
-import AsyncPoster from "../asyncPoster/AsnycPoster";
+import AsyncPoster from "../asyncPoster/AsyncPoster";
 import { selectVideo } from "../../features/video";
 import { selectAudio } from "../../features/video";
 import { muteTeaser } from "../../features/view";
@@ -166,7 +166,7 @@ const Preview = (props) => {
   return (
     <div className={styles.container}>
       <div className={styles.teaser}>
-        {teaser ? (
+        {teaser && (
           <video
             autoPlay
             loop
@@ -175,11 +175,15 @@ const Preview = (props) => {
               teaser && `http://localhost:9000/stream/media/teaser/${teaser}`
             }
           ></video>
-        ) : (
+        )}
+
+        {!teaser && viewType === 1 && (
           <AsyncPoster
             src={poster && `http://localhost:9000/stream/image/${poster}`}
           />
         )}
+
+        {viewType === 2 && selectedVideo && <CardSlider />}
 
         <div className={styles.btns}>
           {(selectedVideo?.german || selectedVideo?.english) &&

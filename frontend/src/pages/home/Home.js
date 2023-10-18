@@ -27,12 +27,16 @@ const Home = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const genre = useSelector((state) => state.video.genre);
-  const input = useSelector((state) => state.video.title);
+  const search = useSelector((state) => state.video.search);
 
   const { data: moviesByGenre } = useGetMoviesByGenreQuery(genre);
   const { data: seasonsByGenre } = useGetSeasonsByGenreQuery(genre);
-  const { data: moviesBySearch } = useGetMoviesBySearchQuery(input);
-  const { data: seasonsBySearch } = useGetSeasonsBySearchQuery(input);
+  const { data: moviesBySearch } = useGetMoviesBySearchQuery(search, {
+    skip: !search,
+  });
+  const { data: seasonsBySearch } = useGetSeasonsBySearchQuery(search, {
+    skip: !search,
+  });
 
   const [videos, setVideos] = useState([]);
   const navigate = useNavigate();
@@ -78,12 +82,12 @@ const Home = () => {
 
   useEffect(() => {
     viewType === 2 && seasonsByGenre && setVideos(seasonsByGenre ?? []);
-  }, [viewType]);
+  }, [viewType, seasonsByGenre]);
 
   useEffect(() => {
     viewType === 1 && moviesBySearch && setVideos(moviesBySearch ?? []);
     viewType === 2 && seasonsBySearch && setVideos(seasonsBySearch ?? []);
-  }, [input]);
+  }, [search]);
 
   return (
     <div className={styles.container}>

@@ -22,7 +22,7 @@ const getAllMovies = async (req, res) => {
     });
     res.status(200).send(movies);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -37,7 +37,7 @@ const getOneMovieById = async (req, res) => {
     });
     res.status(200).send(movie);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -70,7 +70,7 @@ const getAllGenres = async (req, res) => {
     distinct.sort();
     res.status(200).send(distinct);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -108,7 +108,7 @@ const getMoviesByGenre = async (req, res) => {
     }
     res.status(200).send(movies);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -164,7 +164,7 @@ const getMoviesBySearch = async (req, res) => {
     //
     res.status(200).send(movies);
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -199,7 +199,7 @@ const createMovie = async (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        error: err,
+        error: err.message,
       });
     });
 };
@@ -241,7 +241,7 @@ const updateMovie = async (req, res) => {
     )
     .catch((err) => {
       res.status(500).send({
-        error: err,
+        error: err.message,
       });
     });
 };
@@ -278,7 +278,7 @@ const updateFileData = async (
     },
     { where: { id: req.body.id } }
   ).catch((err) => {
-    console.log(err);
+    console.log({ error: err.message });
   });
 };
 
@@ -298,7 +298,7 @@ const deleteMovie = async (req, res) => {
     )
     .catch((err) => {
       res.status(500).send({
-        error: err,
+        error: err.message,
       });
     });
 };
@@ -364,7 +364,7 @@ const updateMovieFiles = async (req, res) => {
       )
     );
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -392,7 +392,7 @@ const copyOneFile = async (fileSource, newFolder, newPath) => {
     } else {
       //copy local file to location
       fs.copyFile(fileSource, newPath, (err) => {
-        console.log(err);
+        console.log({ error: err.message });
       });
     }
   }
@@ -437,7 +437,7 @@ const deleteFiles = async (
 const deleteOneFile = (fileLocation) => {
   fs.existsSync(fileLocation) &&
     fs.rm(fileLocation, (err) => {
-      console.log(err);
+      console.log({ error: err.message });
     });
 };
 
