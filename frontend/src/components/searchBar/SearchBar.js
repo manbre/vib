@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./SearchBar.module.css";
 import { selectGenre } from "../../features/video";
@@ -18,7 +18,7 @@ const SearchBar = () => {
   useEffect(() => {
     document.getElementById("myInput").value = "";
     dispatch(selectSearch(""));
-  }, [viewType]);
+  }, [viewType, dispatch]);
 
   useEffect(() => {
     if (search === "") {
@@ -26,7 +26,7 @@ const SearchBar = () => {
         ? dispatch(selectGenre("0"))
         : dispatch(selectGenre("All"));
     }
-  }, [search]);
+  }, [search, dispatch]);
 
   return (
     <div className={styles.container}>

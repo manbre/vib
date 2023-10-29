@@ -16,19 +16,32 @@ const CardSlider = () => {
   const dispatch = useDispatch();
   const selectedVideo = useSelector((state) => state.video.video);
   const genre = useSelector((state) => state.video.genre);
+  const viewType = useSelector((state) => state.view.viewType);
 
-  const { data: episodesBySeason } = useGetEpisodesBySeasonQuery({
-    series: selectedVideo.series,
-    season: selectedVideo.season,
-  });
-  const { data: recentEpisode } = useGetRecentEpisodeQuery({
-    series: selectedVideo.series,
-    season: selectedVideo.season,
-  });
+  const { data: episodesBySeason } = useGetEpisodesBySeasonQuery(
+    {
+      series: selectedVideo.series,
+      season: selectedVideo.season,
+    },
+    { skip: viewType === 1 }
+  );
+  const { data: recentEpisode } = useGetRecentEpisodeQuery(
+    {
+      series: selectedVideo.series,
+      season: selectedVideo.season,
+    },
+    { skip: viewType === 1 }
+  );
 
   useEffect(() => {
     console.log(episodes.length);
-  }, [episodes]);
+    console.log(episodes[index]?.poster);
+  }, [episodes, index]);
+
+  useEffect(() => {
+    let image = document.getElementsByClassName(`${styles.image}`);
+    image.src = `http://localhost:9000/stream/image/${episodes[index]?.poster}`;
+  }, [index]);
 
   useEffect(() => {
     episodesBySeason && setEpisodes(episodesBySeason ?? []);
@@ -66,11 +79,9 @@ const CardSlider = () => {
       </button>
       <div className={styles.card}>
         <div className={styles.poster}>
-          <AsyncPoster
-            src={`http://localhost:9000/stream/image/${episodes[index]?.poster}`}
-          /> 
+          <AsyncPoster className={styles.image} />
         </div>
-{/*         <div className={styles.info}>
+        {/*         <div className={styles.info}>
           <div className={styles.series}>
             {episodes[index] && episodes[index].series}
           </div>

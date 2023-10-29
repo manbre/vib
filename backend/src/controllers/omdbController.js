@@ -9,7 +9,6 @@ const getOMDBData = async (req, res) => {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
         res.send(data);
       });
   } catch (error) {

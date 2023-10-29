@@ -1,15 +1,14 @@
 import React from "react";
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect } from "react";
 import styles from "./Preview.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CardSlider from "../cardSlider/CardSlider";
 import AsyncPoster from "../asyncPoster/AsyncPoster";
-import { selectVideo } from "../../features/video";
 import { selectAudio } from "../../features/video";
 import { muteTeaser } from "../../features/view";
 
-const Preview = (props) => {
+const Preview = () => {
   const selectedVideo = useSelector((state) => state.video.video);
   const viewType = useSelector((state) => state.view.viewType);
   const isMuted = useSelector((state) => state.view.muted);
@@ -22,13 +21,44 @@ const Preview = (props) => {
   const [actors, setActors] = useState("");
   const [plot, setPlot] = useState("");
   const [year, setYear] = useState("");
-  const [fsk, setFsk] = useState();
+  const [fsk, setFsk] = useState(0);
   const [runtime, setRuntime] = useState(0);
   const [poster, setPoster] = useState("");
   //
   const [teaser, setTeaser] = useState("");
   const [rating, setRating] = useState(0);
   const [awards, setAwards] = useState(0);
+
+  const toggleMute = () => {
+    if (teaser) {
+      const elements = document.getElementsByClassName(`${styles.teaser}`);
+      if (isMuted) {
+        elements[0].muted = true;
+      } else {
+        elements[0].muted = false;
+      }
+    }
+  };
+
+  const takeAudio = (audio) => {
+    let german = document.getElementsByClassName(`${styles.german}`);
+    let english = document.getElementsByClassName(`${styles.english}`);
+    switch (audio) {
+      case 1:
+        german[0].style =
+          "border-bottom: 2px solid white; transform: scale(1.4)";
+        selectedVideo?.english && (english[0].style = "border: none;");
+        dispatch(selectAudio(1));
+        break;
+      case 2:
+        english[0].style =
+          "border-bottom: 2px solid white; transform: scale(1.4)";
+        selectedVideo?.german && (german[0].style = "border: none;");
+        dispatch(selectAudio(2));
+        break;
+      default:
+    }
+  };
 
   useEffect(() => {
     if (selectedVideo) {
@@ -60,28 +90,18 @@ const Preview = (props) => {
           //
           setTeaser(selectedVideo.teaser);
           break;
+        default:
       }
       selectedVideo.german
         ? takeAudio(1)
         : selectedVideo.english && takeAudio(2);
       toggleMute();
     }
-  }, [selectedVideo]);
+  }, [selectedVideo, viewType, takeAudio]);
 
   useEffect(() => {
     toggleMute();
-  }, [isMuted]);
-
-  const toggleMute = () => {
-    if (teaser) {
-      const elements = document.getElementsByClassName(`${styles.teaser}`);
-      if (isMuted) {
-        elements[0].muted = true;
-      } else {
-        elements[0].muted = false;
-      }
-    }
-  };
+  }, [isMuted, toggleMute]);
 
   const getProgress = () => {
     if (selectedVideo) {
@@ -134,26 +154,6 @@ const Preview = (props) => {
     }
   };
 
-  const takeAudio = (audio) => {
-    let german = document.getElementsByClassName(`${styles.german}`);
-    let english = document.getElementsByClassName(`${styles.english}`);
-    switch (audio) {
-      case 1:
-        german[0].style =
-          "border-bottom: 2px solid white; transform: scale(1.4)";
-        selectedVideo?.english && (english[0].style = "border: none;");
-        dispatch(selectAudio(1));
-        break;
-      case 2:
-        english[0].style =
-          "border-bottom: 2px solid white; transform: scale(1.4)";
-        selectedVideo?.german && (german[0].style = "border: none;");
-        dispatch(selectAudio(2));
-        break;
-      default:
-    }
-  };
-
   const convertRuntime = (runtime) => {
     if (runtime < 60) {
       return runtime + " min";
@@ -183,7 +183,7 @@ const Preview = (props) => {
           />
         )}
 
-        {viewType === 2 && selectedVideo && <CardSlider />}
+         {viewType === 2 && selectedVideo && <CardSlider />} 
 
         <div className={styles.btns}>
           {(selectedVideo?.german || selectedVideo?.english) &&

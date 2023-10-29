@@ -9,12 +9,14 @@ import { selectGenre } from "../../features/video";
 const ToggleBar = () => {
   const dispatch = useDispatch();
   const genre = useSelector((state) => state.video.genre);
-  const viewType = useSelector((state) => state.view.viewType);
 
-    useEffect(() => {
-    dispatch(selectVideo(null));
+
+  const selectType = (type) =>{
     genre === "All" ? dispatch(selectGenre("0")) : dispatch(selectGenre("All"));
-  }, [viewType]);
+    dispatch(selectVideo(null));
+    dispatch(toggleType(type));
+  }
+
 
   return (
     <div className={styles.container}>
@@ -28,7 +30,7 @@ const ToggleBar = () => {
       <label
         htmlFor="toggleOn"
         className={styles.btn}
-        onClick={() => dispatch(toggleType(1))}
+        onClick={() => selectType(1)}
       >
         Movies
       </label>
@@ -41,7 +43,7 @@ const ToggleBar = () => {
       <label
         htmlFor="toggleOff"
         className={styles.btn}
-        onClick={() => dispatch(toggleType(2))}
+        onClick={() => selectType(2)}
       >
         Shows
       </label>

@@ -1,10 +1,13 @@
 const sequelize = require("../config/databaseConfig");
 const Movies = require("../models/movieModel");
 //
+const copyFile = require("../helpers/copyFile");
+const deleteFile = require("../helpers/deleteFile");
+const getGenres = require("../helpers/getGenres");
+//
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
-require("dotenv").config();
 //
 const dir = "G:\\vib\\";
 
@@ -47,28 +50,8 @@ const getOneMovieById = async (req, res) => {
  */
 const getAllGenres = async (req, res) => {
   try {
-    let genres = await Movies.findAll();
-    //
-    let all = [];
-    //get data out of json
-    for (let i = 0; i < genres.length; i++) {
-      let str = genres[i].genre;
-      all.push(str);
-    }
-    //eliminates ", "
-    let withoutBlank = all.toString().split(", ");
-    let withoutComma = withoutBlank.toString().split(",");
-    //eliminates duplicates and spaces
-    let distinct = [];
-    for (let i = 0; i < withoutComma.length; i++) {
-      let str = withoutComma[i];
-      if (!distinct.includes(withoutComma[i]) && withoutComma[i] !== "") {
-        distinct.push(str);
-      }
-    }
-    //in alphabetical order
-    distinct.sort();
-    res.status(200).send(distinct);
+    let genres = getGenres(Movies);
+    res.status(200).send(genres);
   } catch (err) {
     res.status(500).send({ error: err.message });
   }
@@ -90,6 +73,7 @@ const getMoviesByGenre = async (req, res) => {
         break;
       case "Recent":
         movies = await Movies.findAll({
+          where: { last_watched: { $ne: null } },
           limit: 3,
           order: [[sequelize.literal("last_watched"), "DESC"]],
         });
@@ -333,10 +317,10 @@ const updateMovieFiles = async (req, res) => {
     let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
     let prevTeaserPath = teaserFolder + req.body.id + "_" + prevChange + ".mp4";
     //
-    copyOneFile(req.body.poster, posterFolder, posterPath).then(
-      copyOneFile(req.body.teaser, teaserFolder, teaserPath).then(
-        copyOneFile(req.body.german, germanFolder, germanPath).then(
-          copyOneFile(req.body.english, englishFolder, englishPath).then(
+    copyFile(req.body.poster, posterFolder, posterPath).then(
+      copyFile(req.body.teaser, teaserFolder, teaserPath).then(
+        copyFile(req.body.german, germanFolder, germanPath).then(
+          copyFile(req.body.english, englishFolder, englishPath).then(
             //link new files in database
             updateFileData(req, posterName, teaserName, germanName, englishName)
               .then(
@@ -369,36 +353,6 @@ const updateMovieFiles = async (req, res) => {
 };
 
 /**
- * @param fileSource
- * @param newFolder
- * @param newPath
- */
-const copyOneFile = async (fileSource, newFolder, newPath) => {
-  if (fileSource) {
-    //create "dir" if not exists, "recursive: true" => for parent folder too
-    !fs.existsSync(newFolder) && fs.mkdirSync(newFolder, { recursive: true });
-    //download poster from web (e.g. OMDB api) to location
-    if (fileSource.includes("http")) {
-      https.get(fileSource, (response) => {
-        let file = fs.createWriteStream(newPath);
-        response.pipe(file);
-        file.on("error", (err) => {
-          console.log(err);
-        });
-        file.on("finish", () => {
-          file.close();
-        });
-      });
-    } else {
-      //copy local file to location
-      fs.copyFile(fileSource, newPath, (err) => {
-        console.log({ error: err.message });
-      });
-    }
-  }
-};
-
-/**
  * @param req
  * @param isMovie
  * @param posterPath
@@ -419,26 +373,16 @@ const deleteFiles = async (
 ) => {
   //delete previous files to clean up
   if (isMovie) {
-    req.body.poster && deleteOneFile(prevPosterPath);
-    req.body.teaser && deleteOneFile(prevTeaserPath);
+    req.body.poster && deleteFile(prevPosterPath);
+    req.body.teaser && deleteFile(prevTeaserPath);
   }
   //delete file if
   //-> entry is empty and movie exist
   //-> or if movie not exist
-  (req.body.poster === "" || !isMovie) && deleteOneFile(posterPath);
-  (req.body.teaser === "" || !isMovie) && deleteOneFile(teaserPath);
-  (req.body.german === "" || !isMovie) && deleteOneFile(germanPath);
-  (req.body.english === "" || !isMovie) && deleteOneFile(englishPath);
-};
-
-/**
- * @param fileLocation
- */
-const deleteOneFile = (fileLocation) => {
-  fs.existsSync(fileLocation) &&
-    fs.rm(fileLocation, (err) => {
-      console.log({ error: err.message });
-    });
+  (req.body.poster === "" || !isMovie) && deleteFile(posterPath);
+  (req.body.teaser === "" || !isMovie) && deleteFile(teaserPath);
+  (req.body.german === "" || !isMovie) && deleteFile(germanPath);
+  (req.body.english === "" || !isMovie) && deleteFile(englishPath);
 };
 
 module.exports = {

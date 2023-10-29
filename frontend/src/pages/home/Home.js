@@ -1,9 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
-import VideoPlayer from "../../components/videoPlayer/VideoPlayer";
 import SearchBar from "../../components/searchBar/SearchBar";
 import SwitchBar from "../../components/toggleBar/ToggleBar";
 import Preview from "../../components/preview/Preview";
@@ -69,12 +68,12 @@ const Home = () => {
       setIsLoaded(true);
       loader.style = "display: none;";
     }
-  }, [val]);
+  }, [val, navigate]);
 
   useEffect(() => {
     isReady &&
       send(JSON.stringify({ name: "select", value: selectedVideo?.id }));
-  }, [selectedVideo]);
+  }, [selectedVideo, isReady]);
 
   useEffect(() => {
     viewType === 1 && moviesByGenre && setVideos(moviesByGenre ?? []);
@@ -87,7 +86,7 @@ const Home = () => {
   useEffect(() => {
     viewType === 1 && moviesBySearch && setVideos(moviesBySearch ?? []);
     viewType === 2 && seasonsBySearch && setVideos(seasonsBySearch ?? []);
-  }, [search]);
+  }, [search, viewType, moviesBySearch, seasonsBySearch]);
 
   return (
     <div className={styles.container}>
