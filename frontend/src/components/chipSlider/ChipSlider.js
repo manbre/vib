@@ -6,7 +6,7 @@ import { selectGenre } from "../../features/video";
 import { selectVideo } from "../../features/video";
 import {
   useGetMovieGenresQuery,
-  useGetEpisodeGenresQuery,
+  useGetSeasonGenresQuery,
 } from "../../features/backend";
 
 const ChipSlider = () => {
@@ -21,7 +21,7 @@ const ChipSlider = () => {
   const viewType = useSelector((state) => state.view.viewType);
 
   const { data: movieGenres } = useGetMovieGenresQuery();
-  const { data: episodeGenres } = useGetEpisodeGenresQuery();
+  const { data: seasonGenres } = useGetSeasonGenresQuery();
 
   window.addEventListener("resize", () => {
     checkScroll();
@@ -36,11 +36,11 @@ const ChipSlider = () => {
         movieGenres && setGenres(movieGenres ?? []);
         break;
       case 2:
-        episodeGenres && setGenres(episodeGenres ?? []);
+        seasonGenres && setGenres(seasonGenres ?? []);
         break;
       default:
     }
-  }, [viewType, episodeGenres]);
+  }, [viewType, seasonGenres]);
 
   const slide = (width) => {
     scroll.current.scrollLeft += width;

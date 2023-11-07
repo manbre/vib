@@ -10,8 +10,16 @@ export const backend = createApi({
     getMovieById: builder.query({
       query: (id) => `movies/id/${id}`,
     }),
+    getSeasonById: builder.query({
+      query: (id) => `seasons/id/${id}`,
+    }),
     getEpisodeById: builder.query({
       query: (id) => `episodes/id/${id}`,
+    }),
+    //
+    getAllEpisodesBySeason: builder.query({
+      query: ({ series, season }) => `/episodes/season/${series}/${season}`,
+      providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------
     //MUTATIONS
@@ -21,6 +29,13 @@ export const backend = createApi({
         url: "/movies",
         method: "POST",
         body: movie,
+      }),
+    }),
+    createSeason: builder.mutation({
+      query: (season) => ({
+        url: "/seasons",
+        method: "POST",
+        body: season,
       }),
     }),
     createEpisode: builder.mutation({
@@ -38,6 +53,13 @@ export const backend = createApi({
         body: movie,
       }),
     }),
+    updateSeason: builder.mutation({
+      query: (season) => ({
+        url: "/seasons",
+        method: "PUT",
+        body: season,
+      }),
+    }),
     updateEpisode: builder.mutation({
       query: (episode) => ({
         url: "/episodes",
@@ -51,6 +73,13 @@ export const backend = createApi({
         url: "/movies",
         method: "DELETE",
         body: movie,
+      }),
+    }),
+    deleteSeason: builder.mutation({
+      query: (season) => ({
+        url: "/seasons",
+        method: "DELETE",
+        body: season,
       }),
     }),
     deleteEpisode: builder.mutation({
@@ -68,6 +97,13 @@ export const backend = createApi({
         body: movie,
       }),
     }),
+    updateSeasonFiles: builder.mutation({
+      query: (season) => ({
+        url: "/seasons/files",
+        method: "PUT",
+        body: season,
+      }),
+    }),
     updateEpisodeFiles: builder.mutation({
       query: (episode) => ({
         url: "/episodes/files",
@@ -80,17 +116,22 @@ export const backend = createApi({
 
 export const {
   useGetMovieByIdQuery,
+  useGetSeasonByIdQuery,
   useGetEpisodeByIdQuery,
   //
   useCreateMovieMutation,
+  useCreateSeasonMutation,
   useCreateEpisodeMutation,
   //
   useUpdateMovieMutation,
+  useUpdateSeasonMutation,
   useUpdateEpisodeMutation,
   //
   useDeleteMovieMutation,
+  useDeleteSeasonMutation,
   useDeleteEpisodeMutation,
   //
   useUpdateMovieFilesMutation,
+  useUpdateSeasonFilesMutation,
   useUpdateEpisodeFilesMutation,
 } = backend;

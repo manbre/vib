@@ -1,8 +1,8 @@
 const sequelize = require("../config/databaseConfig");
 const Episodes = require("../models/episodeModel");
 //
-const copyFile = require("../helpers/copyFile");
-const deleteFile = require("../helpers/deleteFile");
+const fileOperations = require("../helpers/fileOperations");
+const getAttributes = require("../helpers/getAttributes");
 //
 const path = require("path");
 //
@@ -12,29 +12,14 @@ const dir = "G:\\vib\\";
 // QUERY episode data
 //------------------------------------------------------------------------
 /**
- * @req id
- * @res one episode by id
- */
-const getOneEpisodeById = async (req, res) => {
-  try {
-    let episode = await Episodes.findOne({
-      where: { id: req.params.id },
-    });
-    res.status(200).send(episode);
-  } catch (err) {
-    res.status(500).send({ error: err.message });
-  }
-};
-
-/**
  * @req season_id
  * @res all episodes by season
  */
-const getEpisodesBySeason = async (req, res) => {
+const getAllEpisodesBySeason = async (req, res) => {
   try {
     let episodes = await Episodes.findAll({
       where: {
-        season: sequelize.where(
+        season_id: sequelize.where(
           sequelize.col("season_id"),
           req.params.season_id
         ),
@@ -51,14 +36,32 @@ const getEpisodesBySeason = async (req, res) => {
  * @req season_id
  * @res recent episode by season
  */
-const getRecentEpisode = async (req, res) => {
+const getRecentEpisodeBySeason = async (req, res) => {
   try {
     let episode = await Episodes.findAll({
       limit: 1,
       where: {
-        season: sequelize.where(sequelize.col("season"), req.params.season_id),
+        season_id: sequelize.where(
+          sequelize.col("season_id"),
+          req.params.season_id
+        ),
       },
       order: [[sequelize.literal("last_watched"), "DESC"]],
+    });
+    res.status(200).send(episode);
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+};
+
+/**
+ * @req id
+ * @res one episode by id
+ */
+const getOneEpisodeById = async (req, res) => {
+  try {
+    let episode = await Episodes.findOne({
+      where: { id: req.params.id },
     });
     res.status(200).send(episode);
   } catch (err) {
@@ -107,9 +110,9 @@ const updateEpisode = async (req, res) => {
       ...(req.body.year && { year: req.body.year }),
       ...(req.body.episode && { episode: req.body.episode }),
       ...(req.body.plot && { plot: req.body.plot }),
-      changes: req.body.changes,
+      ...(req.body.season_id && { season_id: req.body.season_id }),
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
-      ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
+      ...(req.body.last_watched && { last_watched: req.body.last_watched }),
     },
     {
       where: { id: req.body.id },
@@ -192,8 +195,8 @@ const updateEpisodeFiles = async (req, res) => {
   try {
     let id = req.body.season_id;
     let n = req.body.episode < 10 ? "0" : "";
-    let num = "" + req.body.season + n + req.body.episode;
-    //
+    let num = "" + req.body.season_id + n + req.body.episode;
+    //"path.extname" gets the file type (e.g. .mp4 or .mpeg)
     let germanName =
       "//" + id + "//" + num + "_de" + path.extname(req.body.german + "");
     let englishName =
@@ -205,25 +208,27 @@ const updateEpisodeFiles = async (req, res) => {
     let germanPath = germanFolder + germanName;
     let englishPath = englishFolder + englishName;
     //
-    copyFile(req.body.german, germanFolder, germanPath).then(
-      copyFile(req.body.english, englishFolder, englishPath).then(
-        //link new files in database
-        updateFileData(req, germanName, englishName)
-          .then(
-            res.status(200).send({
-              message:
-                "files of '" +
-                req.body.series +
-                "', episode '" +
-                req.body.episode +
-                "' were updated.",
-            })
-          )
-          .then(
-            //remove old files
-            deleteFiles(req, true, germanPath, englishPath)
-          )
-      )
+    fileOperations.copyFile(req.body.german, germanFolder, germanPath).then(
+      fileOperations
+        .copyFile(req.body.english, englishFolder, englishPath)
+        .then(
+          //link new files in database
+          updateFileData(req, germanName, englishName)
+            .then(
+              res.status(200).send({
+                message:
+                  "files of '" +
+                  req.body.series +
+                  "', episode '" +
+                  req.body.episode +
+                  "' were updated.",
+              })
+            )
+            .then(
+              //remove old files
+              deleteFiles(req, true, germanPath, englishPath)
+            )
+        )
     );
   } catch (err) {
     res.status(500).send({ error: err.message });
@@ -238,18 +243,16 @@ const deleteFiles = async (req, isEpisode, germanPath, englishPath) => {
   // delete file if :
   //-> entry is empty and movie exist
   //-> or if movie not exist
-  (req.body.german === "" || !isEpisode) && deleteFile(germanPath);
-  (req.body.english === "" || !isEpisode) && deleteFile(englishPath);
+  (req.body.german === "" || !isEpisode) &&
+    fileOperations.deleteFile(germanPath);
+  (req.body.english === "" || !isEpisode) &&
+    fileOperations.deleteFile(englishPath);
 };
 
 module.exports = {
-  getAllSeasons,
-  getSeasonsBySearch,
+  getAllEpisodesBySeason,
+  getRecentEpisodeBySeason,
   getOneEpisodeById,
-  getAllGenres,
-  getEpisodesBySeason,
-  getRecentEpisode,
-  getSeasonsByGenre,
   //
   createEpisode,
   updateEpisode,

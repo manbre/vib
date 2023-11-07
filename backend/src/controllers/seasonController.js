@@ -1,9 +1,8 @@
 const sequelize = require("../config/databaseConfig");
 const Seasons = require("../models/seasonModel");
 //
-const copyFile = require("../helpers/copyFile");
-const deleteFile = require("../helpers/deleteFile");
-const getGenres = require("../helpers/getGenres");
+const fileOperations = require("../helpers/fileOperations");
+const getAttributes = require("../helpers/getAttributes");
 //
 const path = require("path");
 //
@@ -19,7 +18,7 @@ const dir = "G:\\vib\\";
 const getAllSeasons = async (req, res) => {
   try {
     let seasons = await Seasons.findAll({
-      order: [[sequelize.literal("title", "season"), "ASC"]],
+      order: [[sequelize.literal("series", "season"), "ASC"]],
     });
     res.status(200).send(seasons);
   } catch (err) {
@@ -43,68 +42,12 @@ const getOneSeasonById = async (req, res) => {
 };
 
 /**
- * @req search, input
- * @res seasons by search
- */
-const getSeasonsBySearch = async (req, res) => {
-  let seasons = [];
-  //
-  try {
-    let title = await Seasons.findAll({
-      where: {
-        series_title: sequelize.where(
-          sequelize.col("title"),
-          "LIKE",
-          "%" + req.params.input + "%"
-        ),
-      },
-      order: [[sequelize.literal("title", "season"), "ASC"]],
-    });
-    //
-    let creator = await Seasons.findAll({
-      where: {
-        creator: sequelize.where(
-          sequelize.col("creator"),
-          "LIKE",
-          "%" + req.params.input + "%"
-        ),
-      },
-      order: [[sequelize.literal("title", "season"), "ASC"]],
-    });
-    //
-    let actors = await Seasons.findAll({
-      where: {
-        actors: sequelize.where(
-          sequelize.col("actors"),
-          "LIKE",
-          "%" + req.params.input + "%"
-        ),
-      },
-      order: [[sequelize.literal("title", "season"), "ASC"]],
-    });
-    //
-    //conclude results
-    let arr = title.concat(creator).concat(actors);
-    //get distinct seasons by series
-    seasons = [...new Map(arr.map((item) => [item["title"], item])).values()];
-    //sort movies by title
-    seasons.sort((a, b) =>
-      a.title.toLowerCase().localeCompare(b.title.toLowerCase())
-    );
-    //
-    res.status(200).send(seasons);
-  } catch (err) {
-    res.status(500).send({ error: err.message });
-  }
-};
-
-/**
  * @req -
  * @res all genres
  */
 const getAllGenres = async (req, res) => {
   try {
-    let genres = getGenres(Seasons);
+    let genres = getAttributes.getGenres(Seasons);
     res.status(200).send(genres);
   } catch (err) {
     res.status(500).send({ error: err.message });
@@ -122,7 +65,14 @@ const getSeasonsByGenre = async (req, res) => {
       case "All":
       case "0":
         seasons = await Seasons.findAll({
-          order: [[sequelize.literal("title", "season"), "ASC"]],
+          order: [[sequelize.literal("series", "season"), "ASC"]],
+        });
+        break;
+      case "Recent":
+        seasons = await Seasons.findAll({
+          where: { last_watched: { $ne: null } },
+          limit: 3,
+          order: [[sequelize.literal("last_watched"), "DESC"]],
         });
         break;
       default:
@@ -134,9 +84,65 @@ const getSeasonsByGenre = async (req, res) => {
               "%" + req.params.genre + "%"
             ),
           },
-          order: [[sequelize.literal("title, season"), "ASC"]],
+          order: [[sequelize.literal("series, season"), "ASC"]],
         });
     }
+    res.status(200).send(seasons);
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+};
+
+/**
+ * @req search, input
+ * @res seasons by search
+ */
+const getSeasonsBySearch = async (req, res) => {
+  let seasons = [];
+  //
+  try {
+    let series = await Seasons.findAll({
+      where: {
+        series: sequelize.where(
+          sequelize.col("series"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      order: [[sequelize.literal("series", "season"), "ASC"]],
+    });
+    //
+    let creator = await Seasons.findAll({
+      where: {
+        creator: sequelize.where(
+          sequelize.col("creator"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      order: [[sequelize.literal("series", "season"), "ASC"]],
+    });
+    //
+    let actors = await Seasons.findAll({
+      where: {
+        actors: sequelize.where(
+          sequelize.col("actors"),
+          "LIKE",
+          "%" + req.params.input + "%"
+        ),
+      },
+      order: [[sequelize.literal("series", "season"), "ASC"]],
+    });
+    //
+    //conclude results
+    let arr = series.concat(creator).concat(actors);
+    //get distinct seasons by series
+    seasons = [...new Map(arr.map((item) => [item["series"], item])).values()];
+    //sort seasons by series
+    seasons.sort((a, b) =>
+      a.series.toLowerCase().localeCompare(b.series.toLowerCase())
+    );
+    //
     res.status(200).send(seasons);
   } catch (err) {
     res.status(500).send({ error: err.message });
@@ -152,7 +158,7 @@ const getSeasonsByGenre = async (req, res) => {
  */
 const createSeason = async (req, res) => {
   await Seasons.create({
-    title: req.body.title,
+    series: req.body.series,
     //
     creator: req.body.creator,
     genre: req.body.genre,
@@ -181,9 +187,9 @@ const createSeason = async (req, res) => {
  * @res -
  */
 const updateSeason = async (req, res) => {
-  await Episodes.update(
+  await Seasons.update(
     {
-      ...(req.body.title && { title: req.body.title }),
+      ...(req.body.series && { series: req.body.series }),
       //
       ...(req.body.creator && { creator: req.body.creator }),
       ...(req.body.genre && { genre: req.body.genre }),
@@ -195,6 +201,8 @@ const updateSeason = async (req, res) => {
       ...(req.body.actors && { director: req.body.actors }),
       //
       changes: req.body.changes,
+      //
+      ...(req.body.last_watched && { last_watched: req.body.last_watched }),
     },
     {
       where: { id: req.body.id },
@@ -204,7 +212,7 @@ const updateSeason = async (req, res) => {
       res.status(200).send({
         message:
           "season data of'" +
-          req.body.title +
+          req.body.series +
           "', season '" +
           req.body.season +
           "' was updated",
@@ -252,7 +260,7 @@ const deleteSeason = async (req, res) => {
       res.status(200).send({
         message:
           "'" +
-          req.body.title +
+          req.body.series +
           "', season '" +
           req.body.season +
           "' was deleted.",
@@ -293,15 +301,15 @@ const updateSeasonFiles = async (req, res) => {
       teaserFolder + id + "_" + prevChange + path.extname(req.body.teaser + "");
     //
 
-    copyFile(req.body.poster, posterFolder, posterPath).then(
-      copyFile(req.body.teaser, teaserFolder, teaserPath).then(
+    fileOperations.copyFile(req.body.poster, posterFolder, posterPath).then(
+      fileOperations.copyFile(req.body.teaser, teaserFolder, teaserPath).then(
         //link new files in database
         updateFileData(req, posterName, teaserName)
           .then(
             res.status(200).send({
               message:
                 "files of '" +
-                req.body.title +
+                req.body.series +
                 "', season '" +
                 req.body.season +
                 "' were updated.",
@@ -343,22 +351,24 @@ const deleteFiles = async (
 ) => {
   //delete previous files to clean up
   if (isSeason) {
-    req.body.poster && deleteFile(prevPosterPath);
-    req.body.teaser && deleteFile(prevTeaserPath);
+    req.body.poster && fileOperations.deleteFile(prevPosterPath);
+    req.body.teaser && fileOperations.deleteFile(prevTeaserPath);
   }
   //delete file if
   //-> entry is empty and movie exist
   //-> or if movie not exist
-  (req.body.poster === "" || !isSeason) && deleteFile(posterPath);
-  (req.body.teaser === "" || !isSeason) && deleteFile(teaserPath);
+  (req.body.poster === "" || !isSeason) &&
+    fileOperations.deleteFile(posterPath);
+  (req.body.teaser === "" || !isSeason) &&
+    fileOperations.deleteFile(teaserPath);
 };
 
 module.exports = {
   getAllSeasons,
   getOneSeasonById,
-  getSeasonsBySearch,
   getAllGenres,
   getSeasonsByGenre,
+  getSeasonsBySearch,
   //
   createSeason,
   updateSeason,

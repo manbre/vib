@@ -1,9 +1,8 @@
 const sequelize = require("../config/databaseConfig");
 const Movies = require("../models/movieModel");
 //
-const copyFile = require("../helpers/copyFile");
-const deleteFile = require("../helpers/deleteFile");
-const getGenres = require("../helpers/getGenres");
+const fileOperations = require("../helpers/fileOperations");
+const getAttributes = require("../helpers/getAttributes");
 //
 const https = require("https");
 const fs = require("fs");
@@ -50,7 +49,7 @@ const getOneMovieById = async (req, res) => {
  */
 const getAllGenres = async (req, res) => {
   try {
-    let genres = getGenres(Movies);
+    let genres = await getAttributes.getGenres(Movies);
     res.status(200).send(genres);
   } catch (err) {
     res.status(500).send({ error: err.message });
@@ -212,7 +211,7 @@ const updateMovie = async (req, res) => {
       changes: req.body.changes,
       //
       ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
-      ...(req.body.last_viewed && { last_viewed: req.body.last_viewed }),
+      ...(req.body.last_watched && { last_watched: req.body.last_watched }),
     },
     {
       where: { id: req.body.id },
@@ -317,33 +316,41 @@ const updateMovieFiles = async (req, res) => {
     let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
     let prevTeaserPath = teaserFolder + req.body.id + "_" + prevChange + ".mp4";
     //
-    copyFile(req.body.poster, posterFolder, posterPath).then(
-      copyFile(req.body.teaser, teaserFolder, teaserPath).then(
-        copyFile(req.body.german, germanFolder, germanPath).then(
-          copyFile(req.body.english, englishFolder, englishPath).then(
-            //link new files in database
-            updateFileData(req, posterName, teaserName, germanName, englishName)
-              .then(
-                res.status(200).send({
-                  message:
-                    "files of movie '" + req.body.title + "' were updated.",
-                })
+    fileOperations.copyFile(req.body.poster, posterFolder, posterPath).then(
+      fileOperations.copyFile(req.body.teaser, teaserFolder, teaserPath).then(
+        fileOperations.copyFile(req.body.german, germanFolder, germanPath).then(
+          fileOperations
+            .copyFile(req.body.english, englishFolder, englishPath)
+            .then(
+              //link new files in database
+              updateFileData(
+                req,
+                posterName,
+                teaserName,
+                germanName,
+                englishName
               )
-              .then(
-                //remove old files
-                deleteFiles(
-                  req,
-                  true,
-                  posterPath,
-                  teaserPath,
-                  germanPath,
-                  englishPath,
-                  //
-                  prevPosterPath,
-                  prevTeaserPath
+                .then(
+                  res.status(200).send({
+                    message:
+                      "files of movie '" + req.body.title + "' were updated.",
+                  })
                 )
-              )
-          )
+                .then(
+                  //remove old files
+                  deleteFiles(
+                    req,
+                    true,
+                    posterPath,
+                    teaserPath,
+                    germanPath,
+                    englishPath,
+                    //
+                    prevPosterPath,
+                    prevTeaserPath
+                  )
+                )
+            )
         )
       )
     );
@@ -373,16 +380,17 @@ const deleteFiles = async (
 ) => {
   //delete previous files to clean up
   if (isMovie) {
-    req.body.poster && deleteFile(prevPosterPath);
-    req.body.teaser && deleteFile(prevTeaserPath);
+    req.body.poster && fileOperations.deleteFile(prevPosterPath);
+    req.body.teaser && fileOperations.deleteFile(prevTeaserPath);
   }
   //delete file if
   //-> entry is empty and movie exist
   //-> or if movie not exist
-  (req.body.poster === "" || !isMovie) && deleteFile(posterPath);
-  (req.body.teaser === "" || !isMovie) && deleteFile(teaserPath);
-  (req.body.german === "" || !isMovie) && deleteFile(germanPath);
-  (req.body.english === "" || !isMovie) && deleteFile(englishPath);
+  (req.body.poster === "" || !isMovie) && fileOperations.deleteFile(posterPath);
+  (req.body.teaser === "" || !isMovie) && fileOperations.deleteFile(teaserPath);
+  (req.body.german === "" || !isMovie) && fileOperationsdeleteFile(germanPath);
+  (req.body.english === "" || !isMovie) &&
+    fileOperations.deleteFile(englishPath);
 };
 
 module.exports = {

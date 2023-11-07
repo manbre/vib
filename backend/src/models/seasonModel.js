@@ -5,7 +5,7 @@ class seasonModel extends Model {}
 
 seasonModel.init(
   {
-    title: { type: DataTypes.TEXT },
+    series: { type: DataTypes.TEXT },
     //
     creator: { type: DataTypes.TEXT },
     genre: { type: DataTypes.TEXT },
@@ -21,6 +21,7 @@ seasonModel.init(
     //
     changes: { type: DataTypes.INTEGER, defaultValue: 0 },
     //
+    last_watched: { type: DataTypes.DATE },
   },
 
   {

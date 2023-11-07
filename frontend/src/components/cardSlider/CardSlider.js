@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import styles from "./CardSlider.module.css";
 import { selectVideo } from "../../features/video";
 import {
-  useGetEpisodesBySeasonQuery,
-  useGetRecentEpisodeQuery,
+  useGetAllEpisodesBySeasonQuery,
+  useGetRecentEpisodeBySeasonQuery,
 } from "../../features/backend";
 import AsyncPoster from "../asyncPoster/AsyncPoster";
 
@@ -18,14 +18,14 @@ const CardSlider = () => {
   const genre = useSelector((state) => state.video.genre);
   const viewType = useSelector((state) => state.view.viewType);
 
-  const { data: episodesBySeason } = useGetEpisodesBySeasonQuery(
+  const { data: episodesBySeason } = useGetAllEpisodesBySeasonQuery(
     {
       series: selectedVideo.series,
       season: selectedVideo.season,
     },
     { skip: viewType === 1 }
   );
-  const { data: recentEpisode } = useGetRecentEpisodeQuery(
+  const { data: recentEpisode } = useGetRecentEpisodeBySeasonQuery(
     {
       series: selectedVideo.series,
       season: selectedVideo.season,

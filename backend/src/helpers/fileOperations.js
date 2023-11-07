@@ -6,7 +6,7 @@ const fs = require("fs");
  * @param newFolder
  * @param newPath
  */
-export const copyFile = async (fileSource, newFolder, newPath) => {
+const copyFile = async (fileSource, newFolder, newPath) => {
   if (fileSource) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
     !fs.existsSync(newFolder) && fs.mkdirSync(newFolder, { recursive: true });
@@ -29,4 +29,19 @@ export const copyFile = async (fileSource, newFolder, newPath) => {
       });
     }
   }
+};
+
+/**
+ * @param fileLocation
+ */
+const deleteFile = (fileLocation) => {
+    fs.existsSync(fileLocation) &&
+      fs.rm(fileLocation, (err) => {
+        console.log({ error: err.message });
+      });
+  };
+
+module.exports = {
+  copyFile,
+  deleteFile,
 };

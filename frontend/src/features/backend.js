@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const backend = createApi({
   reducerPath: "backend",
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:9000" }),
-  tagTypes: ["Movie", "Episode"],
+  tagTypes: ["Movie", "Season", "Episode"],
   endpoints: (builder) => ({
     //------------------------------------------------------------------------------------
     // QUERIES
@@ -18,17 +18,17 @@ export const backend = createApi({
       query: () => "/movies/genres",
       providesTags: ["Movie"],
     }),
-    getEpisodeGenres: builder.query({
-      query: () => "/episodes/genres",
-      providesTags: ["Episode"],
+    getSeasonGenres: builder.query({
+      query: () => "/seasons/genres",
+      providesTags: ["Season"],
     }),
     //------------------------------------------------------------------------------------
     //Preview
-    getEpisodesBySeason: builder.query({
+    getAllEpisodesBySeason: builder.query({
       query: ({ series, season }) => `/episodes/season/${series}/${season}`,
       providesTags: ["Episode"],
     }),
-    getRecentEpisode: builder.query({
+    getRecentEpisodeBySeason: builder.query({
       query: ({ series, season }) => `/episodes/recent/${series}/${season}`,
       providesTags: ["Episode"],
     }),
@@ -40,8 +40,8 @@ export const backend = createApi({
     }),
     getSeasonsBySearch: builder.query({
       //returns first episode (as sample) of the season
-      query: (input) => `/episodes/search/${input}`,
-      providesTags: ["Episode"],
+      query: (input) => `/seasons/search/${input}`,
+      providesTags: ["Season"],
     }),
     //------------------------------------------------------------------------------------
     //Home
@@ -51,17 +51,24 @@ export const backend = createApi({
     }),
     getSeasonsByGenre: builder.query({
       //returns first episode (as sample) of the season
-      query: (genre) => `/episodes/genre/${genre}`,
-      providesTags: ["Episode"],
+      query: (genre) => `/seasons/genre/${genre}`,
+      providesTags: ["Season"],
     }),
     //------------------------------------------------------------------------------------
-    //MUTATIONS
+    //MUTATIONS for updating "last_watched"
     //------------------------------------------------------------------------------------
     updateMovie: builder.mutation({
       query: (movie) => ({
         url: "/movies",
         method: "PUT",
         body: movie,
+      }),
+    }),
+    updateSeason: builder.mutation({
+      query: (season) => ({
+        url: "/seasons",
+        method: "PUT",
+        body: season,
       }),
     }),
     updateEpisode: builder.mutation({
@@ -78,10 +85,10 @@ export const {
   useGetSourceQuery,
   //
   useGetMovieGenresQuery,
-  useGetEpisodeGenresQuery,
+  useGetSeasonGenresQuery,
   //
-  useGetEpisodesBySeasonQuery,
-  useGetRecentEpisodeQuery,
+  useGetAllEpisodesBySeasonQuery,
+  useGetRecentEpisodeBySeasonQuery,
   //
   useGetMoviesBySearchQuery,
   useGetSeasonsBySearchQuery,
@@ -90,6 +97,7 @@ export const {
   useGetSeasonsByGenreQuery,
   //
   useUpdateMovieMutation,
+  useUpdateSeasonMutation,
   useUpdateEpisodeMutation,
   //
 } = backend;
