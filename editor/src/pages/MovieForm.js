@@ -320,7 +320,6 @@ const MovieForm = (props) => {
               type="text"
               value={state.director || ""}
               onChange={(e) => updateState({ director: e.target.value })}
-              name="director"
             ></input>
           </div>
         </div>

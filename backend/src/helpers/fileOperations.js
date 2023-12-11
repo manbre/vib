@@ -10,7 +10,7 @@ const copyFile = async (fileSource, newFolder, newPath) => {
   if (fileSource) {
     //create "dir" if not exists, "recursive: true" => for parent folder too
     !fs.existsSync(newFolder) && fs.mkdirSync(newFolder, { recursive: true });
-    //download poster from web (e.g. OMDB api) to location
+    //download file from web (e.g. OMDB api) to location
     if (fileSource.includes("http")) {
       https.get(fileSource, (response) => {
         let file = fs.createWriteStream(newPath);

@@ -25,11 +25,11 @@ export const backend = createApi({
     //------------------------------------------------------------------------------------
     //Preview
     getAllEpisodesBySeason: builder.query({
-      query: ({ series, season }) => `/episodes/season/${series}/${season}`,
+      query: (id) => `/episodes/season/${id}`,
       providesTags: ["Episode"],
     }),
     getRecentEpisodeBySeason: builder.query({
-      query: ({ series, season }) => `/episodes/recent/${series}/${season}`,
+      query: (id) => `/episodes/season/recent/${id}`,
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------

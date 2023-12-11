@@ -17,8 +17,16 @@ export const backend = createApi({
       query: (id) => `episodes/id/${id}`,
     }),
     //
+    getOneSeason: builder.query({
+      query: ({ series, seasonNr }) => `seasons/season/${series}/${seasonNr}`,
+    }),
+    getOneEpisode: builder.query({
+      query: ({ seasonId, episodeNr }) =>
+        `episodes/episode/${seasonId}/${episodeNr}`,
+    }),
+    //
     getAllEpisodesBySeason: builder.query({
-      query: ({ series, season }) => `/episodes/season/${series}/${season}`,
+      query: (id) => `/episodes/season/${id}`,
       providesTags: ["Episode"],
     }),
     //------------------------------------------------------------------------------------
@@ -116,8 +124,12 @@ export const backend = createApi({
 
 export const {
   useGetMovieByIdQuery,
+  useGetOneSeasonQuery,
+  useGetOneEpisodeQuery,
   useGetSeasonByIdQuery,
   useGetEpisodeByIdQuery,
+  //
+  useGetAllEpisodesBySeasonQuery,
   //
   useCreateMovieMutation,
   useCreateSeasonMutation,

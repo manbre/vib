@@ -3,6 +3,7 @@ const router = express.Router();
 const seasonController = require("../controllers/seasonController");
 
 router.get("/", seasonController.getAllSeasons);
+router.get("/season/:series/:seasonNr", seasonController.getOneSeason);
 router.get("/id/:id", seasonController.getOneSeasonById);
 router.get("/genres", seasonController.getAllGenres);
 router.get("/genre/:genre", seasonController.getSeasonsByGenre);

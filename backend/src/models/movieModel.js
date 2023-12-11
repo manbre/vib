@@ -26,8 +26,8 @@ movieModel.init(
     //
     changes: { type: DataTypes.INTEGER, defaultValue: 0 },
     //
-    elapsed_time: { type: DataTypes.INTEGER, defaultValue: 0 },
-    last_watched: { type: DataTypes.DATE },
+    elapsedTime: { type: DataTypes.INTEGER, defaultValue: 0 },
+    lastWatched: { type: DataTypes.DATE },
   },
 
   {

@@ -7,19 +7,18 @@ episodeModel.init(
   {
     title: { type: DataTypes.TEXT }, //title of episode
     //
-    year: { type: DataTypes.INTEGER },
-    //
-    episode: { type: DataTypes.INTEGER },
+    episodeNr: { type: DataTypes.INTEGER },
+    runtime: { type: DataTypes.INTEGER },
     //
     plot: { type: DataTypes.TEXT },
     //
     german: { type: DataTypes.TEXT }, //name of german .mp4 file
     english: { type: DataTypes.TEXT }, //name of english .mp4 file
     //
-    season_id: { type: DataTypes.INTEGER }, //"id" of season in seasonModel
+    seasonId: { type: DataTypes.INTEGER }, //"id" of season in seasonModel
     //
-    elapsed_time: { type: DataTypes.INTEGER, defaultValue: 0 },
-    last_watched: { type: DataTypes.DATE },
+    elapsedTime: { type: DataTypes.INTEGER, defaultValue: 0 },
+    lastWatched: { type: DataTypes.DATE },
   },
 
   {

@@ -6,13 +6,12 @@ class seasonModel extends Model {}
 seasonModel.init(
   {
     series: { type: DataTypes.TEXT },
-    //
     creator: { type: DataTypes.TEXT },
     genre: { type: DataTypes.TEXT },
     //
+    year: { type: DataTypes.INTEGER },
+    seasonNr: { type: DataTypes.INTEGER },
     fsk: { type: DataTypes.INTEGER, defaultValue: 0 }, //self regulatory
-    season: { type: DataTypes.INTEGER },
-    runtime: { type: DataTypes.INTEGER },
     //
     actors: { type: DataTypes.TEXT },
     //
@@ -21,7 +20,7 @@ seasonModel.init(
     //
     changes: { type: DataTypes.INTEGER, defaultValue: 0 },
     //
-    last_watched: { type: DataTypes.DATE },
+    lastWatched: { type: DataTypes.DATE },
   },
 
   {

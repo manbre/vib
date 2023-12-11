@@ -18,8 +18,27 @@ const dir = "G:\\vib\\";
 const getAllSeasons = async (req, res) => {
   try {
     let seasons = await Seasons.findAll({
-      order: [[sequelize.literal("series", "season"), "ASC"]],
+      order: [[sequelize.literal("series", "seasonNr"), "ASC"]],
     });
+    res.status(200).send(seasons);
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+};
+
+/**
+ * @req series, seasonNr
+ * @res one season
+ */
+const getOneSeason = async (req, res) => {
+  try {
+    let seasons = await Seasons.findAll({
+      where: {
+        series: req.params.series,
+        seasonNr: req.params.seasonNr,
+      },
+    });
+    console.log(seasons);
     res.status(200).send(seasons);
   } catch (err) {
     res.status(500).send({ error: err.message });
@@ -65,14 +84,14 @@ const getSeasonsByGenre = async (req, res) => {
       case "All":
       case "0":
         seasons = await Seasons.findAll({
-          order: [[sequelize.literal("series", "season"), "ASC"]],
+          order: [[sequelize.literal("series", "seasonNr"), "ASC"]],
         });
         break;
       case "Recent":
         seasons = await Seasons.findAll({
-          where: { last_watched: { $ne: null } },
+          where: { lastWatched: { $ne: null } },
           limit: 3,
-          order: [[sequelize.literal("last_watched"), "DESC"]],
+          order: [[sequelize.literal("lastWatched"), "DESC"]],
         });
         break;
       default:
@@ -84,7 +103,7 @@ const getSeasonsByGenre = async (req, res) => {
               "%" + req.params.genre + "%"
             ),
           },
-          order: [[sequelize.literal("series, season"), "ASC"]],
+          order: [[sequelize.literal("series, seasonNr"), "ASC"]],
         });
     }
     res.status(200).send(seasons);
@@ -109,7 +128,7 @@ const getSeasonsBySearch = async (req, res) => {
           "%" + req.params.input + "%"
         ),
       },
-      order: [[sequelize.literal("series", "season"), "ASC"]],
+      order: [[sequelize.literal("series", "seasonNr"), "ASC"]],
     });
     //
     let creator = await Seasons.findAll({
@@ -120,7 +139,7 @@ const getSeasonsBySearch = async (req, res) => {
           "%" + req.params.input + "%"
         ),
       },
-      order: [[sequelize.literal("series", "season"), "ASC"]],
+      order: [[sequelize.literal("series", "seasonNr"), "ASC"]],
     });
     //
     let actors = await Seasons.findAll({
@@ -131,7 +150,7 @@ const getSeasonsBySearch = async (req, res) => {
           "%" + req.params.input + "%"
         ),
       },
-      order: [[sequelize.literal("series", "season"), "ASC"]],
+      order: [[sequelize.literal("series", "seasonNr"), "ASC"]],
     });
     //
     //conclude results
@@ -164,7 +183,7 @@ const createSeason = async (req, res) => {
     genre: req.body.genre,
     //
     fsk: req.body.fsk,
-    season: req.body.season,
+    seasonNr: req.body.seasonNr,
     runtime: req.body.runtime,
     //
     actors: req.body.actors,
@@ -195,14 +214,14 @@ const updateSeason = async (req, res) => {
       ...(req.body.genre && { genre: req.body.genre }),
       //
       ...(req.body.fsk && { fsk: req.body.fsk }),
-      ...(req.body.season && { season: req.body.season }),
+      ...(req.body.seasonNr && { seasonNr: req.body.seasonNr }),
       ...(req.body.runtime && { runtime: req.body.runtime }),
       //
       ...(req.body.actors && { director: req.body.actors }),
       //
       changes: req.body.changes,
       //
-      ...(req.body.last_watched && { last_watched: req.body.last_watched }),
+      ...(req.body.lastWatched && { lastWatched: req.body.lastWatched }),
     },
     {
       where: { id: req.body.id },
@@ -214,7 +233,7 @@ const updateSeason = async (req, res) => {
           "season data of'" +
           req.body.series +
           "', season '" +
-          req.body.season +
+          req.body.seasonNr +
           "' was updated",
       })
     )
@@ -262,7 +281,7 @@ const deleteSeason = async (req, res) => {
           "'" +
           req.body.series +
           "', season '" +
-          req.body.season +
+          req.body.seasonNr +
           "' was deleted.",
       })
     )
@@ -311,7 +330,7 @@ const updateSeasonFiles = async (req, res) => {
                 "files of '" +
                 req.body.series +
                 "', season '" +
-                req.body.season +
+                req.body.seasonNr +
                 "' were updated.",
             })
           )
@@ -365,6 +384,7 @@ const deleteFiles = async (
 
 module.exports = {
   getAllSeasons,
+  getOneSeason,
   getOneSeasonById,
   getAllGenres,
   getSeasonsByGenre,

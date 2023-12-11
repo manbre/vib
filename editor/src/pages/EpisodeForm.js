@@ -1,74 +1,130 @@
 import React from "react";
 import { useEffect, useReducer } from "react";
-import { useDispatch } from "react-redux";
 import styles from "./Form.module.css";
 import useOmdb from "../hooks/useOmdb";
 
 import {
+  useCreateSeasonMutation,
+  useUpdateSeasonMutation,
+  useDeleteSeasonMutation,
+  useUpdateSeasonFilesMutation,
+  //
   useCreateEpisodeMutation,
   useUpdateEpisodeMutation,
   useDeleteEpisodeMutation,
   useUpdateEpisodeFilesMutation,
+  //
+  useGetSeasonByIdQuery,
+  useGetOneEpisodeQuery,
+  useGetAllEpisodesBySeasonQuery,
+  useGetOneSeasonQuery,
 } from "../features/backend";
 
 const EpisodeForm = (props) => {
-  const dispatch = useDispatch();
-  //
   const initialState = {
+    //season
     series: "",
-    title: "",
-    director: "",
+    creator: "",
     genre: "",
-    //
     year: "",
     fsk: 0,
-    season: "",
-    episode: "",
-    runtime: "",
-    //
+    seasonNr: "",
     actors: "",
-    plot: "",
-    //
     poster: "",
     teaser: "",
+    changes: 0,
+    //=================================================================================================
+    //episode
+    title: "",
+    episodeNr: "",
+    runtime: "",
+    plot: "",
     german: "",
     english: "",
-    //
-    changes: 0,
   };
-
   const [state, updateState] = useReducer(
     (state, updates) => ({ ...state, ...updates }),
     initialState
   );
 
+  const [createSeason] = useCreateSeasonMutation();
+  const [
+    updateSeason,
+    { isSuccess: isSeasonUpdated },
+  ] = useUpdateSeasonMutation();
+  const [
+    deleteSeason,
+    { isSuccess: isSeasonDeleted },
+  ] = useDeleteSeasonMutation();
+  const [
+    updateSeasonFiles,
+    { isSuccess: areSeasonFilesUpdated },
+  ] = useUpdateSeasonFilesMutation();
+  //=================================================================================================
   const [createEpisode] = useCreateEpisodeMutation();
   const [
     updateEpisode,
-    { isSuccess: isDataUpdated },
+    { isSuccess: isEpisodeUpdated },
   ] = useUpdateEpisodeMutation();
   const [
     deleteEpisode,
     { isSuccess: isEpisodeDeleted },
   ] = useDeleteEpisodeMutation();
   const [
-    updateFiles,
-    { isSuccess: areFilesUpdated },
+    updateEpisodeFiles,
+    { isSuccess: areEpisodeFilesUpdated },
   ] = useUpdateEpisodeFilesMutation();
 
   useEffect(() => {
-    isDataUpdated && props.toggleChange(false);
-    areFilesUpdated && props.toggleChange(false);
-  }, [isDataUpdated, areFilesUpdated]);
+    isEpisodeUpdated && props.toggleChange(false);
+    areEpisodeFilesUpdated && props.toggleChange(false);
+  }, [isEpisodeUpdated, areEpisodeFilesUpdated]);
 
   useEffect(() => {
     isEpisodeDeleted && props.toggleChange(false);
   }, [isEpisodeDeleted]);
 
+  const { data: listedSeason } = useGetSeasonByIdQuery(
+    props.selected?.seasonId
+  );
+  const { data: oneSeason } = useGetOneSeasonQuery({
+    series: state.series,
+    seasonNr: state.seasonNr,
+  });
+
   useEffect(() => {
     resetInput();
-    props.selected && updateState(props.selected);
+    console.log(props.selected);
+    console.log(props.selected?.seasonId);
+    console.log(listedSeason ?? []);
+    if (props.selected) {
+      let season = listedSeason;
+      let episode = props.selected;
+      updateState({
+        //season
+        series: season?.series,
+        creator: season?.creator,
+        genre: season?.genre,
+        year: season?.year,
+        seasonNr: season?.seasonNr,
+        fsk: season?.fsk,
+        actors: season?.actors,
+        poster: season?.poster,
+        teaser: season?.teaser,
+        //episode
+        title: episode.title,
+        episodeNr: episode.episodeNr,
+        runtime: episode.runtime,
+        plot: episode.plot,
+        german: episode.german,
+        english: episode.english,
+      });
+    }
   }, [props.selected]);
+
+  const { data: listedEpisodes } = useGetAllEpisodesBySeasonQuery(
+    props.selected?.seasonId
+  );
 
   const { omdbData, fetchOmdb } = useOmdb();
 
@@ -76,28 +132,58 @@ const EpisodeForm = (props) => {
     omdbData &&
       updateState({
         series: omdbData.Title && omdbData.Title.replace(":", " - "),
-        director: omdbData.Director && omdbData.Director,
+        creator: omdbData.Director && omdbData.Director,
         genre: omdbData.Genre && omdbData.Genre,
-        //
-        actors: omdbData.Actors && omdbData.Actors,
-        plot: omdbData.Plot && omdbData.Plot,
-        //
         year: omdbData.Year && omdbData.Year,
-        runtime: omdbData.Runtime && omdbData.Runtime.slice(0, 3),
-        //
+        actors: omdbData.Actors && omdbData.Actors,
         poster: omdbData.Poster && omdbData.Poster,
       });
   }, [omdbData]);
 
   const createVideo = () => {
-    if (state.series !== "" && state.title !== "") {
+    console.log(state.series + " , " + state.seasonNr);
+    let arr = oneSeason ?? [];
+    console.log(arr)
+    console.log(arr.length)
+    console.log(arr.length === 0)
+    if (arr.length === 0) {
+      let season = state;
+      createSeason(season)
+        .unwrap()
+        .catch((error) => props.changeMessage(error.message))
+        .then((result) => {
+          season.id = result.id;
+          updateSeasonFiles(season)
+            .unwrap()
+            .then((payload) => props.changeMessage(payload.message))
+            .catch((error) => props.changeMessage(error.message))
+            .then(resetInput());
+          //=================================================================================================
+          let episode = state;
+          episode.seasonId = season.id;
+          console.log(season.id);
+          createEpisode(episode)
+            .unwrap()
+            .catch((error) => props.changeMessage(error.message))
+            .then((result) => {
+              episode.id = result.id;
+              updateEpisodeFiles(episode)
+                .unwrap()
+                .then((payload) => props.changeMessage(payload.message))
+                .catch((error) => props.changeMessage(error.message))
+                .then(resetInput());
+            });
+        });
+    } else {
       let episode = state;
-      createEpisode(state)
+      let arr = oneSeason ?? [];
+      episode.seasonId = arr[0].id;
+      createEpisode(episode)
         .unwrap()
         .catch((error) => props.changeMessage(error.message))
         .then((result) => {
           episode.id = result.id;
-          updateFiles(episode)
+          updateEpisodeFiles(episode)
             .unwrap()
             .then((payload) => props.changeMessage(payload.message))
             .catch((error) => props.changeMessage(error.message))
@@ -107,52 +193,61 @@ const EpisodeForm = (props) => {
   };
 
   const updateVideo = () => {
-    updateEpisode({
-      id: props.selected.id,
-      series: state.series,
-      ...(state.title !== props.selected.title && { title: state.title }),
-      ...(state.director !== props.selected.director && {
-        director: state.director,
+    updateSeason({
+      id: props.selected.seasonId,
+      ...(state.series !== listedSeason.series && {
+        series: state.series,
       }),
-      ...(state.genre !== props.selected.genre && { genre: state.genre }),
-      //
-      ...(state.year !== props.selected.year && { year: state.year }),
-      ...(state.fsk !== props.selected.fsk && {
-        fsk: state.fsk,
+      ...(state.creator !== listedSeason.creator && {
+        creator: state.creator,
       }),
-      ...(state.season !== props.selected.season && {
-        season: state.season,
+      ...(state.genre !== listedSeason.genre && {
+        genre: state.genre,
       }),
-      ...(state.episode !== props.selected.episode && {
-        episode: state.episode,
+      ...(state.year !== listedSeason.year && {
+        year: state.year,
       }),
-      ...(state.runtime !== props.selected.runtime && {
-        runtime: state.runtime,
+      ...(state.seasonNr !== listedSeason.seasonNr && {
+        seasonNr: state.seasonNr,
       }),
-      //
-      ...(state.actors !== props.selected.actors && {
+      ...(state.actors !== listedSeason.actors && {
         actors: state.actors,
       }),
-      ...(state.plot !== props.selected.plot && { plot: state.plot }),
-      //
-      changes: props.selected.changes + 1,
+      changes: listedSeason.changes + 1,
     })
       .unwrap()
       .catch((error) => props.changeMessage(error.message));
     //
-    updateFiles({
-      id: props.selected.id,
-      series: state.series,
-      season: state.season,
-      episode: state.episode,
-      changes: props.selected.changes + 1,
-      //
+    updateSeasonFiles({
+      id: props.selected.seasonId,
       ...(state.poster !== props.selected.poster && {
         poster: state.poster,
       }),
       ...(state.teaser !== props.selected.teaser && {
         teaser: state.teaser,
       }),
+    })
+      .unwrap()
+      .catch((error) => props.changeMessage(error.message));
+    //=================================================================================================
+    updateEpisode({
+      id: props.selected.id,
+      ...(state.title !== props.selected.title && { title: state.title }),
+      ...(state.episodeNr !== props.selected.episodeNr && {
+        episodeNr: state.episodeNr,
+      }),
+      ...(state.runtime !== props.selected.runtime && {
+        runtime: state.runtime,
+      }),
+      ...(state.plot !== props.selected.plot && { plot: state.plot }),
+      changes: props.selected.changes + 1,
+    })
+      .unwrap()
+      .catch((error) => props.changeMessage(error.message));
+    //
+    updateEpisodeFiles({
+      id: props.selected.id,
+      episode: state.episode,
       ...(state.german !== props.selected.german && {
         german: state.german,
       }),
@@ -172,31 +267,34 @@ const EpisodeForm = (props) => {
       .then((payload) => props.changeMessage(payload.message))
       .catch((error) => props.changeMessage(error.message))
       .then(resetInput());
+    //=================================================================================================
+    console.log(listedEpisodes ?? []);
+    if (listedEpisodes ?? [].length === 0) {
+      console.log("00000000000000000");
+    }
   };
 
   const resetInput = async () => {
     updateState({
-      id: "",
+      //season
       series: "",
-      title: "",
-      director: "",
+      creator: "",
       genre: "",
-      //
       year: "",
+      seasonNr: "",
       fsk: 0,
-      season: "",
-      episode: "",
-      runtime: "",
-      //
       actors: "",
-      plot: "",
-      //
       poster: "",
       teaser: "",
+      changes: 0,
+      //=================================================================================================
+      //episode
+      title: "",
+      episodeNr: "",
+      runtime: "",
+      plot: "",
       german: "",
       english: "",
-      //
-      changes: 0,
     });
     //
     let fields = document
@@ -313,13 +411,12 @@ const EpisodeForm = (props) => {
             ></input>
           </div>
           <div className={styles.longBox}>
-            <label>Director</label>
+            <label>Creator</label>
             <input
               className={styles.lineInput}
               type="text"
-              value={state.director || ""}
-              onChange={(e) => updateState({ director: e.target.value })}
-              name="director"
+              value={state.creator || ""}
+              onChange={(e) => updateState({ creator: e.target.value })}
             ></input>
           </div>
         </div>
@@ -360,8 +457,8 @@ const EpisodeForm = (props) => {
               <input
                 className={styles.lineInput}
                 type="text"
-                value={state.season || ""}
-                onChange={(e) => updateState({ season: e.target.value })}
+                value={state.seasonNr || ""}
+                onChange={(e) => updateState({ seasonNr: e.target.value })}
               ></input>
             </div>
           </div>
@@ -371,8 +468,8 @@ const EpisodeForm = (props) => {
               <input
                 className={styles.lineInput}
                 type="text"
-                value={state.episode || ""}
-                onChange={(e) => updateState({ episode: e.target.value })}
+                value={state.episodeNr || ""}
+                onChange={(e) => updateState({ episodeNr: e.target.value })}
               ></input>
             </div>
             <div className={styles.shortBox}>

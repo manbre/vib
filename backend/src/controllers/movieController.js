@@ -72,9 +72,9 @@ const getMoviesByGenre = async (req, res) => {
         break;
       case "Recent":
         movies = await Movies.findAll({
-          where: { last_watched: { $ne: null } },
+          where: { lastWatched: { $ne: null } },
           limit: 3,
-          order: [[sequelize.literal("last_watched"), "DESC"]],
+          order: [[sequelize.literal("lastWatched"), "DESC"]],
         });
         break;
       default:
@@ -210,8 +210,8 @@ const updateMovie = async (req, res) => {
       //
       changes: req.body.changes,
       //
-      ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
-      ...(req.body.last_watched && { last_watched: req.body.last_watched }),
+      ...(req.body.elapsedTime && { elapsedTime: req.body.elapsedTime }),
+      ...(req.body.lastWatched && { lastWatched: req.body.lastWatched }),
     },
     {
       where: { id: req.body.id },

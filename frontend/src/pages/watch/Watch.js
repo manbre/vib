@@ -37,7 +37,7 @@ const Watch = () => {
         break;
     }
   });
-
+ 
   useEffect(() => {
     selectedVideo && videoRef.current.seekTo(seek - 5);
     console.log(selectedVideo && selectedVideo.english);

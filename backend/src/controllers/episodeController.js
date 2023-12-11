@@ -2,7 +2,6 @@ const sequelize = require("../config/databaseConfig");
 const Episodes = require("../models/episodeModel");
 //
 const fileOperations = require("../helpers/fileOperations");
-const getAttributes = require("../helpers/getAttributes");
 //
 const path = require("path");
 //
@@ -12,19 +11,19 @@ const dir = "G:\\vib\\";
 // QUERY episode data
 //------------------------------------------------------------------------
 /**
- * @req season_id
+ * @req seasonId
  * @res all episodes by season
  */
 const getAllEpisodesBySeason = async (req, res) => {
   try {
     let episodes = await Episodes.findAll({
       where: {
-        season_id: sequelize.where(
-          sequelize.col("season_id"),
-          req.params.season_id
+        seasonId: sequelize.where(
+          sequelize.col("seasonId"),
+          req.params.seasonId
         ),
       },
-      order: [[sequelize.literal("episode"), "ASC"]],
+      order: [[sequelize.literal("lastWatched"), "DESC"]],
     });
     res.status(200).send(episodes);
   } catch (err) {
@@ -33,20 +32,30 @@ const getAllEpisodesBySeason = async (req, res) => {
 };
 
 /**
- * @req season_id
- * @res recent episode by season
+ * @req seasonId
+ * @res one recent episode by season
  */
 const getRecentEpisodeBySeason = async (req, res) => {
   try {
     let episode = await Episodes.findAll({
+      where: { seasonId: req.params.seasonId, lastWatched: { $ne: null } },
       limit: 1,
-      where: {
-        season_id: sequelize.where(
-          sequelize.col("season_id"),
-          req.params.season_id
-        ),
-      },
-      order: [[sequelize.literal("last_watched"), "DESC"]],
+      order: [[sequelize.literal("lastWatched"), "DESC"]],
+    });
+    res.status(200).send(episode);
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+};
+
+/**
+ * @req seasonId, episodeNr
+ * @res one episode
+ */
+const getOneEpisode = async (req, res) => {
+  try {
+    let episode = await Episodes.findOne({
+      where: { seasonId: req.params.seasonId, episodeNr: req.params.episodeNr },
     });
     res.status(200).send(episode);
   } catch (err) {
@@ -79,13 +88,10 @@ const getOneEpisodeById = async (req, res) => {
 const createEpisode = async (req, res) => {
   await Episodes.create({
     title: req.body.title,
-    //
     year: req.body.year,
-    //
-    episode: req.body.episode,
-    //
+    episodeNr: req.body.episodeNr,
     plot: req.body.plot,
-    //
+    seasonId: req.body.seasonId,
     changes: req.body.changes,
   })
     //=====================================================
@@ -108,11 +114,11 @@ const updateEpisode = async (req, res) => {
     {
       ...(req.body.title && { title: req.body.title }),
       ...(req.body.year && { year: req.body.year }),
-      ...(req.body.episode && { episode: req.body.episode }),
+      ...(req.body.episodeNr && { episodeNr: req.body.episodeNr }),
       ...(req.body.plot && { plot: req.body.plot }),
-      ...(req.body.season_id && { season_id: req.body.season_id }),
-      ...(req.body.elapsed_time && { elapsed_time: req.body.elapsed_time }),
-      ...(req.body.last_watched && { last_watched: req.body.last_watched }),
+      ...(req.body.seasonId && { seasonId: req.body.seasonId }),
+      ...(req.body.elapsedTime && { elapsedTime: req.body.elapsedTime }),
+      ...(req.body.lastWatched && { lastWatched: req.body.lastWatched }),
     },
     {
       where: { id: req.body.id },
@@ -120,12 +126,7 @@ const updateEpisode = async (req, res) => {
   )
     .then(
       res.status(200).send({
-        message:
-          "episode data of'" +
-          req.body.series +
-          "', episode '" +
-          req.body.episode +
-          "' was updated",
+        message: "episode '" + req.body.episodeNr + "' was updated",
       })
     )
     .catch((err) => {
@@ -168,12 +169,7 @@ const deleteEpisode = async (req, res) => {
   await Episodes.destroy({ where: { id: req.body.id } })
     .then(
       res.status(200).send({
-        message:
-          "'" +
-          req.body.series +
-          "', episode '" +
-          req.body.episode +
-          "' was deleted.",
+        message: "episode '" + req.body.episodeNr + "' was deleted.",
       })
     )
     .catch((err) => {
@@ -193,9 +189,9 @@ const deleteEpisode = async (req, res) => {
 const updateEpisodeFiles = async (req, res) => {
   //
   try {
-    let id = req.body.season_id;
-    let n = req.body.episode < 10 ? "0" : "";
-    let num = "" + req.body.season_id + n + req.body.episode;
+    let id = req.body.seasonId;
+    let n = req.body.episodeNr < 10 ? "0" : "";
+    let num = n + req.body.episodeNr;
     //"path.extname" gets the file type (e.g. .mp4 or .mpeg)
     let germanName =
       "//" + id + "//" + num + "_de" + path.extname(req.body.german + "");
@@ -216,12 +212,7 @@ const updateEpisodeFiles = async (req, res) => {
           updateFileData(req, germanName, englishName)
             .then(
               res.status(200).send({
-                message:
-                  "files of '" +
-                  req.body.series +
-                  "', episode '" +
-                  req.body.episode +
-                  "' were updated.",
+                message: "episode '" + req.body.episodeNr + "' were updated.",
               })
             )
             .then(
@@ -252,6 +243,7 @@ const deleteFiles = async (req, isEpisode, germanPath, englishPath) => {
 module.exports = {
   getAllEpisodesBySeason,
   getRecentEpisodeBySeason,
+  getOneEpisode,
   getOneEpisodeById,
   //
   createEpisode,
