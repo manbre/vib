@@ -189,14 +189,11 @@ const deleteEpisode = async (req, res) => {
 const updateEpisodeFiles = async (req, res) => {
   //
   try {
-    let id = req.body.seasonId;
     let n = req.body.episodeNr < 10 ? "0" : "";
-    let num = n + req.body.episodeNr;
+    let num = req.body.seasonId + "_" + n + req.body.episodeNr;
     //"path.extname" gets the file type (e.g. .mp4 or .mpeg)
-    let germanName =
-      "//" + id + "//" + num + "_de" + path.extname(req.body.german + "");
-    let englishName =
-      "//" + id + "//" + num + "_en" + path.extname(req.body.english + "");
+    let germanName = "s" + num + "_de" + path.extname(req.body.german + "");
+    let englishName = "s" + num + "_en" + path.extname(req.body.english + "");
     //
     let germanFolder = dir + "//de//";
     let englishFolder = dir + "//en//";

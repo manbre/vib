@@ -33,7 +33,6 @@ const EpisodeForm = (props) => {
     poster: "",
     teaser: "",
     changes: 0,
-    //=================================================================================================
     //episode
     title: "",
     episodeNr: "",
@@ -75,15 +74,6 @@ const EpisodeForm = (props) => {
     { isSuccess: areEpisodeFilesUpdated },
   ] = useUpdateEpisodeFilesMutation();
 
-  useEffect(() => {
-    isEpisodeUpdated && props.toggleChange(false);
-    areEpisodeFilesUpdated && props.toggleChange(false);
-  }, [isEpisodeUpdated, areEpisodeFilesUpdated]);
-
-  useEffect(() => {
-    isEpisodeDeleted && props.toggleChange(false);
-  }, [isEpisodeDeleted]);
-
   const { data: listedSeason } = useGetSeasonByIdQuery(
     props.selected?.seasonId
   );
@@ -93,10 +83,16 @@ const EpisodeForm = (props) => {
   });
 
   useEffect(() => {
+    isEpisodeUpdated && props.toggleChange(false);
+    areEpisodeFilesUpdated && props.toggleChange(false);
+  }, [isEpisodeUpdated, areEpisodeFilesUpdated]);
+
+  useEffect(() => {
+    isEpisodeDeleted && props.toggleChange(false);
+  }, [isEpisodeDeleted]);
+
+  useEffect(() => {
     resetInput();
-    console.log(props.selected);
-    console.log(props.selected?.seasonId);
-    console.log(listedSeason ?? []);
     if (props.selected) {
       let season = listedSeason;
       let episode = props.selected;
@@ -141,11 +137,7 @@ const EpisodeForm = (props) => {
   }, [omdbData]);
 
   const createVideo = () => {
-    console.log(state.series + " , " + state.seasonNr);
     let arr = oneSeason ?? [];
-    console.log(arr)
-    console.log(arr.length)
-    console.log(arr.length === 0)
     if (arr.length === 0) {
       let season = state;
       createSeason(season)
@@ -176,7 +168,6 @@ const EpisodeForm = (props) => {
         });
     } else {
       let episode = state;
-      let arr = oneSeason ?? [];
       episode.seasonId = arr[0].id;
       createEpisode(episode)
         .unwrap()

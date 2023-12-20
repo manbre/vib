@@ -6,7 +6,9 @@ import { selectVideo } from "../../features/video";
 import AsyncPoster from "../asyncPoster/AsyncPoster";
 
 const VideoCard = ({ video }) => {
+  const [id, setId] = useState(0);
   const markedCard = useSelector((state) => state.view.card);
+  const type = useSelector((state) => state.view.viewType);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -46,7 +48,9 @@ const VideoCard = ({ video }) => {
     >
       <div className={styles.poster}>
         <AsyncPoster
-          src={video.poster && `http://localhost:9000/stream/image/${video.poster}`}
+          src={
+            video.poster && `http://localhost:9000/stream/image/${video.poster}`
+          }
         ></AsyncPoster>
       </div>
 

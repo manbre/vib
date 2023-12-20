@@ -299,8 +299,10 @@ const updateMovieFiles = async (req, res) => {
     let posterName = req.body.id + "_" + req.body.changes + ".jpg";
     let teaserName = req.body.id + "_" + req.body.changes + ".mp4";
     //"path.extname" gets the file type (e.g. .mp4 or .mpeg)
-    let germanName = req.body.id + "_de" + path.extname(req.body.german + "");
-    let englishName = req.body.id + "_en" + path.extname(req.body.english + "");
+    let germanName =
+      "m" + req.body.id + "_de" + path.extname(req.body.german + "");
+    let englishName =
+      "m" + req.body.id + "_en" + path.extname(req.body.english + "");
     //
     let posterFolder = dir + "//poster//";
     let teaserFolder = dir + "//teaser//";
@@ -313,8 +315,10 @@ const updateMovieFiles = async (req, res) => {
     let englishPath = englishFolder + englishName;
     //
     let prevChange = req.body.changes - 1;
-    let prevPosterPath = posterFolder + req.body.id + "_" + prevChange + ".jpg";
-    let prevTeaserPath = teaserFolder + req.body.id + "_" + prevChange + ".mp4";
+    let prevPosterPath =
+      posterFolder + "m" + req.body.id + "_" + prevChange + ".jpg";
+    let prevTeaserPath =
+      teaserFolder + "m" + req.body.id + "_" + prevChange + ".mp4";
     //
     fileOperations.copyFile(req.body.poster, posterFolder, posterPath).then(
       fileOperations.copyFile(req.body.teaser, teaserFolder, teaserPath).then(

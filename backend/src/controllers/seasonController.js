@@ -303,10 +303,10 @@ const updateSeasonFiles = async (req, res) => {
   //
   try {
     let id = req.body.id;
-    let posterName = id + "_" + req.body.changes + ".jpg";
+    let posterName = "s" + id + "_" + req.body.changes + ".jpg";
     //"path.extname" gets the file type (e.g. .mp3 or .mp4)
     let teaserName =
-      req.body.id + "_" + req.body.changes + path.extname(req.body.teaser + "");
+      "s" + id + "_" + req.body.changes + path.extname(req.body.teaser + "");
     //
     let posterFolder = dir + "//poster//";
     let teaserFolder = dir + "//teaser//";
@@ -315,9 +315,14 @@ const updateSeasonFiles = async (req, res) => {
     let teaserPath = teaserFolder + teaserName;
     //
     let prevChange = req.body.changes - 1;
-    let prevPosterPath = posterFolder + id + "_" + prevChange + ".jpg";
+    let prevPosterPath = posterFolder + "s" + id + "_" + prevChange + ".jpg";
     let prevTeaserPath =
-      teaserFolder + id + "_" + prevChange + path.extname(req.body.teaser + "");
+      teaserFolder +
+      "s" +
+      id +
+      "_" +
+      prevChange +
+      path.extname(req.body.teaser + "");
     //
 
     fileOperations.copyFile(req.body.poster, posterFolder, posterPath).then(
